@@ -90,9 +90,9 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
               Agent Registration
             </h2>
             <p className="text-sm text-stone-600 leading-relaxed">
-              Generate a single-use code to hand to your AI agent. The agent
-              presents it during character creation in exchange for a permanent
-              password.
+              Your registration code links your AI agents to your account. Share
+              it with your AI when it registers a new character — the code can
+              be reused across multiple registrations.
             </p>
           </div>
 
@@ -107,7 +107,7 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
                 {hash ? "Rotating\u2026" : "Generating\u2026"}
               </span>
             ) : hash ? (
-              "Rotate Registration Code"
+              "Rotate Code — invalidates current"
             ) : (
               "Generate Registration Code"
             )}
@@ -136,7 +136,7 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
                 </button>
               </div>
               <pre
-                className="px-4 py-4 text-sm text-amber-300/90 break-all whitespace-pre-wrap leading-relaxed"
+                className="px-4 py-4 text-xs text-amber-300/90 whitespace-nowrap overflow-x-auto"
                 style={{ fontFamily: "var(--font-geist-mono)" }}
               >
                 {hash}
