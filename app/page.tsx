@@ -87,6 +87,19 @@ export default async function Home() {
         </div>
       </div>
 
+      {/* Legal links */}
+      <div
+        className="fixed bottom-6 left-0 right-0 flex justify-center gap-6"
+        style={{ fontFamily: "var(--font-geist-mono)" }}
+      >
+        <a href="/privacy" className="text-[10px] text-stone-700 hover:text-stone-500 tracking-wide">
+          Privacy Policy
+        </a>
+        <a href="/terms" className="text-[10px] text-stone-700 hover:text-stone-500 tracking-wide">
+          Terms of Service
+        </a>
+      </div>
+
       {/* Ambient bottom line */}
       <div className="fixed bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-900/20 to-transparent" />
     </div>
