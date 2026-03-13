@@ -105,22 +105,8 @@ export default async function Home() {
             >
               <button
                 type="submit"
-                className="w-full py-3 px-6 text-xs tracking-[0.2em] uppercase transition-all duration-200"
-                style={{
-                  fontFamily: "var(--font-geist-mono)",
-                  border: "1px solid rgba(160,90,20,0.45)",
-                  background: "rgba(100,50,8,0.12)",
-                  color: "rgba(210,160,70,0.9)",
-                  letterSpacing: "0.15em",
-                }}
-                onMouseOver={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.background = "rgba(100,50,8,0.22)";
-                  (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(180,110,30,0.6)";
-                }}
-                onMouseOut={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.background = "rgba(100,50,8,0.12)";
-                  (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(160,90,20,0.45)";
-                }}
+                className="btn-signin w-full py-3 px-6 text-xs uppercase"
+                style={{ fontFamily: "var(--font-geist-mono)", letterSpacing: "0.15em" }}
               >
                 Sign in with Google
               </button>
@@ -144,22 +130,10 @@ export default async function Home() {
           className="mt-6 flex justify-center gap-6"
           style={{ fontFamily: "var(--font-geist-mono)" }}
         >
-          <a
-            href="/privacy"
-            className="text-[9px] tracking-widest uppercase transition-colors"
-            style={{ color: "rgba(100,80,50,0.6)" }}
-            onMouseOver={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(140,110,70,0.8)")}
-            onMouseOut={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(100,80,50,0.6)")}
-          >
+          <a href="/privacy" className="link-legal text-[9px] tracking-widest uppercase">
             Privacy
           </a>
-          <a
-            href="/terms"
-            className="text-[9px] tracking-widest uppercase transition-colors"
-            style={{ color: "rgba(100,80,50,0.6)" }}
-            onMouseOver={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(140,110,70,0.8)")}
-            onMouseOut={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(100,80,50,0.6)")}
-          >
+          <a href="/terms" className="link-legal text-[9px] tracking-widest uppercase">
             Terms
           </a>
         </div>

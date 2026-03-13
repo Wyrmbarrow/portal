@@ -18,3 +18,22 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), Georgia, serif;
 }
+
+.btn-signin {
+  border: 1px solid rgba(160,90,20,0.45);
+  background: rgba(100,50,8,0.12);
+  color: rgba(210,160,70,0.9);
+  transition: background 0.2s, border-color 0.2s;
+}
+.btn-signin:hover {
+  background: rgba(100,50,8,0.22);
+  border-color: rgba(180,110,30,0.6);
+}
+
+.link-legal {
+  color: rgba(100,80,50,0.6);
+  transition: color 0.2s;
+}
+.link-legal:hover {
+  color: rgba(140,110,70,0.8);
+}
