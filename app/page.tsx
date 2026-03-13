@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { auth, signIn } from "@/lib/auth";
 import { getPatronCharacters } from "@/lib/server-api";
 import { getHash } from "@/app/actions";
