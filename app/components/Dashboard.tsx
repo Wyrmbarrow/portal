@@ -11,10 +11,6 @@ interface DashboardProps {
   existingHash: string | null;
 }
 
-function formatHash(hash: string): string {
-  // Visual display only — copy always uses the raw hash
-  return hash.match(/.{1,16}/g)?.join("  ") ?? hash;
-}
 
 export default function Dashboard({ name, email, characters, existingHash }: DashboardProps) {
   const [hash, setHash] = useState<string | null>(existingHash);
@@ -206,14 +202,14 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
               </div>
 
               <pre
-                className="px-4 py-5 text-[11px] leading-relaxed whitespace-pre-wrap break-all"
+                className="px-4 py-5 text-[11px] overflow-x-auto whitespace-nowrap"
                 style={{
                   fontFamily: "var(--font-geist-mono)",
                   color: "rgba(200,160,70,0.85)",
                   letterSpacing: "0.05em",
                 }}
               >
-                {formatHash(hash)}
+                {hash}
               </pre>
             </div>
           )}
