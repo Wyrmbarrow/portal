@@ -1,5 +1,6 @@
 import { auth, signIn } from "@/lib/auth";
-import { getPatronCharacters, getPatronHash } from "@/lib/server-api";
+import { getPatronCharacters } from "@/lib/server-api";
+import { getHash } from "@/app/actions";
 import Dashboard from "@/app/components/Dashboard";
 
 export default async function Home() {
@@ -13,7 +14,7 @@ export default async function Home() {
 
     const [charResult, hashResult] = await Promise.allSettled([
       getPatronCharacters(user.googleId),
-      getPatronHash(user.googleId),
+      getHash(),
     ]);
     if (charResult.status === "fulfilled") characters = charResult.value.characters ?? [];
     if (hashResult.status === "fulfilled") existingHash = hashResult.value;
