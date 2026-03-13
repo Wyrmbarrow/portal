@@ -12,8 +12,15 @@ export async function generateHash(): Promise<string> {
   if (!googleId) throw new Error("No Google ID on session");
 
   const db = getPrisma();
-  const patron = await db.patron.findUnique({ where: { googleId } });
-  if (!patron) throw new Error("Patron not found");
+  const patron = await db.patron.upsert({
+    where: { googleId },
+    update: {},
+    create: {
+      email: session.user.email!,
+      name: session.user.name ?? undefined,
+      googleId,
+    },
+  });
 
   const hash = randomBytes(32).toString("hex");
 
