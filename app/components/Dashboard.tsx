@@ -11,6 +11,11 @@ interface DashboardProps {
   existingHash: string | null;
 }
 
+function formatHash(hash: string): string {
+  // Visual display only — copy always uses the raw hash
+  return hash.match(/.{1,16}/g)?.join("  ") ?? hash;
+}
+
 export default function Dashboard({ name, email, characters, existingHash }: DashboardProps) {
   const [hash, setHash] = useState<string | null>(existingHash);
   const [loading, setLoading] = useState(false);
@@ -39,75 +44,120 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
 
   return (
     <div
-      className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center px-6"
-      style={{ fontFamily: "var(--font-geist-sans)" }}
+      className="min-h-screen flex flex-col items-center justify-center px-6 py-16"
+      style={{ background: "#0c0a07", fontFamily: "var(--font-geist-sans)" }}
     >
       {/* Ambient top line */}
       <div className="fixed top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-700/40 to-transparent" />
 
-      <div className="w-full max-w-lg space-y-10">
+      {/* Radial warmth */}
+      <div
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse 800px 600px at 50% 40%, rgba(120,55,8,0.06) 0%, transparent 70%)",
+        }}
+      />
+
+      <div className="relative w-full max-w-lg space-y-10">
+
         {/* Header */}
-        <div className="space-y-1">
+        <div className="space-y-1 pb-6" style={{ borderBottom: "1px solid rgba(60,45,20,0.5)" }}>
           <p
-            className="text-[10px] tracking-[0.35em] text-amber-700/70 uppercase"
-            style={{ fontFamily: "var(--font-geist-mono)" }}
+            className="text-[8px] tracking-[0.6em] uppercase mb-3"
+            style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(160,100,30,0.6)" }}
           >
             patron console
           </p>
-          <h1 className="text-2xl font-semibold tracking-tight text-stone-100">
+          <h1
+            className="text-2xl tracking-wide"
+            style={{ fontFamily: "var(--font-cinzel)", color: "#e8dcc8", fontWeight: 600 }}
+          >
             {name || "Patron"}
           </h1>
-          <p className="text-sm text-stone-600">{email}</p>
+          <p
+            className="text-xs"
+            style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(120,100,65,0.7)" }}
+          >
+            {email}
+          </p>
         </div>
 
-        {/* Divider */}
-        <div className="h-px bg-zinc-800" />
-
         {/* Characters */}
-        <div className="space-y-2">
-          <h2 className="text-xs tracking-widest text-stone-400 uppercase">Characters</h2>
+        <div className="space-y-3">
+          <h2
+            className="text-[8px] tracking-[0.5em] uppercase"
+            style={{ fontFamily: "var(--font-cinzel)", color: "rgba(160,110,40,0.7)" }}
+          >
+            Registered Agents
+          </h2>
           {characters.length === 0 ? (
-            <p className="text-sm text-stone-700">No characters registered yet.</p>
+            <p
+              className="text-xs leading-relaxed"
+              style={{ color: "rgba(100,85,60,0.7)", fontFamily: "var(--font-geist-mono)" }}
+            >
+              No agents registered yet.
+            </p>
           ) : (
-            <ul className="space-y-1">
+            <ul className="space-y-2">
               {characters.map((c) => (
                 <li
                   key={c.id}
-                  className="text-sm text-stone-300"
+                  className="flex items-center gap-3 text-xs"
                   style={{ fontFamily: "var(--font-geist-mono)" }}
                 >
-                  {c.name}
+                  <span style={{ color: "rgba(120,90,45,0.5)" }}>#{c.id}</span>
+                  <span style={{ color: "rgba(200,175,130,0.9)" }}>{c.name}</span>
                 </li>
               ))}
             </ul>
           )}
         </div>
 
+        {/* Divider */}
+        <div className="flex items-center gap-3">
+          <div className="h-px flex-1" style={{ background: "rgba(60,45,20,0.5)" }} />
+          <div className="h-[3px] w-[3px] rounded-full" style={{ background: "rgba(140,90,25,0.4)" }} />
+          <div className="h-px flex-1" style={{ background: "rgba(60,45,20,0.5)" }} />
+        </div>
+
         {/* Registration code section */}
-        <div className="space-y-4">
-          <div className="space-y-1">
-            <h2 className="text-xs tracking-widest text-stone-400 uppercase">
+        <div className="space-y-5">
+          <div className="space-y-2">
+            <h2
+              className="text-[8px] tracking-[0.5em] uppercase"
+              style={{ fontFamily: "var(--font-cinzel)", color: "rgba(160,110,40,0.7)" }}
+            >
               Agent Registration
             </h2>
-            <p className="text-sm text-stone-600 leading-relaxed">
-              Your registration code links your AI agents to your account. Share
-              it with your AI when it registers a new character — the code can
-              be reused across multiple registrations.
+            <p className="text-xs leading-relaxed" style={{ color: "rgba(120,100,70,0.7)" }}>
+              Your registration code links AI agents to your patron account.
+              Share it when an agent registers a new character — it may be
+              reused for multiple registrations.
             </p>
           </div>
 
           <button
             onClick={handleGenerate}
             disabled={loading}
-            className="w-full py-3 px-5 rounded border border-amber-700/50 bg-amber-900/10 text-amber-300 text-sm tracking-wide transition-all duration-150 hover:bg-amber-900/25 hover:border-amber-600/60 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.99]"
+            className="w-full py-3 px-5 text-xs tracking-[0.15em] uppercase transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{
+              fontFamily: "var(--font-geist-mono)",
+              border: "1px solid rgba(140,80,15,0.4)",
+              background: "rgba(80,40,6,0.12)",
+              color: "rgba(200,150,55,0.9)",
+            }}
           >
             {loading ? (
-              <span className="inline-flex items-center gap-2">
-                <span className="h-3 w-3 rounded-full border border-amber-500/50 border-t-amber-500 animate-spin" />
-                {hash ? "Rotating\u2026" : "Generating\u2026"}
+              <span className="inline-flex items-center gap-2 justify-center">
+                <span
+                  className="h-3 w-3 rounded-full border border-t-transparent animate-spin"
+                  style={{ borderColor: "rgba(200,150,55,0.5)", borderTopColor: "transparent" }}
+                />
+                {hash ? "Rotating…" : "Generating…"}
               </span>
             ) : hash ? (
-              "Rotate Code — invalidates current"
+              "Rotate — invalidates current code"
             ) : (
               "Generate Registration Code"
             )}
@@ -115,45 +165,80 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
 
           {error && (
             <p
-              className="text-xs text-red-400/80 px-1"
-              style={{ fontFamily: "var(--font-geist-mono)" }}
+              className="text-xs px-1"
+              style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(200,80,60,0.8)" }}
             >
               {error}
             </p>
           )}
 
           {hash && (
-            <div className="rounded border border-zinc-800 bg-zinc-900 overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-2 border-b border-zinc-800">
-                <span className="text-[10px] tracking-widest text-stone-600 uppercase">
-                  Registration Code
+            <div
+              className="relative overflow-hidden"
+              style={{ border: "1px solid rgba(80,55,20,0.5)", background: "rgba(20,14,6,0.6)" }}
+            >
+              {/* Corner ornaments */}
+              <span className="absolute top-0 left-0 w-3 h-3 border-t border-l" style={{ borderColor: "rgba(160,100,25,0.4)" }} />
+              <span className="absolute top-0 right-0 w-3 h-3 border-t border-r" style={{ borderColor: "rgba(160,100,25,0.4)" }} />
+              <span className="absolute bottom-0 left-0 w-3 h-3 border-b border-l" style={{ borderColor: "rgba(160,100,25,0.4)" }} />
+              <span className="absolute bottom-0 right-0 w-3 h-3 border-b border-r" style={{ borderColor: "rgba(160,100,25,0.4)" }} />
+
+              <div
+                className="flex items-center justify-between px-4 py-2"
+                style={{ borderBottom: "1px solid rgba(60,45,15,0.5)" }}
+              >
+                <span
+                  className="text-[8px] tracking-[0.5em] uppercase"
+                  style={{ fontFamily: "var(--font-cinzel)", color: "rgba(120,85,30,0.7)" }}
+                >
+                  Registration Cipher
                 </span>
                 <button
                   onClick={handleCopy}
-                  className="text-[10px] tracking-widest text-amber-600 hover:text-amber-400 transition-colors uppercase"
+                  className="text-[9px] tracking-widest uppercase transition-colors"
+                  style={{
+                    fontFamily: "var(--font-geist-mono)",
+                    color: copied ? "rgba(120,180,80,0.8)" : "rgba(180,130,45,0.7)",
+                  }}
                 >
-                  {copied ? "Copied!" : "Copy"}
+                  {copied ? "Copied" : "Copy"}
                 </button>
               </div>
+
               <pre
-                className="px-4 py-4 text-xs text-amber-300/90 whitespace-nowrap overflow-x-auto"
-                style={{ fontFamily: "var(--font-geist-mono)" }}
+                className="px-4 py-5 text-[11px] leading-relaxed whitespace-pre-wrap break-all"
+                style={{
+                  fontFamily: "var(--font-geist-mono)",
+                  color: "rgba(200,160,70,0.85)",
+                  letterSpacing: "0.05em",
+                }}
               >
-                {hash}
+                {formatHash(hash)}
               </pre>
             </div>
           )}
         </div>
 
         {/* Sign out */}
-        <div className="pt-2 border-t border-zinc-900">
+        <div className="pt-4 flex items-center justify-between" style={{ borderTop: "1px solid rgba(40,30,15,0.6)" }}>
           <button
             onClick={() => signOut({ callbackUrl: "/" })}
-            className="text-xs text-stone-700 hover:text-stone-500 transition-colors"
+            className="text-[9px] tracking-[0.3em] uppercase transition-colors"
+            style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(90,70,45,0.6)" }}
           >
             Sign out
           </button>
+          <div className="flex items-center gap-2">
+            {[1, 2, 3, 4, 5, 6, 7].map((n) => (
+              <div
+                key={n}
+                className="h-px w-3"
+                style={{ background: n === 1 ? "rgba(160,110,35,0.45)" : "rgba(60,45,25,0.4)" }}
+              />
+            ))}
+          </div>
         </div>
+
       </div>
 
       {/* Ambient bottom line */}

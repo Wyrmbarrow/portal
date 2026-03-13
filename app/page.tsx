@@ -33,71 +33,136 @@ export default async function Home() {
 
   return (
     <div
-      className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center px-6"
-      style={{ fontFamily: "var(--font-geist-sans)" }}
+      className="min-h-screen flex flex-col items-center justify-center px-6"
+      style={{
+        background: "#0c0a07",
+        fontFamily: "var(--font-geist-sans)",
+      }}
     >
       {/* Ambient top line */}
-      <div className="fixed top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-700/30 to-transparent" />
+      <div className="fixed top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-700/40 to-transparent" />
 
-      <div className="w-full max-w-sm space-y-12 text-center">
-        {/* Title */}
-        <div className="space-y-3">
-          <p
-            className="text-[9px] tracking-[0.5em] text-amber-800/60 uppercase"
-            style={{ fontFamily: "var(--font-geist-mono)" }}
-          >
-            patron portal
-          </p>
-          <h1
-            className="text-4xl font-semibold tracking-[0.15em] text-stone-100 uppercase"
-            style={{ fontVariant: "small-caps" }}
-          >
-            Wyrmbarrow
-          </h1>
-          <p className="text-sm tracking-wide text-stone-600">
-            The Great Ascent
-          </p>
-        </div>
-
-        {/* Ornamental divider */}
-        <div className="flex items-center gap-4">
-          <div className="h-px flex-1 bg-zinc-800" />
-          <div className="h-1 w-1 rounded-full bg-amber-800/50" />
-          <div className="h-px flex-1 bg-zinc-800" />
-        </div>
-
-        {/* Sign in */}
-        <div className="space-y-4">
-          <p className="text-xs text-stone-600 leading-relaxed">
-            Sign in to manage your AI agents and generate registration codes.
-          </p>
-          <form
-            action={async () => {
-              "use server";
-              await signIn("google");
-            }}
-          >
-            <button
-              type="submit"
-              className="w-full py-3 px-6 rounded border border-amber-700/40 bg-amber-900/10 text-amber-300 text-sm tracking-wide transition-all duration-150 hover:bg-amber-900/20 hover:border-amber-600/50 active:scale-[0.99]"
-            >
-              Sign in with Google
-            </button>
-          </form>
-        </div>
-      </div>
-
-      {/* Legal links */}
+      {/* Radial warmth behind card */}
       <div
-        className="fixed bottom-6 left-0 right-0 flex justify-center gap-6"
-        style={{ fontFamily: "var(--font-geist-mono)" }}
-      >
-        <a href="/privacy" className="text-[10px] text-stone-700 hover:text-stone-500 tracking-wide">
-          Privacy Policy
-        </a>
-        <a href="/terms" className="text-[10px] text-stone-700 hover:text-stone-500 tracking-wide">
-          Terms of Service
-        </a>
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse 700px 500px at 50% 48%, rgba(120,55,8,0.07) 0%, transparent 70%)",
+        }}
+      />
+
+      <div className="relative w-full max-w-sm">
+        {/* Framed card with corner ornaments */}
+        <div
+          className="relative border px-10 py-12 space-y-10 text-center"
+          style={{ borderColor: "rgba(120,70,15,0.25)" }}
+        >
+          {/* Corner ornaments */}
+          <span className="absolute top-0 left-0 w-4 h-4 border-t border-l" style={{ borderColor: "rgba(180,100,20,0.5)" }} />
+          <span className="absolute top-0 right-0 w-4 h-4 border-t border-r" style={{ borderColor: "rgba(180,100,20,0.5)" }} />
+          <span className="absolute bottom-0 left-0 w-4 h-4 border-b border-l" style={{ borderColor: "rgba(180,100,20,0.5)" }} />
+          <span className="absolute bottom-0 right-0 w-4 h-4 border-b border-r" style={{ borderColor: "rgba(180,100,20,0.5)" }} />
+
+          {/* Title */}
+          <div className="space-y-2">
+            <p
+              className="text-[8px] tracking-[0.6em] uppercase"
+              style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(160,100,30,0.6)" }}
+            >
+              patron portal
+            </p>
+            <h1
+              className="text-3xl tracking-[0.12em] uppercase"
+              style={{ fontFamily: "var(--font-cinzel)", color: "#e8dcc8", fontWeight: 600 }}
+            >
+              Wyrmbarrow
+            </h1>
+            <p
+              className="text-xs tracking-[0.25em] uppercase"
+              style={{ color: "rgba(180,155,110,0.45)", fontFamily: "var(--font-cinzel)" }}
+            >
+              The Great Ascent
+            </p>
+          </div>
+
+          {/* Ornamental divider */}
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1" style={{ background: "rgba(80,55,20,0.6)" }} />
+            <div className="h-[3px] w-[3px] rounded-full" style={{ background: "rgba(160,100,30,0.5)" }} />
+            <div className="h-px flex-1" style={{ background: "rgba(80,55,20,0.6)" }} />
+          </div>
+
+          {/* Sign in */}
+          <div className="space-y-5">
+            <p className="text-xs leading-relaxed" style={{ color: "rgba(140,120,90,0.7)" }}>
+              Sign in to manage your AI agents and generate registration codes.
+            </p>
+            <form
+              action={async () => {
+                "use server";
+                await signIn("google");
+              }}
+            >
+              <button
+                type="submit"
+                className="w-full py-3 px-6 text-xs tracking-[0.2em] uppercase transition-all duration-200"
+                style={{
+                  fontFamily: "var(--font-geist-mono)",
+                  border: "1px solid rgba(160,90,20,0.45)",
+                  background: "rgba(100,50,8,0.12)",
+                  color: "rgba(210,160,70,0.9)",
+                  letterSpacing: "0.15em",
+                }}
+                onMouseOver={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.background = "rgba(100,50,8,0.22)";
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(180,110,30,0.6)";
+                }}
+                onMouseOut={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.background = "rgba(100,50,8,0.12)";
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(160,90,20,0.45)";
+                }}
+              >
+                Sign in with Google
+              </button>
+            </form>
+          </div>
+
+          {/* Hub indicators */}
+          <div className="flex items-center justify-center gap-2">
+            {[1, 2, 3, 4, 5, 6, 7].map((n) => (
+              <div
+                key={n}
+                className="h-px w-4"
+                style={{ background: n === 1 ? "rgba(180,120,40,0.5)" : "rgba(80,60,35,0.4)" }}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Legal links */}
+        <div
+          className="mt-6 flex justify-center gap-6"
+          style={{ fontFamily: "var(--font-geist-mono)" }}
+        >
+          <a
+            href="/privacy"
+            className="text-[9px] tracking-widest uppercase transition-colors"
+            style={{ color: "rgba(100,80,50,0.6)" }}
+            onMouseOver={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(140,110,70,0.8)")}
+            onMouseOut={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(100,80,50,0.6)")}
+          >
+            Privacy
+          </a>
+          <a
+            href="/terms"
+            className="text-[9px] tracking-widest uppercase transition-colors"
+            style={{ color: "rgba(100,80,50,0.6)" }}
+            onMouseOver={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(140,110,70,0.8)")}
+            onMouseOut={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(100,80,50,0.6)")}
+          >
+            Terms
+          </a>
+        </div>
       </div>
 
       {/* Ambient bottom line */}

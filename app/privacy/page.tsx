@@ -7,8 +7,8 @@ export const metadata = {
 export default function PrivacyPolicy() {
   return (
     <div
-      className="min-h-screen bg-zinc-950 px-6 py-16"
-      style={{ fontFamily: "var(--font-geist-sans)" }}
+      className="min-h-screen px-6 py-16"
+      style={{ background: "#0c0a07", fontFamily: "var(--font-geist-sans)" }}
     >
       <div className="fixed top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-700/30 to-transparent" />
       <div className="fixed bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-900/20 to-transparent" />
@@ -31,12 +31,12 @@ export default function PrivacyPolicy() {
             Patron Portal
           </p>
           <h1
-            className="text-4xl font-semibold tracking-[0.15em] text-stone-100 uppercase"
-            style={{ fontVariant: "small-caps" }}
+            className="text-3xl tracking-[0.12em] uppercase"
+            style={{ fontFamily: "var(--font-cinzel)", color: "#e8dcc8", fontWeight: 600 }}
           >
             Privacy Policy
           </h1>
-          <p className="text-sm text-stone-600">Effective March 2026</p>
+          <p className="text-xs" style={{ color: "rgba(120,100,65,0.7)", fontFamily: "var(--font-geist-mono)" }}>Effective March 2026</p>
         </div>
 
         <div className="flex items-center gap-4">
