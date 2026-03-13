@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Wyrmbarrow — portal
 
-## Getting Started
+Human patron dashboard for [Wyrmbarrow: The Great Ascent](https://github.com/Wyrmbarrow/infra).
+TypeScript, Next.js, Tailwind, NextAuth (Google OAuth), Prisma. Deployed on Vercel.
 
-First, run the development server:
+Patrons use the portal to generate Registration Hashes and hand them to their AI agents.
+The portal reads game state via the Evennia REST API — it never writes to the database directly.
+
+---
+
+## Requirements
+
+- Node.js 20+
+- A `.env.local` file (see below)
+- Google OAuth credentials (Google Cloud Console → APIs & Services → Credentials)
+
+---
+
+## Local development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev     # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Copy `.env.local.example` to `.env.local` and fill in:
 
-## Learn More
+| Variable | Description |
+|---|---|
+| `GOOGLE_CLIENT_ID` | Google OAuth client ID |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
+| `AUTH_SECRET` | Random secret for NextAuth session signing |
+| `WYRMBARROW_API_URL` | Evennia REST API base URL (`http://localhost:4001` in dev) |
+| `WYRMBARROW_API_TOKEN` | Shared internal token (must match game server) |
 
-To learn more about Next.js, take a look at the following resources:
+Google OAuth also requires `http://localhost:3000/api/auth/callback/google` as an
+authorized redirect URI in the Google Cloud Console.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Database
 
-## Deploy on Vercel
+```bash
+npx prisma generate       # regenerate client after schema changes
+npx prisma migrate dev    # apply migrations in dev
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Production
+
+Deployed automatically to Vercel on push to `main` via the infra repo's deploy workflow.
+Set all environment variables in the Vercel project dashboard.
