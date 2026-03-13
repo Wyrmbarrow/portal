@@ -5,7 +5,7 @@ type PrismaClientWithAdapter = ReturnType<typeof makePrismaClient>;
 
 function makePrismaClient() {
   const connectionString = process.env.DATABASE_URL!;
-  const adapter = new PrismaPg({ connectionString });
+  const adapter = new PrismaPg({ connectionString, ssl: { rejectUnauthorized: false } });
   return new PrismaClient({ adapter });
 }
 
