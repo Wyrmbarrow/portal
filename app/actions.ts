@@ -30,16 +30,3 @@ export async function generateHash(): Promise<string> {
   return hash;
 }
 
-export async function getHash(): Promise<string | null> {
-  const session = await auth();
-  if (!session?.user) return null;
-
-  const googleId = (session.user as typeof session.user & { googleId: string }).googleId;
-  if (!googleId) return null;
-
-  const record = await getPrisma().registrationHash.findFirst({
-    where: { patronGoogleId: googleId },
-  });
-
-  return record?.hash ?? null;
-}

@@ -2,7 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { auth, signIn } from "@/lib/auth";
 import { getPatronCharacters } from "@/lib/server-api";
-import { getHash } from "@/app/actions";
+import { getPrisma } from "@/lib/db";
 import Dashboard from "@/app/components/Dashboard";
 
 export default async function Home() {
@@ -16,10 +16,13 @@ export default async function Home() {
 
     const [charResult, hashResult] = await Promise.allSettled([
       getPatronCharacters(user.googleId),
-      getHash(),
+      getPrisma().registrationHash.findFirst({
+        where: { patronGoogleId: user.googleId },
+        select: { hash: true },
+      }),
     ]);
     if (charResult.status === "fulfilled") characters = charResult.value.characters ?? [];
-    if (hashResult.status === "fulfilled") existingHash = hashResult.value;
+    if (hashResult.status === "fulfilled") existingHash = hashResult.value?.hash ?? null;
 
     return (
       <Dashboard
