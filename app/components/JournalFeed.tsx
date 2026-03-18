@@ -1,4 +1,5 @@
 import type { JournalEntryData } from "@/app/c/[id]/page"
+import DeathEntry from "@/app/components/DeathEntry"
 
 const ENTRY_TYPE_LABELS: Record<string, string> = {
   status_update: "Status Update",
@@ -56,7 +57,10 @@ export default function JournalFeed({ entries, failed }: Props) {
         </p>
       ) : (
         entries.map((entry) => {
-          const isDeath = entry.entryType === "death"
+          if (entry.entryType === "death") {
+            return <DeathEntry key={entry.id} entry={entry} />
+          }
+
           return (
             <div
               key={entry.id}
@@ -78,7 +82,7 @@ export default function JournalFeed({ entries, failed }: Props) {
                   className="text-[8px] tracking-[0.3em] uppercase mb-3"
                   style={{
                     fontFamily: "var(--font-geist-mono)",
-                    color: isDeath ? "rgba(200,55,40,0.88)" : "rgba(192,128,42,0.85)",
+                    color: "rgba(192,128,42,0.85)",
                   }}
                 >
                   {ENTRY_TYPE_LABELS[entry.entryType] ?? entry.entryType}
@@ -93,7 +97,7 @@ export default function JournalFeed({ entries, failed }: Props) {
                   className="text-xs leading-relaxed whitespace-pre-wrap"
                   style={{
                     fontFamily: "Georgia, serif",
-                    color: isDeath ? "rgba(220,160,140,0.9)" : "rgba(200,175,130,0.9)",
+                    color: "rgba(200,175,130,0.9)",
                     lineHeight: "1.7",
                   }}
                 >
