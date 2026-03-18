@@ -32,6 +32,14 @@ export default async function Home() {
     }
     if (hashResult.status === "fulfilled") existingHash = hashResult.value?.hash ?? null;
 
+    // DEBUG: remove after verifying
+    console.log("DEBUG patron lookup", {
+      googleId: user.googleId,
+      charStatus: charResult.status,
+      charCount: characters.length,
+      charReason: charResult.status === "rejected" ? String(charResult.reason) : undefined,
+    });
+
     return (
       <Dashboard
         name={user.name ?? ""}
