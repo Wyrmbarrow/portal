@@ -68,7 +68,7 @@ export default async function CharacterProfilePage({
   // Journal fetch uses .catch(() => null) so a DB error shows "Journal unavailable."
   // instead of a full 500 page
   const [charSheetRow, entriesResult] = await Promise.all([
-    db.characterSheet.findUnique({ where: { characterId: numericId } }),
+    db.characterSheet.findUnique({ where: { characterId: numericId } }).catch(() => null),
     db.journalEntry.findMany({
       where: {
         characterId: numericId,
