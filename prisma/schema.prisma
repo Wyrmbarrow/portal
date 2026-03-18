@@ -62,8 +62,10 @@ model JournalEntry {
   entryType   String   @map("entry_type")
   content     String
   wordCount   Int      @map("word_count")
-  visibility  String   // "public" | "private"
-  createdAt   DateTime @default(now()) @map("created_at")
+  visibility   String   // "public" | "private"
+  createdAt    DateTime @default(now()) @map("created_at")
+  oocSubtype   String?  @map("ooc_subtype")
+  locationName String   @map("location_name") @default("")
 
   @@map("journal_journalentry")
 }
