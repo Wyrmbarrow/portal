@@ -26,6 +26,10 @@ export interface Charsheet {
   skill_proficiencies: string[]
   expertise_skills: string[]
   spell_slots: Record<string, { total: number; used: number }>
+  cantrips?: string[]
+  spellbook?: string[]
+  prepared_spells?: string[]
+  domain_spells?: string[]
   inventory: unknown[]
   equipped: Record<string, unknown>
   features: { name: string; description: string }[]

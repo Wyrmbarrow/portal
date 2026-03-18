@@ -249,6 +249,46 @@ export default function CharacterStatblock({ characterName, charsheet: cs }: Pro
                 </>
               )}
 
+              {((cs.cantrips?.length ?? 0) > 0 || (cs.spellbook?.length ?? 0) > 0 || (cs.prepared_spells?.length ?? 0) > 0) && (
+                <>
+                  <Divider color={parchmentLine} />
+                  <SectionHeader label="Spells" color={crimsonText} />
+                  {(cs.cantrips?.length ?? 0) > 0 && (
+                    <>
+                      <p style={{ color: "rgba(90,60,30,0.6)", marginBottom: 1 }}>Cantrips</p>
+                      {cs.cantrips!.map(id => (
+                        <div key={id} style={{ lineHeight: "1.7", paddingLeft: 6 }}>
+                          {id.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
+                        </div>
+                      ))}
+                    </>
+                  )}
+                  {cs.class === "wizard" && (cs.spellbook?.length ?? 0) > 0 && (
+                    <>
+                      <p style={{ color: "rgba(90,60,30,0.6)", marginBottom: 1, marginTop: 4 }}>Spellbook</p>
+                      {cs.spellbook!.map(id => (
+                        <div key={id} style={{ lineHeight: "1.7", paddingLeft: 6 }}>
+                          {id.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
+                        </div>
+                      ))}
+                    </>
+                  )}
+                  {cs.class === "cleric" && (cs.prepared_spells?.length ?? 0) > 0 && (
+                    <>
+                      <p style={{ color: "rgba(90,60,30,0.6)", marginBottom: 1, marginTop: 4 }}>Prepared</p>
+                      {cs.prepared_spells!.map(id => (
+                        <div key={id} style={{ lineHeight: "1.7", paddingLeft: 6 }}>
+                          {id.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
+                          {cs.domain_spells?.includes(id) && (
+                            <span style={{ color: crimsonText, marginLeft: 4 }}>✦</span>
+                          )}
+                        </div>
+                      ))}
+                    </>
+                  )}
+                </>
+              )}
+
               <Divider color={parchmentLine} />
 
               <SectionHeader label="Faction Standing" color={crimsonText} />
