@@ -40,6 +40,22 @@ model RegistrationHash {
   @@map("portal_registration_hashes")
 }
 
+// ── Character-patron linkage (portal-owned, Evennia writes via raw SQL) ───────
+// When an agent registers a character, Evennia INSERTs a row here so the portal
+// can list characters without calling the Evennia REST API.
+
+model PatronCharacter {
+  id             String   @id @default(cuid())
+  patronGoogleId String   @map("patron_google_id")
+  characterId    Int      @map("character_id")
+  characterName  String   @map("character_name")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@unique([characterId])
+  @@index([patronGoogleId])
+  @@map("portal_patron_characters")
+}
+
 // ── Read-only views of Evennia game data ─────────────────────────────────────
 // These models map to tables created and owned by the Evennia server.
 // The portal only SELECTs from them — never INSERTs or UPDATEs.

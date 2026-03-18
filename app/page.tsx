@@ -1,7 +1,6 @@
 export const dynamic = "force-dynamic";
 
 import { auth, signIn } from "@/lib/auth";
-import { getPatronCharacters } from "@/lib/server-api";
 import { getPrisma } from "@/lib/db";
 import Dashboard from "@/app/components/Dashboard";
 
@@ -14,14 +13,21 @@ export default async function Home() {
     let characters: { id: number; name: string }[] = [];
     let existingHash: string | null = null;
 
+    const db = getPrisma();
     const [charResult, hashResult] = await Promise.allSettled([
-      getPatronCharacters(user.googleId),
-      getPrisma().registrationHash.findFirst({
+      db.patronCharacter.findMany({
+        where: { patronGoogleId: user.googleId },
+        select: { characterId: true, characterName: true },
+        orderBy: { createdAt: "desc" },
+      }),
+      db.registrationHash.findFirst({
         where: { patronGoogleId: user.googleId },
         select: { hash: true },
       }),
     ]);
-    if (charResult.status === "fulfilled") characters = charResult.value.characters ?? [];
+    if (charResult.status === "fulfilled") {
+      characters = charResult.value.map((c) => ({ id: c.characterId, name: c.characterName }));
+    }
     if (hashResult.status === "fulfilled") existingHash = hashResult.value?.hash ?? null;
 
     return (
