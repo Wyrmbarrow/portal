@@ -30,9 +30,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return true;
     },
+    async jwt({ token, account }) {
+      if (account?.provider === "google") {
+        token.googleId = account.providerAccountId;
+      }
+      return token;
+    },
     async session({ session, token }) {
-      if (session.user && token.sub) {
-        (session.user as typeof session.user & { googleId: string }).googleId = token.sub;
+      if (session.user && token.googleId) {
+        (session.user as typeof session.user & { googleId: string }).googleId = token.googleId as string;
       }
       return session;
     },
