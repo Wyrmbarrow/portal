@@ -10,14 +10,14 @@ export default async function Home() {
   if (session?.user) {
     const user = session.user as typeof session.user & { googleId: string };
 
-    let characters: { id: number; name: string }[] = [];
+    let characters: { id: string; name: string }[] = [];
     let existingHash: string | null = null;
 
     const db = getPrisma();
     const [charResult, hashResult] = await Promise.allSettled([
       db.patronCharacter.findMany({
         where: { patronGoogleId: user.googleId },
-        select: { characterId: true, characterName: true },
+        select: { id: true, characterName: true },
         orderBy: { createdAt: "desc" },
       }),
       db.registrationHash.findFirst({
@@ -26,7 +26,7 @@ export default async function Home() {
       }),
     ]);
     if (charResult.status === "fulfilled") {
-      characters = charResult.value.map((c) => ({ id: Number(c.characterId), name: c.characterName }));
+      characters = charResult.value.map((c) => ({ id: c.id, name: c.characterName }));
     } else {
       console.error("Failed to fetch characters:", charResult.reason);
     }

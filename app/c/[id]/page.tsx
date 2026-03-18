@@ -50,25 +50,25 @@ export default async function CharacterProfilePage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const numericId = parseInt(id, 10)
-  if (isNaN(numericId)) notFound()
 
   const db = getPrisma()
 
-  // Guard: must be a registered character (exists in PatronCharacter)
+  // Look up by PatronCharacter CUID (not Evennia integer ID)
   const patronChar = await db.patronCharacter.findUnique({
-    where: { characterId: BigInt(numericId) },
+    where: { id },
   })
   if (!patronChar) notFound()
+
+  const characterId = Number(patronChar.characterId)
 
   // Parallel fetch: charsheet mirror + public journal entries
   // Journal fetch uses .catch(() => null) so a DB error shows "Journal unavailable."
   // instead of a full 500 page
   const [charSheetRow, entriesResult] = await Promise.all([
-    db.characterSheet.findUnique({ where: { characterId: numericId } }).catch(() => null),
+    db.characterSheet.findUnique({ where: { characterId } }).catch(() => null),
     db.journalEntry.findMany({
       where: {
-        characterId: numericId,
+        characterId,
         visibility: "public",
         entryType: { not: "ooc" },
       },

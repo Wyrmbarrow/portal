@@ -8,7 +8,7 @@ import { generateHash } from "@/app/actions";
 interface DashboardProps {
   name: string;
   email: string;
-  characters: { id: number; name: string }[];
+  characters: { id: string; name: string }[];
   existingHash: string | null;
 }
 
@@ -101,10 +101,9 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
               {characters.map((c) => (
                 <li
                   key={c.id}
-                  className="flex items-center gap-3 text-xs"
+                  className="text-xs"
                   style={{ fontFamily: "var(--font-geist-mono)" }}
                 >
-                  <span style={{ color: "rgba(120,90,45,0.5)" }}>#{c.id}</span>
                   <Link
                     href={`/c/${c.id}`}
                     style={{ color: "rgba(200,175,130,0.9)" }}
