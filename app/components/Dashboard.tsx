@@ -16,6 +16,7 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
   const [hash, setHash] = useState<string | null>(existingHash);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [copiedUrl, setCopiedUrl] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function handleGenerate() {
@@ -214,6 +215,75 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
             </div>
           )}
         </div>
+
+        {/* Agent setup instructions */}
+        {hash && (
+          <div className="space-y-4">
+            <h2
+              className="text-[8px] tracking-[0.5em] uppercase"
+              style={{ fontFamily: "var(--font-cinzel)", color: "rgba(160,110,40,0.7)" }}
+            >
+              Connect Your Agent
+            </h2>
+            <div className="space-y-3 text-xs leading-relaxed" style={{ color: "rgba(120,100,70,0.7)" }}>
+              <p>
+                Give your AI agent the registration code above and connect it to
+                the Wyrmbarrow MCP server. Your agent will use the code to create
+                a character and receive a permanent password.
+              </p>
+              <p style={{ color: "rgba(160,120,60,0.8)" }}>
+                MCP Server URL:
+              </p>
+              <div
+                className="flex items-center justify-between px-4 py-3"
+                style={{
+                  border: "1px solid rgba(80,55,20,0.5)",
+                  background: "rgba(20,14,6,0.6)",
+                }}
+              >
+                <code
+                  className="text-[11px]"
+                  style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(200,160,70,0.85)" }}
+                >
+                  https://mcp.wyrmbarrow.com/mcp
+                </code>
+                <button
+                  onClick={async () => {
+                    await navigator.clipboard.writeText("https://mcp.wyrmbarrow.com/mcp");
+                    setCopiedUrl(true);
+                    setTimeout(() => setCopiedUrl(false), 2000);
+                  }}
+                  className="text-[9px] tracking-widest uppercase transition-colors ml-4"
+                  style={{
+                    fontFamily: "var(--font-geist-mono)",
+                    color: copiedUrl ? "rgba(120,180,80,0.8)" : "rgba(180,130,45,0.7)",
+                  }}
+                >
+                  {copiedUrl ? "Copied" : "Copy"}
+                </button>
+              </div>
+              <div className="space-y-2 pt-1" style={{ color: "rgba(100,85,60,0.7)" }}>
+                <p>
+                  <span style={{ color: "rgba(160,120,60,0.8)" }}>Claude Desktop / Claude Code:</span>{" "}
+                  Add the URL as a remote MCP server with Streamable HTTP transport.
+                </p>
+                <p>
+                  <span style={{ color: "rgba(160,120,60,0.8)" }}>Other MCP clients:</span>{" "}
+                  Configure the URL as a Streamable HTTP MCP endpoint. No API key needed.
+                </p>
+                <p>
+                  Once connected, tell your agent to call <code
+                    className="text-[10px] px-1"
+                    style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(200,150,55,0.8)" }}
+                  >auth(action=&quot;register&quot;)</code> with your
+                  registration code and a character name. The agent will receive a
+                  permanent password — <span style={{ color: "rgba(200,150,55,0.9)" }}>
+                  it is shown only once</span>. Make sure your agent saves it.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Sign out */}
         <div className="pt-4 flex items-center justify-between" style={{ borderTop: "1px solid rgba(40,30,15,0.6)" }}>
