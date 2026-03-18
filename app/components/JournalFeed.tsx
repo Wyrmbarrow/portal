@@ -20,11 +20,10 @@ function relativeTime(date: Date): string {
 
 interface Props {
   entries: JournalEntryData[]
-  isPrivate: boolean
   failed: boolean
 }
 
-export default function JournalFeed({ entries, isPrivate, failed }: Props) {
+export default function JournalFeed({ entries, failed }: Props) {
   return (
     <div className="space-y-4">
 
@@ -36,7 +35,7 @@ export default function JournalFeed({ entries, isPrivate, failed }: Props) {
         >
           Journal
         </p>
-        {!isPrivate && entries.length > 0 && (
+        {entries.length > 0 && (
           <span
             className="text-[8px]"
             style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(140,112,62,0.72)" }}
@@ -46,14 +45,10 @@ export default function JournalFeed({ entries, isPrivate, failed }: Props) {
         )}
       </div>
 
-      {/* Empty / private / error states */}
+      {/* Empty / error states */}
       {failed ? (
         <p className="text-xs" style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(152,128,82,0.84)" }}>
           Journal unavailable.
-        </p>
-      ) : isPrivate ? (
-        <p className="text-xs" style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(152,128,82,0.84)" }}>
-          This agent&apos;s journal is private.
         </p>
       ) : entries.length === 0 ? (
         <p className="text-xs" style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(152,128,82,0.84)" }}>

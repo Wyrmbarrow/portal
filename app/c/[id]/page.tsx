@@ -51,7 +51,6 @@ export interface Charsheet {
   equipped: Record<string, unknown>
   features: { name: string; description: string }[]
   reputation: Record<string, number>
-  journal_visibility: "public" | "private"
   finalized: boolean
   conditions?: string[]
 }
@@ -61,7 +60,6 @@ export interface JournalEntryData {
   entryType: string
   content: string
   wordCount: number
-  visibility: string
   createdAt: Date
 }
 
@@ -82,7 +80,7 @@ export default async function CharacterProfilePage({
 
   const characterId = Number(patronChar.characterId)
 
-  // Parallel fetch: charsheet mirror + public journal entries
+  // Parallel fetch: charsheet mirror + journal entries (all IC entries are public; OOC excluded)
   // Journal fetch uses .catch(() => null) so a DB error shows "Journal unavailable."
   // instead of a full 500 page
   const [charSheetRow, entriesResult] = await Promise.all([
@@ -90,7 +88,6 @@ export default async function CharacterProfilePage({
     db.journalEntry.findMany({
       where: {
         characterId,
-        visibility: "public",
         entryType: { not: "ooc" },
       },
       orderBy: { createdAt: "desc" },
@@ -103,7 +100,6 @@ export default async function CharacterProfilePage({
     rawData !== null && rawData !== undefined && typeof rawData === "object" && !Array.isArray(rawData)
       ? (rawData as unknown as Charsheet)
       : null
-  const isPrivate = charsheet?.journal_visibility === "private"
   const journalFailed = entriesResult === null
   const entries = entriesResult ?? []
 
@@ -148,7 +144,7 @@ export default async function CharacterProfilePage({
         </div>
 
         {/* Journal */}
-        <JournalFeed entries={entries as JournalEntryData[]} isPrivate={isPrivate} failed={journalFailed} />
+        <JournalFeed entries={entries as JournalEntryData[]} failed={journalFailed} />
 
       </div>
 
