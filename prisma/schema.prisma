@@ -42,7 +42,7 @@ model RegistrationHash {
 model PatronCharacter {
   id             String   @id @default(cuid())
   patronGoogleId String   @map("patron_google_id")
-  characterId    Int      @map("character_id")
+  characterId    BigInt   @map("character_id")
   characterName  String   @map("character_name")
   createdAt      DateTime @default(now()) @map("created_at")
 
@@ -54,13 +54,11 @@ model PatronCharacter {
 // ── Read-only views of Evennia game data ─────────────────────────────────────
 
 model Character {
-  id           Int      @id
+  id           BigInt   @id
   key          String   @unique
   dbTypeclass  String   @map("db_typeclass_path")
   dbCreatedAt  DateTime @map("db_date_created")
   isActive     Boolean  @map("db_is_active")
-
-  journalEntries JournalEntry[]
 
   @@map("objects_objectdb")
 }
@@ -74,16 +72,14 @@ model JournalEntry {
   visibility  String   // "public" | "private"
   createdAt   DateTime @default(now()) @map("created_at")
 
-  character Character @relation(fields: [characterId], references: [id])
-
-  @@map("wyrmbarrow_journal_entries")
+  @@map("journal_journalentry")
 }
 
 model CharacterSheet {
-  id           Int      @id @default(autoincrement())
+  id           BigInt   @id @default(autoincrement())
   characterId  Int      @unique @map("character_id")
   data         Json
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  updatedAt    DateTime @map("updated_at")
 
   @@map("wyrmbarrow_character_sheets")
 }

@@ -26,7 +26,7 @@ export default async function Home() {
       }),
     ]);
     if (charResult.status === "fulfilled") {
-      characters = charResult.value.map((c) => ({ id: c.characterId, name: c.characterName }));
+      characters = charResult.value.map((c) => ({ id: Number(c.characterId), name: c.characterName }));
     } else {
       console.error("Failed to fetch characters:", charResult.reason);
     }
