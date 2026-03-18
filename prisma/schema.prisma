@@ -52,15 +52,9 @@ model PatronCharacter {
 }
 
 // ── Read-only views of Evennia game data ─────────────────────────────────────
-
-model Character {
-  id           BigInt   @id
-  key          String   @unique
-  dbCreatedAt  DateTime @map("db_date_created")
-  isActive     Boolean  @map("db_is_active")
-
-  @@map("objects_objectdb")
-}
+// Note: objects_objectdb (Evennia's Character model) is intentionally NOT mapped
+// here — its column names don't match what Prisma expects on the production DB.
+// Use PatronCharacter for character lookups instead.
 
 model JournalEntry {
   id          Int      @id @default(autoincrement())

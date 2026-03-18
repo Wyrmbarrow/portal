@@ -61,11 +61,6 @@ export default async function CharacterProfilePage({
   })
   if (!patronChar) notFound()
 
-  // Fetch the character name from the Evennia objects table
-  const character = await db.character.findUnique({
-    where: { id: BigInt(numericId) },
-  })
-
   // Parallel fetch: charsheet mirror + public journal entries
   // Journal fetch uses .catch(() => null) so a DB error shows "Journal unavailable."
   // instead of a full 500 page
@@ -120,7 +115,7 @@ export default async function CharacterProfilePage({
 
         {/* Statblock */}
         <CharacterStatblock
-          characterName={character?.key ?? patronChar.characterName}
+          characterName={patronChar.characterName}
           charsheet={charsheet}
         />
 
