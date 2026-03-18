@@ -178,7 +178,7 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
           {hash && (
             <div
               className="relative overflow-hidden"
-              style={{ border: "1px solid rgba(118,85,28,0.7)", background: "rgba(14,10,4,0.75)" }}
+              style={{ border: "1px solid rgba(118,85,28,0.7)", background: "rgba(65,36,6,0.42)" }}
             >
               {/* Corner ornaments */}
               <span className="absolute top-0 left-0 w-3 h-3 border-t border-l" style={{ borderColor: "rgba(195,125,32,0.7)" }} />
@@ -244,7 +244,7 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
                 className="flex items-center justify-between px-4 py-3"
                 style={{
                   border: "1px solid rgba(118,85,28,0.7)",
-                  background: "rgba(14,10,4,0.75)",
+                  background: "rgba(65,36,6,0.42)",
                 }}
               >
                 <code

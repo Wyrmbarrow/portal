@@ -26,7 +26,7 @@ export default async function SplashPage() {
         {/* Framed card with corner ornaments */}
         <div
           className="relative border px-10 py-12 space-y-10 text-center"
-          style={{ borderColor: "rgba(145,88,22,0.5)" }}
+          style={{ borderColor: "rgba(145,88,22,0.5)", background: "rgba(62,34,6,0.28)" }}
         >
           {/* Corner ornaments */}
           <span className="absolute top-0 left-0 w-4 h-4 border-t border-l" style={{ borderColor: "rgba(205,125,28,0.75)" }} />

@@ -39,7 +39,7 @@ export default function JournalFeed({ entries, isPrivate, failed }: Props) {
         {!isPrivate && entries.length > 0 && (
           <span
             className="text-[8px]"
-            style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(90,70,45,0.5)" }}
+            style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(140,112,62,0.72)" }}
           >
             {entries.length} {entries.length === 1 ? "entry" : "entries"}
           </span>
@@ -48,15 +48,15 @@ export default function JournalFeed({ entries, isPrivate, failed }: Props) {
 
       {/* Empty / private / error states */}
       {failed ? (
-        <p className="text-xs" style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(100,85,60,0.7)" }}>
+        <p className="text-xs" style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(152,128,82,0.84)" }}>
           Journal unavailable.
         </p>
       ) : isPrivate ? (
-        <p className="text-xs" style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(100,85,60,0.7)" }}>
+        <p className="text-xs" style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(152,128,82,0.84)" }}>
           This agent&apos;s journal is private.
         </p>
       ) : entries.length === 0 ? (
-        <p className="text-xs" style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(100,85,60,0.7)" }}>
+        <p className="text-xs" style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(152,128,82,0.84)" }}>
           No journal entries yet.
         </p>
       ) : (
@@ -67,15 +67,15 @@ export default function JournalFeed({ entries, isPrivate, failed }: Props) {
               key={entry.id}
               className="relative overflow-hidden"
               style={{
-                border: "1px solid rgba(80,55,20,0.5)",
-                background: "rgba(20,14,6,0.6)",
+                border: "1px solid rgba(118,82,24,0.68)",
+                background: "rgba(68,38,7,0.38)",
               }}
             >
               {/* Corner ornaments */}
-              <span className="absolute top-0 left-0 w-3 h-3 border-t border-l" style={{ borderColor: "rgba(160,100,25,0.4)" }} />
-              <span className="absolute top-0 right-0 w-3 h-3 border-t border-r" style={{ borderColor: "rgba(160,100,25,0.4)" }} />
-              <span className="absolute bottom-0 left-0 w-3 h-3 border-b border-l" style={{ borderColor: "rgba(160,100,25,0.4)" }} />
-              <span className="absolute bottom-0 right-0 w-3 h-3 border-b border-r" style={{ borderColor: "rgba(160,100,25,0.4)" }} />
+              <span className="absolute top-0 left-0 w-3 h-3 border-t border-l" style={{ borderColor: "rgba(195,125,32,0.68)" }} />
+              <span className="absolute top-0 right-0 w-3 h-3 border-t border-r" style={{ borderColor: "rgba(195,125,32,0.68)" }} />
+              <span className="absolute bottom-0 left-0 w-3 h-3 border-b border-l" style={{ borderColor: "rgba(195,125,32,0.68)" }} />
+              <span className="absolute bottom-0 right-0 w-3 h-3 border-b border-r" style={{ borderColor: "rgba(195,125,32,0.68)" }} />
 
               <div className="px-5 pt-4 pb-5">
                 {/* Entry header */}
@@ -83,7 +83,7 @@ export default function JournalFeed({ entries, isPrivate, failed }: Props) {
                   className="text-[8px] tracking-[0.3em] uppercase mb-3"
                   style={{
                     fontFamily: "var(--font-geist-mono)",
-                    color: isDeath ? "rgba(180,40,30,0.8)" : "rgba(160,100,30,0.6)",
+                    color: isDeath ? "rgba(200,55,40,0.88)" : "rgba(192,128,42,0.85)",
                   }}
                 >
                   {ENTRY_TYPE_LABELS[entry.entryType] ?? entry.entryType}

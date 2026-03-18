@@ -147,7 +147,7 @@ export default async function FeedbackPage({
         {/* Card with corner ornaments */}
         <div
           className="relative border"
-          style={{ borderColor: "rgba(145,88,22,0.5)" }}
+          style={{ borderColor: "rgba(145,88,22,0.5)", background: "rgba(62,34,6,0.28)" }}
         >
           <span className="absolute top-0 left-0 w-4 h-4 border-t border-l" style={{ borderColor: "rgba(205,125,28,0.75)" }} />
           <span className="absolute top-0 right-0 w-4 h-4 border-t border-r" style={{ borderColor: "rgba(205,125,28,0.75)" }} />
