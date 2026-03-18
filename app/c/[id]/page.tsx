@@ -55,14 +55,16 @@ export default async function CharacterProfilePage({
 
   const db = getPrisma()
 
-  // Guard: must be a player character (typeclass contains "characters.")
-  const character = await db.character.findFirst({
-    where: {
-      id: BigInt(numericId),
-      dbTypeclass: { contains: "characters." },
-    },
+  // Guard: must be a registered character (exists in PatronCharacter)
+  const patronChar = await db.patronCharacter.findUnique({
+    where: { characterId: BigInt(numericId) },
   })
-  if (!character) notFound()
+  if (!patronChar) notFound()
+
+  // Fetch the character name from the Evennia objects table
+  const character = await db.character.findUnique({
+    where: { id: BigInt(numericId) },
+  })
 
   // Parallel fetch: charsheet mirror + public journal entries
   // Journal fetch uses .catch(() => null) so a DB error shows "Journal unavailable."
@@ -118,7 +120,7 @@ export default async function CharacterProfilePage({
 
         {/* Statblock */}
         <CharacterStatblock
-          characterName={character.key}
+          characterName={character?.key ?? patronChar.characterName}
           charsheet={charsheet}
         />
 

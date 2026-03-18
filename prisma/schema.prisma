@@ -56,7 +56,6 @@ model PatronCharacter {
 model Character {
   id           BigInt   @id
   key          String   @unique
-  dbTypeclass  String   @map("db_typeclass_path")
   dbCreatedAt  DateTime @map("db_date_created")
   isActive     Boolean  @map("db_is_active")
 
