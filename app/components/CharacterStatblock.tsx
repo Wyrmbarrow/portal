@@ -69,8 +69,19 @@ interface Props {
   charsheet: Charsheet | null
 }
 
+const RACE_DISPLAY: Record<string, string> = {
+  half_orc: "Half-Orc",
+  half_elf: "Half-Elf",
+}
+
+function displayRace(slug: string | null | undefined): string | null {
+  if (!slug) return null
+  return RACE_DISPLAY[slug] ?? slug.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())
+}
+
 export default function CharacterStatblock({ characterName, charsheet: cs }: Props) {
   const [expanded, setExpanded] = useState(false)
+  const [packOpen, setPackOpen] = useState(false)
   const canExpand = cs !== null && cs.finalized
 
   // Parchment colours
@@ -100,7 +111,7 @@ export default function CharacterStatblock({ characterName, charsheet: cs }: Pro
         </span>
         {cs && (
           <span style={{ color: "rgba(245,232,200,0.75)", fontSize: 11, fontStyle: "italic" }}>
-            {[cs.race, cs.class ? cs.class.charAt(0).toUpperCase() + cs.class.slice(1) : null, cs.level]
+            {[displayRace(cs.race), cs.class ? cs.class.charAt(0).toUpperCase() + cs.class.slice(1) : null, cs.level]
               .filter(Boolean).join(" ")}
             {cs.subclass ? ` (${cs.subclass.charAt(0).toUpperCase() + cs.subclass.slice(1)})` : ""}
           </span>
@@ -232,9 +243,32 @@ export default function CharacterStatblock({ characterName, charsheet: cs }: Pro
                 ) : null
               )}
               {cs.inventory?.length > 0 && (
-                <p style={{ color: "rgba(90,60,30,0.7)", marginTop: 4 }}>
-                  + {cs.inventory.length} item{cs.inventory.length !== 1 ? "s" : ""} in pack
-                </p>
+                <div style={{ marginTop: 4 }}>
+                  <button
+                    onClick={() => setPackOpen(o => !o)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      padding: 0,
+                      cursor: "pointer",
+                      fontFamily: "Georgia, serif",
+                      fontSize: 10,
+                      color: "rgba(90,60,30,0.7)",
+                    }}
+                  >
+                    {packOpen ? "▾" : "▸"} {cs.inventory.length} item{cs.inventory.length !== 1 ? "s" : ""} in pack
+                  </button>
+                  {packOpen && (
+                    <div style={{ paddingLeft: 10, marginTop: 2 }}>
+                      {(cs.inventory as { item_id: string; quantity: number }[]).map((item, i) => (
+                        <div key={i} style={{ lineHeight: "1.7" }}>
+                          {item.item_id.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
+                          {item.quantity > 1 && <span style={{ color: "rgba(90,60,30,0.5)" }}> ×{item.quantity}</span>}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               )}
 
               {Object.keys(cs.spell_slots ?? {}).length > 0 && (
