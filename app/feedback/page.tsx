@@ -132,7 +132,7 @@ export default async function FeedbackPage({
         <div className="mb-8">
           <p
             className="text-[8px] tracking-[0.5em] uppercase mb-1"
-            style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(160,100,30,0.5)" }}
+            style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(190,125,42,0.85)" }}
           >
             patron portal
           </p>
@@ -147,17 +147,17 @@ export default async function FeedbackPage({
         {/* Card with corner ornaments */}
         <div
           className="relative border"
-          style={{ borderColor: "rgba(120,70,15,0.25)" }}
+          style={{ borderColor: "rgba(145,88,22,0.5)" }}
         >
-          <span className="absolute top-0 left-0 w-4 h-4 border-t border-l" style={{ borderColor: "rgba(180,100,20,0.5)" }} />
-          <span className="absolute top-0 right-0 w-4 h-4 border-t border-r" style={{ borderColor: "rgba(180,100,20,0.5)" }} />
-          <span className="absolute bottom-0 left-0 w-4 h-4 border-b border-l" style={{ borderColor: "rgba(180,100,20,0.5)" }} />
-          <span className="absolute bottom-0 right-0 w-4 h-4 border-b border-r" style={{ borderColor: "rgba(180,100,20,0.5)" }} />
+          <span className="absolute top-0 left-0 w-4 h-4 border-t border-l" style={{ borderColor: "rgba(205,125,28,0.75)" }} />
+          <span className="absolute top-0 right-0 w-4 h-4 border-t border-r" style={{ borderColor: "rgba(205,125,28,0.75)" }} />
+          <span className="absolute bottom-0 left-0 w-4 h-4 border-b border-l" style={{ borderColor: "rgba(205,125,28,0.75)" }} />
+          <span className="absolute bottom-0 right-0 w-4 h-4 border-b border-r" style={{ borderColor: "rgba(205,125,28,0.75)" }} />
 
           {/* Tab bar */}
           <div
             className="flex"
-            style={{ borderBottom: "1px solid rgba(80,55,20,0.5)" }}
+            style={{ borderBottom: "1px solid rgba(100,72,25,0.68)" }}
           >
             {TABS.map(t => {
               const active = t.key === tab;
@@ -168,7 +168,7 @@ export default async function FeedbackPage({
                   className="px-4 py-3 text-[9px] tracking-[0.12em] uppercase whitespace-nowrap"
                   style={{
                     fontFamily: "var(--font-geist-mono)",
-                    color: active ? "rgba(210,160,80,0.9)" : "rgba(140,100,40,0.5)",
+                    color: active ? "rgba(218,168,82,0.95)" : "rgba(168,122,48,0.72)",
                     borderBottom: active ? "2px solid rgba(180,110,30,0.8)" : "2px solid transparent",
                     marginBottom: "-1px",
                   }}
@@ -179,7 +179,7 @@ export default async function FeedbackPage({
                       className="ml-1.5 px-1 py-0.5 rounded-sm text-[8px]"
                       style={{
                         background: active ? "rgba(180,110,30,0.25)" : "rgba(120,70,15,0.3)",
-                        color: active ? "rgba(210,160,80,0.7)" : "rgba(160,110,40,0.55)",
+                        color: active ? "rgba(218,168,82,0.82)" : "rgba(178,128,50,0.7)",
                       }}
                     >
                       {counts[t.key]}
@@ -193,13 +193,13 @@ export default async function FeedbackPage({
           {/* Stats row */}
           <div
             className="px-5 py-2 flex gap-4"
-            style={{ borderBottom: "1px solid rgba(80,55,20,0.3)" }}
+            style={{ borderBottom: "1px solid rgba(90,65,22,0.5)" }}
           >
             <span
               className="text-[9px] tracking-[0.1em] uppercase"
-              style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(120,90,40,0.5)" }}
+              style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(155,118,52,0.75)" }}
             >
-              <span style={{ color: "rgba(190,145,60,0.7)" }}>{counts.all}</span> total
+              <span style={{ color: "rgba(205,158,68,0.88)" }}>{counts.all}</span> total
             </span>
           </div>
 
@@ -209,7 +209,7 @@ export default async function FeedbackPage({
               <div className="px-5 py-10 text-center">
                 <p
                   className="text-xs"
-                  style={{ color: "rgba(120,90,40,0.4)", fontFamily: "var(--font-geist-mono)" }}
+                  style={{ color: "rgba(155,118,52,0.68)", fontFamily: "var(--font-geist-mono)" }}
                 >
                   No {TABS.find(t => t.key === tab)?.label.toLowerCase()} entries yet.
                 </p>
@@ -236,7 +236,7 @@ export default async function FeedbackPage({
                         ) : (
                           <span
                             className="text-sm"
-                            style={{ color: "rgba(140,110,50,0.6)", fontFamily: "var(--font-geist-mono)" }}
+                            style={{ color: "rgba(175,140,65,0.78)", fontFamily: "var(--font-geist-mono)" }}
                           >
                             Agent #{entry.characterId}
                           </span>
@@ -244,14 +244,14 @@ export default async function FeedbackPage({
                         {entry.locationName && (
                           <span
                             className="text-[9px] uppercase tracking-[0.08em]"
-                            style={{ color: "rgba(120,90,45,0.55)" }}
+                            style={{ color: "rgba(158,122,62,0.75)" }}
                           >
                             · {entry.locationName}
                           </span>
                         )}
                         <span
                           className="text-[9px]"
-                          style={{ color: "rgba(100,75,35,0.45)", fontFamily: "var(--font-geist-mono)" }}
+                          style={{ color: "rgba(145,112,55,0.68)", fontFamily: "var(--font-geist-mono)" }}
                         >
                           {relativeTime(entry.createdAt)}
                         </span>
@@ -267,7 +267,7 @@ export default async function FeedbackPage({
                     {/* Content */}
                     <p
                       className="text-[11px] leading-relaxed"
-                      style={{ color: "rgba(190,165,120,0.75)" }}
+                      style={{ color: "rgba(200,175,128,0.88)" }}
                     >
                       {entry.content}
                     </p>
@@ -283,7 +283,7 @@ export default async function FeedbackPage({
           <Link
             href="/console"
             className="text-[9px] tracking-widest uppercase"
-            style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(120,90,40,0.45)" }}
+            style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(155,118,52,0.68)" }}
           >
             ← Console
           </Link>

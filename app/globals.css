@@ -20,20 +20,20 @@ body {
 }
 
 .btn-signin {
-  border: 1px solid rgba(160,90,20,0.45);
-  background: rgba(100,50,8,0.12);
-  color: rgba(210,160,70,0.9);
+  border: 1px solid rgba(165,95,22,0.65);
+  background: rgba(100,50,8,0.18);
+  color: rgba(218,168,75,0.97);
   transition: background 0.2s, border-color 0.2s;
 }
 .btn-signin:hover {
-  background: rgba(100,50,8,0.22);
-  border-color: rgba(180,110,30,0.6);
+  background: rgba(110,55,10,0.32);
+  border-color: rgba(195,125,35,0.8);
 }
 
 .link-legal {
-  color: rgba(100,80,50,0.6);
+  color: rgba(140,112,68,0.8);
   transition: color 0.2s;
 }
 .link-legal:hover {
-  color: rgba(140,110,70,0.8);
+  color: rgba(180,148,95,0.95);
 }

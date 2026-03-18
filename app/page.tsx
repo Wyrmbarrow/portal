@@ -18,7 +18,7 @@ export default async function SplashPage() {
         className="fixed inset-0 pointer-events-none"
         style={{
           background:
-            "radial-gradient(ellipse 700px 500px at 50% 48%, rgba(120,55,8,0.07) 0%, transparent 70%)",
+            "radial-gradient(ellipse 700px 500px at 50% 48%, rgba(130,60,10,0.16) 0%, transparent 70%)",
         }}
       />
 
@@ -26,19 +26,19 @@ export default async function SplashPage() {
         {/* Framed card with corner ornaments */}
         <div
           className="relative border px-10 py-12 space-y-10 text-center"
-          style={{ borderColor: "rgba(120,70,15,0.25)" }}
+          style={{ borderColor: "rgba(145,88,22,0.5)" }}
         >
           {/* Corner ornaments */}
-          <span className="absolute top-0 left-0 w-4 h-4 border-t border-l" style={{ borderColor: "rgba(180,100,20,0.5)" }} />
-          <span className="absolute top-0 right-0 w-4 h-4 border-t border-r" style={{ borderColor: "rgba(180,100,20,0.5)" }} />
-          <span className="absolute bottom-0 left-0 w-4 h-4 border-b border-l" style={{ borderColor: "rgba(180,100,20,0.5)" }} />
-          <span className="absolute bottom-0 right-0 w-4 h-4 border-b border-r" style={{ borderColor: "rgba(180,100,20,0.5)" }} />
+          <span className="absolute top-0 left-0 w-4 h-4 border-t border-l" style={{ borderColor: "rgba(205,125,28,0.75)" }} />
+          <span className="absolute top-0 right-0 w-4 h-4 border-t border-r" style={{ borderColor: "rgba(205,125,28,0.75)" }} />
+          <span className="absolute bottom-0 left-0 w-4 h-4 border-b border-l" style={{ borderColor: "rgba(205,125,28,0.75)" }} />
+          <span className="absolute bottom-0 right-0 w-4 h-4 border-b border-r" style={{ borderColor: "rgba(205,125,28,0.75)" }} />
 
           {/* Title */}
           <div className="space-y-2">
             <p
               className="text-[8px] tracking-[0.6em] uppercase"
-              style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(160,100,30,0.6)" }}
+              style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(190,125,42,0.85)" }}
             >
               patron portal
             </p>
@@ -50,7 +50,7 @@ export default async function SplashPage() {
             </h1>
             <p
               className="text-xs tracking-[0.25em] uppercase"
-              style={{ color: "rgba(180,155,110,0.45)", fontFamily: "var(--font-cinzel)" }}
+              style={{ color: "rgba(188,162,118,0.7)", fontFamily: "var(--font-cinzel)" }}
             >
               The Great Ascent
             </p>
@@ -58,9 +58,9 @@ export default async function SplashPage() {
 
           {/* Ornamental divider */}
           <div className="flex items-center gap-3">
-            <div className="h-px flex-1" style={{ background: "rgba(80,55,20,0.6)" }} />
-            <div className="h-[3px] w-[3px] rounded-full" style={{ background: "rgba(160,100,30,0.5)" }} />
-            <div className="h-px flex-1" style={{ background: "rgba(80,55,20,0.6)" }} />
+            <div className="h-px flex-1" style={{ background: "rgba(110,78,28,0.75)" }} />
+            <div className="h-[3px] w-[3px] rounded-full" style={{ background: "rgba(185,120,38,0.7)" }} />
+            <div className="h-px flex-1" style={{ background: "rgba(110,78,28,0.75)" }} />
           </div>
 
           {/* CTA */}
@@ -97,7 +97,7 @@ export default async function SplashPage() {
               <div
                 key={n}
                 className="h-px w-4"
-                style={{ background: n === 1 ? "rgba(180,120,40,0.5)" : "rgba(80,60,35,0.4)" }}
+                style={{ background: n === 1 ? "rgba(205,140,45,0.75)" : "rgba(95,72,40,0.6)" }}
               />
             ))}
           </div>

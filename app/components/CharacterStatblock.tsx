@@ -93,7 +93,7 @@ export default function CharacterStatblock({ characterName, charsheet: cs }: Pro
   const inkDark = "#1a1a1a"
 
   return (
-    <div style={{ background: parchment, border: `1px solid ${parchmentLine}`, fontFamily: "Georgia, serif" }}>
+    <div style={{ background: parchment, border: `1px solid ${parchmentLine}`, fontFamily: "Georgia, serif", boxShadow: "0 8px 48px rgba(0,0,0,0.75), 0 2px 12px rgba(0,0,0,0.5), 0 0 0 1px rgba(200,155,70,0.08)" }}>
 
       {/* Header bar */}
       <div

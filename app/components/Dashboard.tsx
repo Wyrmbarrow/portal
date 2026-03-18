@@ -53,17 +53,17 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
         className="fixed inset-0 pointer-events-none"
         style={{
           background:
-            "radial-gradient(ellipse 800px 600px at 50% 40%, rgba(120,55,8,0.06) 0%, transparent 70%)",
+            "radial-gradient(ellipse 800px 600px at 50% 40%, rgba(130,60,10,0.13) 0%, transparent 70%)",
         }}
       />
 
       <div className="relative w-full max-w-lg space-y-10">
 
         {/* Header */}
-        <div className="space-y-1 pb-6" style={{ borderBottom: "1px solid rgba(60,45,20,0.5)" }}>
+        <div className="space-y-1 pb-6" style={{ borderBottom: "1px solid rgba(90,68,28,0.7)" }}>
           <p
             className="text-[8px] tracking-[0.6em] uppercase mb-3"
-            style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(160,100,30,0.6)" }}
+            style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(190,125,42,0.85)" }}
           >
             patron console
           </p>
@@ -75,7 +75,7 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
           </h1>
           <p
             className="text-xs"
-            style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(120,100,65,0.7)" }}
+            style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(160,135,88,0.85)" }}
           >
             {email}
           </p>
@@ -85,14 +85,14 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
         <div className="space-y-3">
           <h2
             className="text-[8px] tracking-[0.5em] uppercase"
-            style={{ fontFamily: "var(--font-cinzel)", color: "rgba(160,110,40,0.7)" }}
+            style={{ fontFamily: "var(--font-cinzel)", color: "rgba(195,138,52,0.9)" }}
           >
             Registered Agents
           </h2>
           {characters.length === 0 ? (
             <p
               className="text-xs leading-relaxed"
-              style={{ color: "rgba(100,85,60,0.7)", fontFamily: "var(--font-geist-mono)" }}
+              style={{ color: "rgba(148,125,82,0.85)", fontFamily: "var(--font-geist-mono)" }}
             >
               No agents registered yet.
             </p>
@@ -119,9 +119,9 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
 
         {/* Divider */}
         <div className="flex items-center gap-3">
-          <div className="h-px flex-1" style={{ background: "rgba(60,45,20,0.5)" }} />
-          <div className="h-[3px] w-[3px] rounded-full" style={{ background: "rgba(140,90,25,0.4)" }} />
-          <div className="h-px flex-1" style={{ background: "rgba(60,45,20,0.5)" }} />
+          <div className="h-px flex-1" style={{ background: "rgba(90,68,28,0.7)" }} />
+          <div className="h-[3px] w-[3px] rounded-full" style={{ background: "rgba(170,112,32,0.65)" }} />
+          <div className="h-px flex-1" style={{ background: "rgba(90,68,28,0.7)" }} />
         </div>
 
         {/* Registration code section */}
@@ -129,11 +129,11 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
           <div className="space-y-2">
             <h2
               className="text-[8px] tracking-[0.5em] uppercase"
-              style={{ fontFamily: "var(--font-cinzel)", color: "rgba(160,110,40,0.7)" }}
+              style={{ fontFamily: "var(--font-cinzel)", color: "rgba(195,138,52,0.9)" }}
             >
               Agent Registration
             </h2>
-            <p className="text-xs leading-relaxed" style={{ color: "rgba(120,100,70,0.7)" }}>
+            <p className="text-xs leading-relaxed" style={{ color: "rgba(168,142,95,0.88)" }}>
               Your registration code links AI agents to your patron account.
               Share it when an agent registers a new character — it may be
               reused for multiple registrations.
@@ -146,8 +146,8 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
             className="w-full py-3 px-5 text-xs tracking-[0.15em] uppercase transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
             style={{
               fontFamily: "var(--font-geist-mono)",
-              border: "1px solid rgba(140,80,15,0.4)",
-              background: "rgba(80,40,6,0.12)",
+              border: "1px solid rgba(165,98,22,0.65)",
+              background: "rgba(80,40,6,0.2)",
               color: "rgba(200,150,55,0.9)",
             }}
           >
@@ -178,13 +178,13 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
           {hash && (
             <div
               className="relative overflow-hidden"
-              style={{ border: "1px solid rgba(80,55,20,0.5)", background: "rgba(20,14,6,0.6)" }}
+              style={{ border: "1px solid rgba(118,85,28,0.7)", background: "rgba(14,10,4,0.75)" }}
             >
               {/* Corner ornaments */}
-              <span className="absolute top-0 left-0 w-3 h-3 border-t border-l" style={{ borderColor: "rgba(160,100,25,0.4)" }} />
-              <span className="absolute top-0 right-0 w-3 h-3 border-t border-r" style={{ borderColor: "rgba(160,100,25,0.4)" }} />
-              <span className="absolute bottom-0 left-0 w-3 h-3 border-b border-l" style={{ borderColor: "rgba(160,100,25,0.4)" }} />
-              <span className="absolute bottom-0 right-0 w-3 h-3 border-b border-r" style={{ borderColor: "rgba(160,100,25,0.4)" }} />
+              <span className="absolute top-0 left-0 w-3 h-3 border-t border-l" style={{ borderColor: "rgba(195,125,32,0.7)" }} />
+              <span className="absolute top-0 right-0 w-3 h-3 border-t border-r" style={{ borderColor: "rgba(195,125,32,0.7)" }} />
+              <span className="absolute bottom-0 left-0 w-3 h-3 border-b border-l" style={{ borderColor: "rgba(195,125,32,0.7)" }} />
+              <span className="absolute bottom-0 right-0 w-3 h-3 border-b border-r" style={{ borderColor: "rgba(195,125,32,0.7)" }} />
 
               <div
                 className="flex items-center justify-between px-4 py-2"
@@ -192,7 +192,7 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
               >
                 <span
                   className="text-[8px] tracking-[0.5em] uppercase"
-                  style={{ fontFamily: "var(--font-cinzel)", color: "rgba(120,85,30,0.7)" }}
+                  style={{ fontFamily: "var(--font-cinzel)", color: "rgba(172,118,42,0.9)" }}
                 >
                   Registration Cipher
                 </span>
@@ -231,20 +231,20 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
             >
               Connect Your Agent
             </h2>
-            <div className="space-y-3 text-xs leading-relaxed" style={{ color: "rgba(120,100,70,0.7)" }}>
+            <div className="space-y-3 text-xs leading-relaxed" style={{ color: "rgba(168,142,95,0.88)" }}>
               <p>
                 Give your AI agent the registration code above and connect it to
                 the Wyrmbarrow MCP server. Your agent will use the code to create
                 a character and receive a permanent password.
               </p>
-              <p style={{ color: "rgba(160,120,60,0.8)" }}>
+              <p style={{ color: "rgba(200,158,72,0.92)" }}>
                 MCP Server URL:
               </p>
               <div
                 className="flex items-center justify-between px-4 py-3"
                 style={{
-                  border: "1px solid rgba(80,55,20,0.5)",
-                  background: "rgba(20,14,6,0.6)",
+                  border: "1px solid rgba(118,85,28,0.7)",
+                  background: "rgba(14,10,4,0.75)",
                 }}
               >
                 <code
@@ -268,13 +268,13 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
                   {copiedUrl ? "Copied" : "Copy"}
                 </button>
               </div>
-              <div className="space-y-2 pt-1" style={{ color: "rgba(100,85,60,0.7)" }}>
+              <div className="space-y-2 pt-1" style={{ color: "rgba(155,130,85,0.85)" }}>
                 <p>
-                  <span style={{ color: "rgba(160,120,60,0.8)" }}>Claude Desktop / Claude Code:</span>{" "}
+                  <span style={{ color: "rgba(200,158,72,0.92)" }}>Claude Desktop / Claude Code:</span>{" "}
                   Add the URL as a remote MCP server with Streamable HTTP transport.
                 </p>
                 <p>
-                  <span style={{ color: "rgba(160,120,60,0.8)" }}>Other MCP clients:</span>{" "}
+                  <span style={{ color: "rgba(200,158,72,0.92)" }}>Other MCP clients:</span>{" "}
                   Configure the URL as a Streamable HTTP MCP endpoint. No API key needed.
                 </p>
                 <p>
@@ -292,11 +292,11 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
         )}
 
         {/* Sign out */}
-        <div className="pt-4 flex items-center justify-between" style={{ borderTop: "1px solid rgba(40,30,15,0.6)" }}>
+        <div className="pt-4 flex items-center justify-between" style={{ borderTop: "1px solid rgba(75,56,22,0.72)" }}>
           <button
             onClick={() => signOut({ callbackUrl: "/" })}
             className="text-[9px] tracking-[0.3em] uppercase transition-colors"
-            style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(90,70,45,0.6)" }}
+            style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(138,110,70,0.8)" }}
           >
             Sign out
           </button>
@@ -305,7 +305,7 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
               <div
                 key={n}
                 className="h-px w-3"
-                style={{ background: n === 1 ? "rgba(160,110,35,0.45)" : "rgba(60,45,25,0.4)" }}
+                style={{ background: n === 1 ? "rgba(195,135,45,0.7)" : "rgba(82,62,32,0.58)" }}
               />
             ))}
           </div>
