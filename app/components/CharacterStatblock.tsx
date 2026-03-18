@@ -84,10 +84,10 @@ export default function CharacterStatblock({ characterName, charsheet: cs }: Pro
   const [packOpen, setPackOpen] = useState(false)
   const canExpand = cs !== null && cs.finalized
 
-  // Parchment colours
-  const parchment = "#f5e8c8"
-  const parchmentMid = "#e8d5a8"
-  const parchmentLine = "#c8a86e"
+  // Parchment colours — aged, darker to sit closer to the warm dark background
+  const parchment = "#dcc896"
+  const parchmentMid = "#cdb47e"
+  const parchmentLine = "#a88448"
   const crimsonTop = "linear-gradient(#8b1a1a, #6b1010)"
   const crimsonText = "#8b1a1a"
   const inkDark = "#1a1a1a"

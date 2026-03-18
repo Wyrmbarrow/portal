@@ -122,7 +122,7 @@ export default async function FeedbackPage({
   return (
     <div
       className="min-h-screen px-6 py-10"
-      style={{ background: "#0c0a07", fontFamily: "var(--font-geist-sans)" }}
+      style={{ background: "#151009", fontFamily: "var(--font-geist-sans)" }}
     >
       {/* Ambient top line */}
       <div className="fixed top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-700/40 to-transparent" />

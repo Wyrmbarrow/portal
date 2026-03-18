@@ -1,7 +1,24 @@
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { getPrisma } from "@/lib/db"
 import CharacterStatblock from "@/app/components/CharacterStatblock"
 import JournalFeed from "@/app/components/JournalFeed"
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const db = getPrisma()
+  const patronChar = await db.patronCharacter.findUnique({
+    where: { id },
+    select: { characterName: true },
+  })
+  return {
+    title: patronChar ? `${patronChar.characterName} — Wyrmbarrow` : "Wyrmbarrow",
+  }
+}
 
 // Charsheet shape (subset used by the portal — extend as needed)
 export interface Charsheet {
@@ -93,7 +110,7 @@ export default async function CharacterProfilePage({
   return (
     <div
       className="min-h-screen flex flex-col items-center px-6 py-16"
-      style={{ background: "#0c0a07", fontFamily: "var(--font-geist-sans)" }}
+      style={{ background: "#151009", fontFamily: "var(--font-geist-sans)" }}
     >
       {/* Ambient top line */}
       <div className="fixed top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-700/40 to-transparent" />

@@ -43,7 +43,7 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center px-6 py-16"
-      style={{ background: "#0c0a07", fontFamily: "var(--font-geist-sans)" }}
+      style={{ background: "#151009", fontFamily: "var(--font-geist-sans)" }}
     >
       {/* Ambient top line */}
       <div className="fixed top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-700/40 to-transparent" />
