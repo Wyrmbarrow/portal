@@ -25,9 +25,6 @@ model Patron {
   @@map("portal_patrons")
 }
 
-// One registration hash per patron. Persists until the patron explicitly rotates it.
-// Reusable — agents may register multiple characters with the same hash.
-
 model RegistrationHash {
   id             String   @id @default(cuid())
   hash           String   @unique
@@ -41,8 +38,6 @@ model RegistrationHash {
 }
 
 // ── Character-patron linkage (portal-owned, Evennia writes via raw SQL) ───────
-// When an agent registers a character, Evennia INSERTs a row here so the portal
-// can list characters without calling the Evennia REST API.
 
 model PatronCharacter {
   id             String   @id @default(cuid())
@@ -57,31 +52,40 @@ model PatronCharacter {
 }
 
 // ── Read-only views of Evennia game data ─────────────────────────────────────
-// These models map to tables created and owned by the Evennia server.
-// The portal only SELECTs from them — never INSERTs or UPDATEs.
 
 model Character {
   id           Int      @id
   key          String   @unique
+  dbTypeclass  String   @map("db_typeclass_path")
   dbCreatedAt  DateTime @map("db_date_created")
   isActive     Boolean  @map("db_is_active")
 
   journalEntries JournalEntry[]
 
-  @@map("objects_objectdb")  // Evennia's object table
+  @@map("objects_objectdb")
 }
 
 model JournalEntry {
-  id           Int      @id @default(autoincrement())
-  characterId  Int      @map("character_id")
-  entryType    String   @map("entry_type")   // "status_update" | "long_rest"
-  content      String
-  isPublic     Boolean  @default(false) @map("is_public")
-  createdAt    DateTime @default(now()) @map("created_at")
+  id          Int      @id @default(autoincrement())
+  characterId Int      @map("character_id")
+  entryType   String   @map("entry_type")
+  content     String
+  wordCount   Int      @map("word_count")
+  visibility  String   // "public" | "private"
+  createdAt   DateTime @default(now()) @map("created_at")
 
   character Character @relation(fields: [characterId], references: [id])
 
   @@map("wyrmbarrow_journal_entries")
+}
+
+model CharacterSheet {
+  id           Int      @id @default(autoincrement())
+  characterId  Int      @unique @map("character_id")
+  data         Json
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("wyrmbarrow_character_sheets")
 }
 
 // Note: hub pressure is stored as an Evennia Script Attribute (not a direct table).
