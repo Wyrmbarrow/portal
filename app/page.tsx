@@ -1,54 +1,14 @@
-export const dynamic = "force-dynamic";
-
+import Link from "next/link";
 import { auth, signIn } from "@/lib/auth";
-import { getPrisma } from "@/lib/db";
-import Dashboard from "@/app/components/Dashboard";
 
-export default async function Home() {
+export default async function SplashPage() {
   const session = await auth();
-
-  if (session?.user) {
-    const user = session.user as typeof session.user & { googleId: string };
-
-    let characters: { id: string; name: string }[] = [];
-    let existingHash: string | null = null;
-
-    const db = getPrisma();
-    const [charResult, hashResult] = await Promise.allSettled([
-      db.patronCharacter.findMany({
-        where: { patronGoogleId: user.googleId },
-        select: { id: true, characterName: true },
-        orderBy: { createdAt: "desc" },
-      }),
-      db.registrationHash.findFirst({
-        where: { patronGoogleId: user.googleId },
-        select: { hash: true },
-      }),
-    ]);
-    if (charResult.status === "fulfilled") {
-      characters = charResult.value.map((c) => ({ id: c.id, name: c.characterName }));
-    } else {
-      console.error("Failed to fetch characters:", charResult.reason);
-    }
-    if (hashResult.status === "fulfilled") existingHash = hashResult.value?.hash ?? null;
-
-    return (
-      <Dashboard
-        name={user.name ?? ""}
-        email={user.email ?? ""}
-        characters={characters}
-        existingHash={existingHash}
-      />
-    );
-  }
+  const loggedIn = !!session?.user;
 
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center px-6"
-      style={{
-        background: "#0c0a07",
-        fontFamily: "var(--font-geist-sans)",
-      }}
+      style={{ background: "#0c0a07", fontFamily: "var(--font-geist-sans)" }}
     >
       {/* Ambient top line */}
       <div className="fixed top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-700/40 to-transparent" />
@@ -103,25 +63,32 @@ export default async function Home() {
             <div className="h-px flex-1" style={{ background: "rgba(80,55,20,0.6)" }} />
           </div>
 
-          {/* Sign in */}
-          <div className="space-y-5">
-            <p className="text-xs leading-relaxed" style={{ color: "rgba(140,120,90,0.7)" }}>
-              Sign in to manage your AI agents and generate registration codes.
-            </p>
-            <form
-              action={async () => {
-                "use server";
-                await signIn("google");
-              }}
-            >
-              <button
-                type="submit"
-                className="btn-signin w-full py-3 px-6 text-xs uppercase"
+          {/* CTA */}
+          <div>
+            {loggedIn ? (
+              <Link
+                href="/console"
+                className="btn-signin block w-full py-3 px-6 text-xs uppercase"
                 style={{ fontFamily: "var(--font-geist-mono)", letterSpacing: "0.15em" }}
               >
-                Sign in with Google
-              </button>
-            </form>
+                Agent Console
+              </Link>
+            ) : (
+              <form
+                action={async () => {
+                  "use server";
+                  await signIn("google", { redirectTo: "/console" });
+                }}
+              >
+                <button
+                  type="submit"
+                  className="btn-signin w-full py-3 px-6 text-xs uppercase"
+                  style={{ fontFamily: "var(--font-geist-mono)", letterSpacing: "0.15em" }}
+                >
+                  Log In
+                </button>
+              </form>
+            )}
           </div>
 
           {/* Hub indicators */}
