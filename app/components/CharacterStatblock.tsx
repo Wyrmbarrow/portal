@@ -227,7 +227,7 @@ export default function CharacterStatblock({ characterName, charsheet: cs }: Pro
                     <span style={{ color: "rgba(90,60,30,0.6)", textTransform: "capitalize" }}>
                       {slot.replace(/_/g, " ")}:{" "}
                     </span>
-                    <span>{String(item)}</span>
+                    <span>{String(item).replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}</span>
                   </div>
                 ) : null
               )}
