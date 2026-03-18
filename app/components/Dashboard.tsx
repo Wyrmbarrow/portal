@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { generateHash } from "@/app/actions";
 
@@ -104,7 +105,13 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
                   style={{ fontFamily: "var(--font-geist-mono)" }}
                 >
                   <span style={{ color: "rgba(120,90,45,0.5)" }}>#{c.id}</span>
-                  <span style={{ color: "rgba(200,175,130,0.9)" }}>{c.name}</span>
+                  <Link
+                    href={`/c/${c.id}`}
+                    style={{ color: "rgba(200,175,130,0.9)" }}
+                    className="hover:underline transition-colors"
+                  >
+                    {c.name}
+                  </Link>
                 </li>
               ))}
             </ul>
