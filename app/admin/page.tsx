@@ -178,6 +178,7 @@ export default async function AdminPage() {
     entriesSince24hR,
     activeCharsSince24hR,
     mcpOnline,
+    recentActivityR,
   ] = await Promise.allSettled([
     db.patron.count(),
     db.patronCharacter.count(),
@@ -198,6 +199,13 @@ export default async function AdminPage() {
       where: { createdAt: { gte: since24h } },
     }),
     checkMcpHealth(),
+    // Most recently active characters (last journal entry per character)
+    db.journalEntry.groupBy({
+      by: ["characterId"],
+      _max: { createdAt: true },
+      orderBy: { _max: { createdAt: "desc" } },
+      take: 10,
+    }),
   ]);
 
   const patronCount = patronCountR.status === "fulfilled" ? patronCountR.value : 0;
@@ -213,13 +221,15 @@ export default async function AdminPage() {
   const activeChars24h =
     activeCharsSince24hR.status === "fulfilled" ? activeCharsSince24hR.value.length : 0;
   const mcpUp = mcpOnline.status === "fulfilled" ? mcpOnline.value : false;
+  const recentActivity = recentActivityR.status === "fulfilled" ? recentActivityR.value : [];
 
   // Supplementary lookups
   const charIds = recentChars.map((c) => Number(c.characterId));
   const deathCharIds = recentDeaths.map((e) => BigInt(e.characterId));
   const patronGoogleIds = [...new Set(recentChars.map((c) => c.patronGoogleId))];
+  const activeCharIds = recentActivity.map((r) => BigInt(r.characterId));
 
-  const [sheetsR, patronEmailsR, deathCharsR] = await Promise.allSettled([
+  const [sheetsR, patronEmailsR, deathCharsR, activeCharsR] = await Promise.allSettled([
     charIds.length > 0
       ? db.characterSheet.findMany({
           where: { characterId: { in: charIds } },
@@ -239,17 +249,27 @@ export default async function AdminPage() {
           select: { id: true, characterId: true, characterName: true },
         })
       : Promise.resolve([]),
+    activeCharIds.length > 0
+      ? db.patronCharacter.findMany({
+          where: { characterId: { in: activeCharIds } },
+          select: { id: true, characterId: true, characterName: true },
+        })
+      : Promise.resolve([]),
   ]);
 
   const sheets = sheetsR.status === "fulfilled" ? sheetsR.value : [];
   const patronEmails = patronEmailsR.status === "fulfilled" ? patronEmailsR.value : [];
   const deathChars = deathCharsR.status === "fulfilled" ? deathCharsR.value : [];
+  const activeChars = activeCharsR.status === "fulfilled" ? activeCharsR.value : [];
 
   const sheetMap = new Map(sheets.map((s) => [s.characterId, s.data as Record<string, unknown>]));
   const patronMap = new Map(patronEmails.map((p) => [p.googleId, p.email]));
   // Key by characterId (BigInt → string) → { id (CUID), name }
   const deathCharMap = new Map(
     deathChars.map((d) => [d.characterId.toString(), { id: d.id, name: d.characterName }])
+  );
+  const activeCharMap = new Map(
+    activeChars.map((c) => [c.characterId.toString(), { id: c.id, name: c.characterName }])
   );
 
   const liveChars = totalChars - totalDeaths;
@@ -387,6 +407,44 @@ export default async function AdminPage() {
                     ) : (
                       <span style={{ color: "#71717a", fontSize: "0.875rem" }}>
                         Character #{entry.characterId}
+                      </span>
+                    )}
+                  </Row>
+                );
+              })
+            )}
+          </Panel>
+        </div>
+
+        {/* Recently active */}
+        <div style={{ marginTop: "1rem" }}>
+          <Panel title="Recently Active Characters">
+            {recentActivity.length === 0 ? (
+              <Empty>No activity yet.</Empty>
+            ) : (
+              recentActivity.map((r) => {
+                const char = activeCharMap.get(BigInt(r.characterId).toString());
+                const lastSeen = r._max.createdAt;
+                return (
+                  <Row
+                    key={r.characterId}
+                    timestamp={lastSeen ? fmtDate(lastSeen) : "—"}
+                  >
+                    {char ? (
+                      <a
+                        href={`/c/${char.id}`}
+                        style={{
+                          color: "#a78bfa",
+                          fontWeight: 500,
+                          textDecoration: "none",
+                          fontSize: "0.875rem",
+                        }}
+                      >
+                        {char.name}
+                      </a>
+                    ) : (
+                      <span style={{ color: "#71717a", fontSize: "0.875rem" }}>
+                        Character #{r.characterId}
                       </span>
                     )}
                   </Row>
