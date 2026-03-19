@@ -3,7 +3,6 @@ export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getPrisma } from "@/lib/db";
-import { getHubPressures } from "@/lib/server-api";
 
 // ── Inline layout helpers (server-only, no "use client") ─────────────────────
 
@@ -132,40 +131,6 @@ function Empty({ children }: { children: React.ReactNode }) {
   );
 }
 
-function HubBar({
-  name,
-  pressure,
-  ceiling,
-}: {
-  name: string;
-  pressure: number;
-  ceiling: number;
-}) {
-  const pct = Math.min(100, Math.round((pressure / ceiling) * 100));
-  const color =
-    pct < 40 ? "#4ade80" : pct < 65 ? "#facc15" : pct < 85 ? "#fb923c" : "#f87171";
-  return (
-    <div style={{ marginBottom: "0.8rem" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.3rem" }}>
-        <span style={{ fontSize: "0.8rem", color: "#d4d4d8" }}>{name}</span>
-        <span style={{ fontSize: "0.73rem", color, fontFamily: "var(--font-geist-mono)" }}>
-          {pressure} / {ceiling}
-        </span>
-      </div>
-      <div style={{ background: "#27272a", borderRadius: "9999px", height: "5px" }}>
-        <div
-          style={{
-            background: color,
-            borderRadius: "9999px",
-            height: "5px",
-            width: `${pct}%`,
-          }}
-        />
-      </div>
-    </div>
-  );
-}
-
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function fmtDate(d: Date) {
@@ -177,26 +142,17 @@ function fmtDate(d: Date) {
   });
 }
 
-// Hub definitions with pressure ceilings: (hub_number + 1) × 20, capped at 100
-const HUB_ORDER = [
-  { keys: ["oakhaven"],              label: "Oakhaven",   ceiling: 40 },
-  { keys: ["sky_reach", "sky-reach"], label: "Sky-Reach",  ceiling: 60 },
-  { keys: ["aquilia"],               label: "Aquilia",    ceiling: 80 },
-  { keys: ["khem"],                  label: "Khem",       ceiling: 100 },
-  { keys: ["malakor"],               label: "Malakor",    ceiling: 100 },
-  { keys: ["aethelgard"],            label: "Aethelgard", ceiling: 100 },
-  { keys: ["crown", "the_crown", "the-crown"], label: "The Crown", ceiling: 100 },
-];
-
-function resolveHubPressure(
-  raw: Record<string, unknown>,
-  keys: string[]
-): number | undefined {
-  for (const k of keys) {
-    const v = raw[k] ?? raw[k.replace(/_/g, "-")] ?? raw[k.replace(/-/g, "_")];
-    if (v !== undefined) return Number(v);
+async function checkMcpHealth(): Promise<boolean> {
+  const mcpUrl = process.env.WYRMBARROW_MCP_URL ?? "https://mcp.wyrmbarrow.com";
+  try {
+    const res = await fetch(`${mcpUrl}/health`, {
+      next: { revalidate: 0 },
+      signal: AbortSignal.timeout(4000),
+    });
+    return res.ok;
+  } catch {
+    return false;
   }
-  return undefined;
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
@@ -221,6 +177,7 @@ export default async function AdminPage() {
     wordStatsR,
     entriesSince24hR,
     activeCharsSince24hR,
+    mcpOnline,
   ] = await Promise.allSettled([
     db.patron.count(),
     db.patronCharacter.count(),
@@ -240,6 +197,7 @@ export default async function AdminPage() {
       by: ["characterId"],
       where: { createdAt: { gte: since24h } },
     }),
+    checkMcpHealth(),
   ]);
 
   const patronCount = patronCountR.status === "fulfilled" ? patronCountR.value : 0;
@@ -254,13 +212,14 @@ export default async function AdminPage() {
     entriesSince24hR.status === "fulfilled" ? entriesSince24hR.value : 0;
   const activeChars24h =
     activeCharsSince24hR.status === "fulfilled" ? activeCharsSince24hR.value.length : 0;
+  const mcpUp = mcpOnline.status === "fulfilled" ? mcpOnline.value : false;
 
   // Supplementary lookups
   const charIds = recentChars.map((c) => Number(c.characterId));
   const deathCharIds = recentDeaths.map((e) => BigInt(e.characterId));
   const patronGoogleIds = [...new Set(recentChars.map((c) => c.patronGoogleId))];
 
-  const [sheetsR, patronEmailsR, deathNamesR] = await Promise.allSettled([
+  const [sheetsR, patronEmailsR, deathCharsR] = await Promise.allSettled([
     charIds.length > 0
       ? db.characterSheet.findMany({
           where: { characterId: { in: charIds } },
@@ -273,41 +232,25 @@ export default async function AdminPage() {
           select: { googleId: true, email: true },
         })
       : Promise.resolve([]),
+    // Select CUID id (for link) + characterId (for lookup key) + characterName
     deathCharIds.length > 0
       ? db.patronCharacter.findMany({
           where: { characterId: { in: deathCharIds } },
-          select: { characterId: true, characterName: true },
+          select: { id: true, characterId: true, characterName: true },
         })
       : Promise.resolve([]),
   ]);
 
   const sheets = sheetsR.status === "fulfilled" ? sheetsR.value : [];
   const patronEmails = patronEmailsR.status === "fulfilled" ? patronEmailsR.value : [];
-  const deathNames = deathNamesR.status === "fulfilled" ? deathNamesR.value : [];
+  const deathChars = deathCharsR.status === "fulfilled" ? deathCharsR.value : [];
 
   const sheetMap = new Map(sheets.map((s) => [s.characterId, s.data as Record<string, unknown>]));
   const patronMap = new Map(patronEmails.map((p) => [p.googleId, p.email]));
-  const deathNameMap = new Map(
-    deathNames.map((d) => [d.characterId.toString(), d.characterName])
+  // Key by characterId (BigInt → string) → { id (CUID), name }
+  const deathCharMap = new Map(
+    deathChars.map((d) => [d.characterId.toString(), { id: d.id, name: d.characterName }])
   );
-
-  // Hub pressures
-  let hubPressures: Record<string, unknown> | null = null;
-  let evenniaOnline = false;
-  try {
-    const raw = await getHubPressures();
-    evenniaOnline = true;
-    if (raw && typeof raw === "object") {
-      // Accept { pressures: {...} }, { hubs: [...] }, or a flat object
-      if ("pressures" in raw && typeof (raw as Record<string, unknown>).pressures === "object") {
-        hubPressures = (raw as Record<string, unknown>).pressures as Record<string, unknown>;
-      } else {
-        hubPressures = raw as Record<string, unknown>;
-      }
-    }
-  } catch {
-    // Evennia offline
-  }
 
   const liveChars = totalChars - totalDeaths;
 
@@ -339,11 +282,11 @@ export default async function AdminPage() {
             {session.user.email} &mdash;{" "}
             <span
               style={{
-                color: evenniaOnline ? "#4ade80" : "#f87171",
+                color: mcpUp ? "#4ade80" : "#f87171",
                 fontFamily: "var(--font-geist-mono)",
               }}
             >
-              {evenniaOnline ? "● Evennia online" : "● Evennia offline"}
+              {mcpUp ? "● MCP Server online" : "● MCP Server offline"}
             </span>
           </p>
         </div>
@@ -360,8 +303,17 @@ export default async function AdminPage() {
           <StatCard label="Patrons" value={patronCount} />
           <StatCard label="Total Characters" value={totalChars} />
           <StatCard label="Living" value={liveChars} color="#4ade80" />
-          <StatCard label="Deaths" value={totalDeaths} color={totalDeaths > 0 ? "#f87171" : undefined} />
-          <StatCard label="Active (24h)" value={activeChars24h} color={activeChars24h > 0 ? "#60a5fa" : undefined} sub={`${entries24h} entries`} />
+          <StatCard
+            label="Deaths"
+            value={totalDeaths}
+            color={totalDeaths > 0 ? "#f87171" : undefined}
+          />
+          <StatCard
+            label="Active (24h)"
+            value={activeChars24h}
+            color={activeChars24h > 0 ? "#60a5fa" : undefined}
+            sub={`${entries24h} entries`}
+          />
           <StatCard label="Journal Entries" value={totalEntries.toLocaleString()} />
           <StatCard label="Words Written" value={totalWords.toLocaleString()} />
         </div>
@@ -372,7 +324,6 @@ export default async function AdminPage() {
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
             gap: "1rem",
-            marginBottom: "1rem",
           }}
         >
           {/* Recently created */}
@@ -388,9 +339,10 @@ export default async function AdminPage() {
                   : undefined;
                 const sub = [classLine, email].filter(Boolean).join(" · ");
                 return (
+                  // c.id is the CUID used by the /c/[id] route
                   <Row key={c.id} timestamp={fmtDate(c.createdAt)} sub={sub || undefined}>
                     <a
-                      href={`/c/${c.characterId}`}
+                      href={`/c/${c.id}`}
                       style={{
                         color: "#a78bfa",
                         fontWeight: 500,
@@ -412,57 +364,37 @@ export default async function AdminPage() {
               <Empty>No deaths recorded.</Empty>
             ) : (
               recentDeaths.map((entry) => {
-                const name =
-                  deathNameMap.get(BigInt(entry.characterId).toString()) ??
-                  `Character #${entry.characterId}`;
+                const char = deathCharMap.get(BigInt(entry.characterId).toString());
                 return (
                   <Row
                     key={entry.id}
                     timestamp={fmtDate(entry.createdAt)}
                     sub={entry.locationName || undefined}
                   >
-                    <a
-                      href={`/c/${entry.characterId}`}
-                      style={{
-                        color: "#f87171",
-                        fontWeight: 500,
-                        textDecoration: "none",
-                        fontSize: "0.875rem",
-                      }}
-                    >
-                      {name}
-                    </a>
+                    {char ? (
+                      // Use the CUID id for the link, same as /c/[id] expects
+                      <a
+                        href={`/c/${char.id}`}
+                        style={{
+                          color: "#f87171",
+                          fontWeight: 500,
+                          textDecoration: "none",
+                          fontSize: "0.875rem",
+                        }}
+                      >
+                        {char.name}
+                      </a>
+                    ) : (
+                      <span style={{ color: "#71717a", fontSize: "0.875rem" }}>
+                        Character #{entry.characterId}
+                      </span>
+                    )}
                   </Row>
                 );
               })
             )}
           </Panel>
         </div>
-
-        {/* Hub pressures */}
-        <Panel title="Hub Pressures">
-          {!evenniaOnline ? (
-            <Empty>Evennia server unreachable — hub pressure unavailable.</Empty>
-          ) : hubPressures === null ? (
-            <Empty>No pressure data returned.</Empty>
-          ) : (
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "0 2.5rem",
-              }}
-            >
-              {HUB_ORDER.map(({ keys, label, ceiling }) => {
-                const pressure = resolveHubPressure(hubPressures!, keys);
-                if (pressure === undefined) return null;
-                return (
-                  <HubBar key={label} name={label} pressure={pressure} ceiling={ceiling} />
-                );
-              })}
-            </div>
-          )}
-        </Panel>
       </div>
     </main>
   );
