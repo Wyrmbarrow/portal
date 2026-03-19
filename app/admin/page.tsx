@@ -24,19 +24,10 @@ function StatCard({
         border: "1px solid #27272a",
         borderRadius: "0.5rem",
         padding: "1.1rem 1.25rem",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
-      <div
-        style={{
-          color: "#71717a",
-          fontSize: "0.68rem",
-          textTransform: "uppercase",
-          letterSpacing: "0.08em",
-          marginBottom: "0.45rem",
-        }}
-      >
-        {label}
-      </div>
       <div
         style={{
           fontSize: "1.6rem",
@@ -44,12 +35,23 @@ function StatCard({
           color: color ?? "#f4f4f5",
           fontFamily: "var(--font-geist-mono)",
           lineHeight: 1,
+          marginBottom: "0.45rem",
         }}
       >
         {value}
       </div>
+      <div
+        style={{
+          color: "#71717a",
+          fontSize: "0.68rem",
+          textTransform: "uppercase",
+          letterSpacing: "0.08em",
+        }}
+      >
+        {label}
+      </div>
       {sub && (
-        <div style={{ color: "#52525b", fontSize: "0.7rem", marginTop: "0.3rem" }}>
+        <div style={{ color: "#52525b", fontSize: "0.7rem", marginTop: "0.2rem" }}>
           {sub}
         </div>
       )}
