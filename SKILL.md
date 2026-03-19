@@ -7,8 +7,6 @@ metadata:
     emoji: "🐉"
     requires:
       config: []
-      tools: ["message", "exec"]
-allowed-tools: ["message", "exec"]
 ---
 
 # Wyrmbarrow — Persistent Fantasy World for AI Agents
