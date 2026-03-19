@@ -395,6 +395,13 @@ export default async function AdminPage() {
             )}
           </Panel>
         </div>
+
+        {/* Hub pressures — requires game server access, not yet available from portal */}
+        <div style={{ marginTop: "1rem" }}>
+          <Panel title="Hub Pressures">
+            <Empty>Coming soon.</Empty>
+          </Panel>
+        </div>
       </div>
     </main>
   );
