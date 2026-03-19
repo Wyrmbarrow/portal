@@ -88,11 +88,13 @@ function Panel({ title, children }: { title: string; children: React.ReactNode }
 function Row({
   children,
   timestamp,
-  sub,
+  detail,
+  patron,
 }: {
   children: React.ReactNode;
   timestamp: string;
-  sub?: string;
+  detail?: string;
+  patron?: string;
 }) {
   return (
     <div
@@ -104,19 +106,22 @@ function Row({
         borderBottom: "1px solid #27272a",
       }}
     >
-      <div>
+      <div style={{ minWidth: 0 }}>
         {children}
-        {sub && (
-          <div style={{ color: "#71717a", fontSize: "0.68rem", marginTop: "0.1rem" }}>{sub}</div>
+        {(detail || patron) && (
+          <div style={{ color: "#71717a", fontSize: "0.67rem", marginTop: "0.1rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            {[detail, patron].filter(Boolean).join(" · ")}
+          </div>
         )}
       </div>
       <span
         style={{
           color: "#52525b",
-          fontSize: "0.68rem",
+          fontSize: "0.67rem",
           whiteSpace: "nowrap",
-          marginLeft: "1rem",
+          marginLeft: "0.75rem",
           paddingTop: "0.2rem",
+          flexShrink: 0,
         }}
       >
         {timestamp}
@@ -140,6 +145,14 @@ function fmtDate(d: Date) {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+function classLine(data: Record<string, unknown> | undefined): string | undefined {
+  if (!data) return undefined;
+  const cls = String(data.class ?? "?");
+  const sub = data.subclass ? ` (${String(data.subclass)})` : "";
+  const lvl = String(data.level ?? "?");
+  return `${cls}${sub} Lv.${lvl}`;
 }
 
 async function checkMcpHealth(): Promise<boolean> {
@@ -167,6 +180,8 @@ export default async function AdminPage() {
   const db = getPrisma();
   const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
+  // ── Round 1: main stats ───────────────────────────────────────────────────
+
   const [
     patronCountR,
     totalCharsR,
@@ -177,12 +192,12 @@ export default async function AdminPage() {
     wordStatsR,
     entriesSince24hR,
     activeCharsSince24hR,
-    mcpOnline,
+    mcpOnlineR,
     recentActivityR,
   ] = await Promise.allSettled([
     db.patron.count(),
     db.patronCharacter.count(),
-    db.patronCharacter.findMany({ orderBy: { createdAt: "desc" }, take: 15 }),
+    db.patronCharacter.findMany({ orderBy: { createdAt: "desc" }, take: 10 }),
     db.journalEntry.count({ where: { entryType: "death" } }),
     db.journalEntry.findMany({
       where: { entryType: "death" },
@@ -199,7 +214,6 @@ export default async function AdminPage() {
       where: { createdAt: { gte: since24h } },
     }),
     checkMcpHealth(),
-    // Most recently active characters (last journal entry per character)
     db.journalEntry.groupBy({
       by: ["characterId"],
       _max: { createdAt: true },
@@ -208,71 +222,77 @@ export default async function AdminPage() {
     }),
   ]);
 
-  const patronCount = patronCountR.status === "fulfilled" ? patronCountR.value : 0;
-  const totalChars = totalCharsR.status === "fulfilled" ? totalCharsR.value : 0;
-  const recentChars = recentCharsR.status === "fulfilled" ? recentCharsR.value : [];
-  const totalDeaths = totalDeathsR.status === "fulfilled" ? totalDeathsR.value : 0;
-  const recentDeaths = recentDeathsR.status === "fulfilled" ? recentDeathsR.value : [];
-  const totalEntries = totalEntriesR.status === "fulfilled" ? totalEntriesR.value : 0;
-  const totalWords =
-    wordStatsR.status === "fulfilled" ? (wordStatsR.value._sum.wordCount ?? 0) : 0;
-  const entries24h =
-    entriesSince24hR.status === "fulfilled" ? entriesSince24hR.value : 0;
-  const activeChars24h =
-    activeCharsSince24hR.status === "fulfilled" ? activeCharsSince24hR.value.length : 0;
-  const mcpUp = mcpOnline.status === "fulfilled" ? mcpOnline.value : false;
+  const patronCount    = patronCountR.status    === "fulfilled" ? patronCountR.value    : 0;
+  const totalChars     = totalCharsR.status     === "fulfilled" ? totalCharsR.value     : 0;
+  const recentChars    = recentCharsR.status    === "fulfilled" ? recentCharsR.value    : [];
+  const totalDeaths    = totalDeathsR.status    === "fulfilled" ? totalDeathsR.value    : 0;
+  const recentDeaths   = recentDeathsR.status   === "fulfilled" ? recentDeathsR.value   : [];
+  const totalEntries   = totalEntriesR.status   === "fulfilled" ? totalEntriesR.value   : 0;
+  const totalWords     = wordStatsR.status      === "fulfilled" ? (wordStatsR.value._sum.wordCount ?? 0) : 0;
+  const entries24h     = entriesSince24hR.status === "fulfilled" ? entriesSince24hR.value : 0;
+  const activeChars24h = activeCharsSince24hR.status === "fulfilled" ? activeCharsSince24hR.value.length : 0;
+  const mcpUp          = mcpOnlineR.status      === "fulfilled" ? mcpOnlineR.value      : false;
   const recentActivity = recentActivityR.status === "fulfilled" ? recentActivityR.value : [];
 
-  // Supplementary lookups
-  const charIds = recentChars.map((c) => Number(c.characterId));
-  const deathCharIds = recentDeaths.map((e) => BigInt(e.characterId));
-  const patronGoogleIds = [...new Set(recentChars.map((c) => c.patronGoogleId))];
-  const activeCharIds = recentActivity.map((r) => BigInt(r.characterId));
+  // ── Round 2: supplementary lookups ───────────────────────────────────────
+  // Collect all characterIds across all three panels so we can fetch sheets
+  // and patron records in one go.
 
-  const [sheetsR, patronEmailsR, deathCharsR, activeCharsR] = await Promise.allSettled([
-    charIds.length > 0
+  const deathCharIdsBig  = recentDeaths.map((e) => BigInt(e.characterId));
+  const activeCharIdsBig = recentActivity.map((r) => BigInt(r.characterId));
+
+  const allCharIdsInt = [
+    ...new Set([
+      ...recentChars.map((c) => Number(c.characterId)),
+      ...recentDeaths.map((e) => e.characterId),      // already Int
+      ...recentActivity.map((r) => r.characterId),    // already Int
+    ]),
+  ];
+
+  const [allSheetsR, allPatronsR, deathCharsR, activeCharsR] = await Promise.allSettled([
+    // Sheets for every character across all three panels
+    allCharIdsInt.length > 0
       ? db.characterSheet.findMany({
-          where: { characterId: { in: charIds } },
+          where: { characterId: { in: allCharIdsInt } },
           select: { characterId: true, data: true },
         })
       : Promise.resolve([]),
-    patronGoogleIds.length > 0
-      ? db.patron.findMany({
-          where: { googleId: { in: patronGoogleIds } },
-          select: { googleId: true, email: true },
+    // All patron emails — small table, fetch entire set once
+    db.patron.findMany({ select: { googleId: true, email: true } }),
+    // PatronCharacter records for recently-died (need CUID id + patronGoogleId)
+    deathCharIdsBig.length > 0
+      ? db.patronCharacter.findMany({
+          where: { characterId: { in: deathCharIdsBig } },
+          select: { id: true, characterId: true, characterName: true, patronGoogleId: true },
         })
       : Promise.resolve([]),
-    // Select CUID id (for link) + characterId (for lookup key) + characterName
-    deathCharIds.length > 0
+    // PatronCharacter records for recently-active (need CUID id + patronGoogleId)
+    activeCharIdsBig.length > 0
       ? db.patronCharacter.findMany({
-          where: { characterId: { in: deathCharIds } },
-          select: { id: true, characterId: true, characterName: true },
-        })
-      : Promise.resolve([]),
-    activeCharIds.length > 0
-      ? db.patronCharacter.findMany({
-          where: { characterId: { in: activeCharIds } },
-          select: { id: true, characterId: true, characterName: true },
+          where: { characterId: { in: activeCharIdsBig } },
+          select: { id: true, characterId: true, characterName: true, patronGoogleId: true },
         })
       : Promise.resolve([]),
   ]);
 
-  const sheets = sheetsR.status === "fulfilled" ? sheetsR.value : [];
-  const patronEmails = patronEmailsR.status === "fulfilled" ? patronEmailsR.value : [];
-  const deathChars = deathCharsR.status === "fulfilled" ? deathCharsR.value : [];
+  const allSheets   = allSheetsR.status   === "fulfilled" ? allSheetsR.value   : [];
+  const allPatrons  = allPatronsR.status  === "fulfilled" ? allPatronsR.value  : [];
+  const deathChars  = deathCharsR.status  === "fulfilled" ? deathCharsR.value  : [];
   const activeChars = activeCharsR.status === "fulfilled" ? activeCharsR.value : [];
 
-  const sheetMap = new Map(sheets.map((s) => [s.characterId, s.data as Record<string, unknown>]));
-  const patronMap = new Map(patronEmails.map((p) => [p.googleId, p.email]));
-  // Key by characterId (BigInt → string) → { id (CUID), name }
-  const deathCharMap = new Map(
-    deathChars.map((d) => [d.characterId.toString(), { id: d.id, name: d.characterName }])
-  );
-  const activeCharMap = new Map(
-    activeChars.map((c) => [c.characterId.toString(), { id: c.id, name: c.characterName }])
-  );
+  // ── Lookup maps ───────────────────────────────────────────────────────────
+
+  // characterId (Int) → sheet data
+  const sheetMap = new Map(allSheets.map((s) => [s.characterId, s.data as Record<string, unknown>]));
+  // googleId → email
+  const patronMap = new Map(allPatrons.map((p) => [p.googleId, p.email]));
+  // characterId (BigInt → string) → { id (CUID), name, patronGoogleId }
+  const deathCharMap  = new Map(deathChars.map((d)  => [d.characterId.toString(),  { id: d.id,  name: d.characterName,  googleId: d.patronGoogleId }]));
+  const activeCharMap = new Map(activeChars.map((c) => [c.characterId.toString(), { id: c.id, name: c.characterName, googleId: c.patronGoogleId }]));
 
   const liveChars = totalChars - totalDeaths;
+
+  // ── Render ────────────────────────────────────────────────────────────────
 
   return (
     <main
@@ -284,7 +304,7 @@ export default async function AdminPage() {
         fontFamily: "var(--font-geist-sans)",
       }}
     >
-      <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+      <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
         {/* Header */}
         <div style={{ marginBottom: "2rem" }}>
           <h1
@@ -315,7 +335,7 @@ export default async function AdminPage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
             gap: "0.75rem",
             marginBottom: "1.25rem",
           }}
@@ -338,37 +358,66 @@ export default async function AdminPage() {
           <StatCard label="Words Written" value={totalWords.toLocaleString()} />
         </div>
 
-        {/* Two-column character lists */}
+        {/* Three-column character panels: Active · Created · Died */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "1fr 1fr",
+            gridTemplateColumns: "1fr 1fr 1fr",
             gap: "1rem",
+            marginBottom: "1rem",
           }}
         >
+          {/* Recently active */}
+          <Panel title="Recently Active">
+            {recentActivity.length === 0 ? (
+              <Empty>No activity yet.</Empty>
+            ) : (
+              recentActivity.map((r) => {
+                const char    = activeCharMap.get(BigInt(r.characterId).toString());
+                const sheet   = sheetMap.get(r.characterId);
+                const lastSeen = r._max.createdAt;
+                return (
+                  <Row
+                    key={r.characterId}
+                    timestamp={lastSeen ? fmtDate(lastSeen) : "—"}
+                    detail={classLine(sheet)}
+                    patron={char ? patronMap.get(char.googleId) ?? undefined : undefined}
+                  >
+                    {char ? (
+                      <a
+                        href={`/c/${char.id}`}
+                        style={{ color: "#60a5fa", fontWeight: 500, textDecoration: "none", fontSize: "0.85rem" }}
+                      >
+                        {char.name}
+                      </a>
+                    ) : (
+                      <span style={{ color: "#71717a", fontSize: "0.85rem" }}>
+                        Character #{r.characterId}
+                      </span>
+                    )}
+                  </Row>
+                );
+              })
+            )}
+          </Panel>
+
           {/* Recently created */}
-          <Panel title="Recently Created Characters">
+          <Panel title="Recently Created">
             {recentChars.length === 0 ? (
               <Empty>No characters yet.</Empty>
             ) : (
               recentChars.map((c) => {
                 const sheet = sheetMap.get(Number(c.characterId));
-                const email = patronMap.get(c.patronGoogleId);
-                const classLine = sheet
-                  ? `${String(sheet.class ?? "?")}${sheet.subclass ? ` (${String(sheet.subclass)})` : ""} Lv.${String(sheet.level ?? "?")}`
-                  : undefined;
-                const sub = [classLine, email].filter(Boolean).join(" · ");
                 return (
-                  // c.id is the CUID used by the /c/[id] route
-                  <Row key={c.id} timestamp={fmtDate(c.createdAt)} sub={sub || undefined}>
+                  <Row
+                    key={c.id}
+                    timestamp={fmtDate(c.createdAt)}
+                    detail={classLine(sheet)}
+                    patron={patronMap.get(c.patronGoogleId) ?? undefined}
+                  >
                     <a
                       href={`/c/${c.id}`}
-                      style={{
-                        color: "#a78bfa",
-                        fontWeight: 500,
-                        textDecoration: "none",
-                        fontSize: "0.875rem",
-                      }}
+                      style={{ color: "#a78bfa", fontWeight: 500, textDecoration: "none", fontSize: "0.85rem" }}
                     >
                       {c.characterName}
                     </a>
@@ -379,33 +428,29 @@ export default async function AdminPage() {
           </Panel>
 
           {/* Recently died */}
-          <Panel title="Recently Died Characters">
+          <Panel title="Recently Died">
             {recentDeaths.length === 0 ? (
               <Empty>No deaths recorded.</Empty>
             ) : (
               recentDeaths.map((entry) => {
-                const char = deathCharMap.get(BigInt(entry.characterId).toString());
+                const char  = deathCharMap.get(BigInt(entry.characterId).toString());
+                const sheet = sheetMap.get(entry.characterId);
                 return (
                   <Row
                     key={entry.id}
                     timestamp={fmtDate(entry.createdAt)}
-                    sub={entry.locationName || undefined}
+                    detail={classLine(sheet)}
+                    patron={char ? patronMap.get(char.googleId) ?? undefined : undefined}
                   >
                     {char ? (
-                      // Use the CUID id for the link, same as /c/[id] expects
                       <a
                         href={`/c/${char.id}`}
-                        style={{
-                          color: "#f87171",
-                          fontWeight: 500,
-                          textDecoration: "none",
-                          fontSize: "0.875rem",
-                        }}
+                        style={{ color: "#f87171", fontWeight: 500, textDecoration: "none", fontSize: "0.85rem" }}
                       >
                         {char.name}
                       </a>
                     ) : (
-                      <span style={{ color: "#71717a", fontSize: "0.875rem" }}>
+                      <span style={{ color: "#71717a", fontSize: "0.85rem" }}>
                         Character #{entry.characterId}
                       </span>
                     )}
@@ -416,50 +461,10 @@ export default async function AdminPage() {
           </Panel>
         </div>
 
-        {/* Recently active */}
-        <div style={{ marginTop: "1rem" }}>
-          <Panel title="Recently Active Characters">
-            {recentActivity.length === 0 ? (
-              <Empty>No activity yet.</Empty>
-            ) : (
-              recentActivity.map((r) => {
-                const char = activeCharMap.get(BigInt(r.characterId).toString());
-                const lastSeen = r._max.createdAt;
-                return (
-                  <Row
-                    key={r.characterId}
-                    timestamp={lastSeen ? fmtDate(lastSeen) : "—"}
-                  >
-                    {char ? (
-                      <a
-                        href={`/c/${char.id}`}
-                        style={{
-                          color: "#a78bfa",
-                          fontWeight: 500,
-                          textDecoration: "none",
-                          fontSize: "0.875rem",
-                        }}
-                      >
-                        {char.name}
-                      </a>
-                    ) : (
-                      <span style={{ color: "#71717a", fontSize: "0.875rem" }}>
-                        Character #{r.characterId}
-                      </span>
-                    )}
-                  </Row>
-                );
-              })
-            )}
-          </Panel>
-        </div>
-
         {/* Hub pressures — requires game server access, not yet available from portal */}
-        <div style={{ marginTop: "1rem" }}>
-          <Panel title="Hub Pressures">
-            <Empty>Coming soon.</Empty>
-          </Panel>
-        </div>
+        <Panel title="Hub Pressures">
+          <Empty>Coming soon.</Empty>
+        </Panel>
       </div>
     </main>
   );
