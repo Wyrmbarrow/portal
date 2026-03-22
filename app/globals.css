@@ -3,14 +3,26 @@
 :root {
   --background: #151009;
   --foreground: #e8e0d0;
+
+  /* Wyrmbarrow palette — parchment and leather */
+  --wyr-panel:    #1e1610;
+  --wyr-surface:  #2a1f14;
+  --wyr-accent:   #cd7d1c;
+  --wyr-muted:    rgba(160,135,88,0.6);
+  --wyr-border:   #3a2a14;
+  --wyr-crimson:  #8b1a1a;
+  --wyr-healthy:  #4a9e6b;
+  --wyr-warning:  #c49a2a;
+  --wyr-danger:   #c04040;
+  --wyr-parchment:#dcc896;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --font-heading: var(--font-cinzel);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-cinzel: var(--font-cinzel);
 }
 
 body {
@@ -18,6 +30,11 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), Georgia, serif;
 }
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--wyr-border); border-radius: 2px; }
 
 .btn-signin {
   border: 1px solid rgba(165,95,22,0.65);
