@@ -62,6 +62,16 @@ model FeedbackNote {
   @@map("portal_feedback_notes")
 }
 
+// ── Character credentials (portal writes; Evennia reads via raw SQL) ─────────
+
+model CharacterCredential {
+  characterId  BigInt   @id @map("character_id")
+  passwordHash String   @map("password_hash")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("portal_character_credentials")
+}
+
 // ── Read-only views of Evennia game data ─────────────────────────────────────
 // Note: objects_objectdb (Evennia's Character model) is intentionally NOT mapped
 // here — its column names don't match what Prisma expects on the production DB.

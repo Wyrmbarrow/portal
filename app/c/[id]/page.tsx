@@ -1,9 +1,11 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { getPrisma } from "@/lib/db"
+import { auth } from "@/lib/auth"
 import CharacterStatblock from "@/app/components/CharacterStatblock"
 import JournalFeed from "@/app/components/JournalFeed"
 import DeathEntry from "@/app/components/DeathEntry"
+import ResetPasswordButton from "@/app/components/ResetPasswordButton"
 
 export async function generateMetadata({
   params,
@@ -75,10 +77,14 @@ export default async function CharacterProfilePage({
   const db = getPrisma()
 
   // Look up by PatronCharacter CUID (not Evennia integer ID)
-  const patronChar = await db.patronCharacter.findUnique({
-    where: { id },
-  })
+  const [patronChar, session] = await Promise.all([
+    db.patronCharacter.findUnique({ where: { id } }),
+    auth(),
+  ])
   if (!patronChar) notFound()
+
+  const sessionGoogleId = (session?.user as (typeof session.user & { googleId?: string }) | undefined)?.googleId
+  const isOwner = sessionGoogleId != null && sessionGoogleId === patronChar.patronGoogleId
 
   const characterId = Number(patronChar.characterId)
 
@@ -185,6 +191,13 @@ export default async function CharacterProfilePage({
           characterName={patronChar.characterName}
           charsheet={charsheet}
         />
+
+        {/* Patron-only controls */}
+        {isOwner && !isDead && (
+          <div className="flex justify-end">
+            <ResetPasswordButton patronCharId={id} />
+          </div>
+        )}
 
         {/* Divider */}
         <div className="flex items-center gap-3">
