@@ -141,12 +141,11 @@ function Empty({ children }: { children: React.ReactNode }) {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function fmtDate(d: Date) {
-  return d.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const mins = Math.floor((Date.now() - d.getTime()) / 60000);
+  if (mins < 60)   return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24)    return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
 }
 
 function classLine(data: Record<string, unknown> | undefined): string | undefined {
