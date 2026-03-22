@@ -83,7 +83,7 @@ export default async function CharacterProfilePage({
   ])
   if (!patronChar) notFound()
 
-  const sessionGoogleId = (session?.user as (typeof session.user & { googleId?: string }) | undefined)?.googleId
+  const sessionGoogleId = (session?.user as { googleId?: string } | undefined)?.googleId
   const isOwner = sessionGoogleId != null && sessionGoogleId === patronChar.patronGoogleId
 
   const characterId = Number(patronChar.characterId)
