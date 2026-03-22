@@ -51,6 +51,17 @@ model PatronCharacter {
   @@map("portal_patron_characters")
 }
 
+model FeedbackNote {
+  id             String   @id @default(cuid())
+  journalEntryId Int      @unique @map("journal_entry_id")
+  status         String   @default("new")
+  note           String?
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  updatedBy      String   @map("updated_by")
+
+  @@map("portal_feedback_notes")
+}
+
 // ── Read-only views of Evennia game data ─────────────────────────────────────
 // Note: objects_objectdb (Evennia's Character model) is intentionally NOT mapped
 // here — its column names don't match what Prisma expects on the production DB.
