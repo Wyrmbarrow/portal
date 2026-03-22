@@ -1,6 +1,7 @@
 "use server";
 
 import { randomBytes } from "crypto";
+import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getPrisma } from "@/lib/db";
 
@@ -28,5 +29,36 @@ export async function generateHash(): Promise<string> {
   ]);
 
   return hash;
+}
+
+export async function upsertFeedbackNote(formData: FormData): Promise<never> {
+  const session = await auth();
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (!session?.user?.email || !adminEmail || session.user.email !== adminEmail) {
+    redirect("/feedback");
+  }
+
+  const entryId = Number(formData.get("journal_entry_id"));
+  const status = String(formData.get("status") ?? "new");
+  const note = String(formData.get("note") ?? "").trim().slice(0, 200) || null;
+  const tab = String(formData.get("tab") ?? "");
+
+  if (!Number.isInteger(entryId) || entryId <= 0) redirect("/feedback");
+  if (!["new", "seen", "addressed"].includes(status)) redirect("/feedback");
+
+  const db = getPrisma();
+  await db.feedbackNote.upsert({
+    where: { journalEntryId: entryId },
+    update: { status, note, updatedBy: session.user.email },
+    create: {
+      journalEntryId: entryId,
+      status,
+      note,
+      updatedBy: session.user.email,
+    },
+  });
+
+  const dest = tab && tab !== "all" ? `/feedback?tab=${tab}` : "/feedback";
+  redirect(dest);
 }
 

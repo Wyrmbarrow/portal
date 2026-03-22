@@ -4,6 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getPrisma } from "@/lib/db";
+import { upsertFeedbackNote } from "@/app/actions";
 
 const TABS = [
   { key: "all",      label: "All" },
@@ -27,6 +28,18 @@ function badgeLabel(subtype: string | null): string {
   if (subtype === "feature")  return "Feature Request";
   if (subtype === "feedback") return "Feedback";
   return "Other";
+}
+
+const STATUS_STYLES: Record<string, { color: string; border: string; bg: string }> = {
+  new:       { color: "rgba(155,118,52,0.6)",   border: "rgba(155,118,52,0.2)",  bg: "rgba(155,118,52,0.04)" },
+  seen:      { color: "rgba(218,168,82,0.85)",  border: "rgba(205,125,28,0.3)", bg: "rgba(180,110,30,0.08)" },
+  addressed: { color: "rgba(90,190,130,0.85)",  border: "rgba(90,190,130,0.25)", bg: "rgba(90,190,130,0.06)" },
+};
+
+function statusLabel(status: string): string {
+  if (status === "seen")      return "Seen";
+  if (status === "addressed") return "Addressed";
+  return "New";
 }
 
 function relativeTime(date: Date): string {
@@ -115,6 +128,28 @@ export default async function FeedbackPage({
       }
     } catch (err) {
       console.error("FeedbackPage: character lookup failed", err);
+    }
+  }
+
+  // ── Step C: fetch existing notes for displayed entries ────────────────────
+  const isAdmin =
+    !!process.env.ADMIN_EMAIL &&
+    session.user?.email === process.env.ADMIN_EMAIL;
+
+  const noteMap = new Map<number, { status: string; note: string | null }>();
+
+  if (entries.length > 0) {
+    const entryIds = entries.map(e => e.id);
+    try {
+      const notes = await db.feedbackNote.findMany({
+        where: { journalEntryId: { in: entryIds } },
+        select: { journalEntryId: true, status: true, note: true },
+      });
+      for (const n of notes) {
+        noteMap.set(n.journalEntryId, { status: n.status, note: n.note });
+      }
+    } catch (err) {
+      console.error("FeedbackPage: notes query failed", err);
     }
   }
 
@@ -271,6 +306,93 @@ export default async function FeedbackPage({
                     >
                       {entry.content}
                     </p>
+
+                    {/* Status + admin controls */}
+                    {(() => {
+                      const existing = noteMap.get(entry.id);
+                      const currentStatus = existing?.status ?? "new";
+                      const currentNote = existing?.note ?? null;
+                      const statusStyle = STATUS_STYLES[currentStatus] ?? STATUS_STYLES.new;
+
+                      return (
+                        <div className="mt-3 pt-3" style={{ borderTop: "1px solid rgba(60,40,15,0.4)" }}>
+                          {/* Status badge row */}
+                          <div className="flex items-center gap-2 mb-2">
+                            <span
+                              className="text-[8px] px-1.5 py-0.5 border rounded-sm tracking-[0.12em] uppercase"
+                              style={{ color: statusStyle.color, borderColor: statusStyle.border, background: statusStyle.bg, fontFamily: "var(--font-geist-mono)" }}
+                            >
+                              {statusLabel(currentStatus)}
+                            </span>
+                            {currentNote && (
+                              <span
+                                className="text-[10px] italic"
+                                style={{ color: "rgba(175,145,85,0.75)" }}
+                              >
+                                {currentNote}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Admin edit form (only rendered for admin) */}
+                          {isAdmin && (
+                            <form action={upsertFeedbackNote}>
+                              <input type="hidden" name="journal_entry_id" value={entry.id} />
+                              <input type="hidden" name="tab" value={tab} />
+                              <div className="flex flex-col gap-1.5">
+                                <div className="flex items-center gap-2">
+                                  <select
+                                    name="status"
+                                    defaultValue={currentStatus}
+                                    className="text-[9px] tracking-[0.08em] uppercase border rounded-sm px-1.5 py-0.5"
+                                    style={{
+                                      background: "rgba(20,12,4,0.8)",
+                                      borderColor: "rgba(100,72,25,0.5)",
+                                      color: "rgba(200,158,68,0.88)",
+                                      fontFamily: "var(--font-geist-mono)",
+                                      outline: "none",
+                                    }}
+                                  >
+                                    <option value="new">New</option>
+                                    <option value="seen">Seen</option>
+                                    <option value="addressed">Addressed</option>
+                                  </select>
+                                  <button
+                                    type="submit"
+                                    className="text-[8px] tracking-[0.1em] uppercase px-2 py-0.5 border rounded-sm"
+                                    style={{
+                                      borderColor: "rgba(145,88,22,0.5)",
+                                      color: "rgba(180,130,50,0.8)",
+                                      background: "rgba(62,34,6,0.4)",
+                                      fontFamily: "var(--font-geist-mono)",
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    Save
+                                  </button>
+                                </div>
+                                <textarea
+                                  name="note"
+                                  defaultValue={currentNote ?? ""}
+                                  maxLength={200}
+                                  rows={2}
+                                  placeholder="Optional note (max 200 chars)…"
+                                  className="text-[10px] w-full border rounded-sm px-2 py-1 resize-none"
+                                  style={{
+                                    background: "rgba(10,6,2,0.6)",
+                                    borderColor: "rgba(80,55,18,0.4)",
+                                    color: "rgba(190,160,95,0.85)",
+                                    fontFamily: "var(--font-geist-mono)",
+                                    outline: "none",
+                                    lineHeight: "1.4",
+                                  }}
+                                />
+                              </div>
+                            </form>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
                 );
               })
