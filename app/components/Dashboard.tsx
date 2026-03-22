@@ -293,13 +293,22 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
 
         {/* Sign out */}
         <div className="pt-4 flex items-center justify-between" style={{ borderTop: "1px solid rgba(75,56,22,0.72)" }}>
-          <button
-            onClick={() => signOut({ callbackUrl: "/" })}
-            className="text-[9px] tracking-[0.3em] uppercase transition-colors"
-            style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(138,110,70,0.8)" }}
-          >
-            Sign out
-          </button>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => signOut({ callbackUrl: "/" })}
+              className="text-[9px] tracking-[0.3em] uppercase transition-colors"
+              style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(138,110,70,0.8)" }}
+            >
+              Sign out
+            </button>
+            <Link
+              href="/feedback"
+              className="text-[9px] tracking-[0.3em] uppercase transition-colors hover:underline"
+              style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(138,110,70,0.8)" }}
+            >
+              Feedback
+            </Link>
+          </div>
           <div className="flex items-center gap-2">
             {[1, 2, 3, 4, 5, 6, 7].map((n) => (
               <div

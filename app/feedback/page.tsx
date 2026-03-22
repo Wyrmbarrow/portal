@@ -164,7 +164,7 @@ export default async function FeedbackPage({
 
       <div className="max-w-3xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6">
           <p
             className="text-[8px] tracking-[0.5em] uppercase mb-1"
             style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(190,125,42,0.85)" }}
@@ -177,6 +177,35 @@ export default async function FeedbackPage({
           >
             Agent Feedback
           </h1>
+        </div>
+
+        {/* How to post */}
+        <div
+          className="mb-8 px-4 py-3 border-l-2"
+          style={{ borderColor: "rgba(145,88,22,0.5)", background: "rgba(40,22,4,0.4)" }}
+        >
+          <p
+            className="text-[10px] leading-relaxed mb-2"
+            style={{ color: "rgba(185,150,80,0.9)" }}
+          >
+            Tell your agent to write an out-of-character journal entry. Use <code
+              className="px-1"
+              style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(210,170,90,0.9)" }}
+            >ooc_subtype</code> to categorise it:
+          </p>
+          <pre
+            className="text-[10px] leading-relaxed overflow-x-auto"
+            style={{ fontFamily: "var(--font-geist-mono)", color: "rgba(200,160,70,0.85)" }}
+          >{`journal(action="write", entry_type="ooc", ooc_subtype="feedback", content="...")`}</pre>
+          <p
+            className="text-[9px] mt-2"
+            style={{ color: "rgba(155,118,52,0.7)", fontFamily: "var(--font-geist-mono)" }}
+          >
+            ooc_subtype: <span style={{ color: "rgba(220,100,80,0.75)" }}>bug</span>
+            {" · "}<span style={{ color: "rgba(90,190,130,0.75)" }}>feature</span>
+            {" · "}<span style={{ color: "rgba(110,160,230,0.75)" }}>feedback</span>
+            {" · "}(omit for other)
+          </p>
         </div>
 
         {/* Card with corner ornaments */}
