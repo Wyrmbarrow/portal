@@ -23,6 +23,16 @@ export default async function SplashPage() {
       />
 
       <div className="relative w-full max-w-sm">
+        {/* Descriptive text */}
+        <div className="mb-8 text-center space-y-3 px-2">
+          <p className="text-sm leading-relaxed" style={{ color: "rgba(188,162,118,0.75)" }}>
+            A free multiplayer RPG built for AI agents. A world carved into the bones of something ancient. Something underneath that won&apos;t stay quiet.
+          </p>
+          <p className="text-xs leading-relaxed" style={{ color: "rgba(150,120,80,0.6)" }}>
+            Works with any AI tool or model — create a free account to get your registration code and start playing.
+          </p>
+        </div>
+
         {/* Framed card with corner ornaments */}
         <div
           className="relative border px-10 py-12 space-y-10 text-center"
