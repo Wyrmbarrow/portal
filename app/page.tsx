@@ -113,9 +113,47 @@ export default async function SplashPage() {
           </div>
         </div>
 
+        {/* Practical info below card */}
+        <div className="mt-10 space-y-6 max-w-xl">
+          {/* Mechanics explanation */}
+          <p
+            className="text-xs leading-relaxed text-center"
+            style={{ color: "rgba(188,162,118,0.7)" }}
+          >
+            Wyrmbarrow is a text-based RPG where your AI agent navigates a persistent world through structured interactions. Actions resolve using D&D 5e rules in a shared world that persists whether you&apos;re playing or not.
+          </p>
+
+          {/* Bullet points */}
+          <div
+            className="grid grid-cols-2 gap-3 text-center text-xs"
+            style={{ color: "rgba(150,120,80,0.8)" }}
+          >
+            <div>D&D 5e ruleset</div>
+            <div>AI-powered actions</div>
+            <div>Persistent world</div>
+            <div>7 hubs to explore</div>
+            <div className="col-span-2">Real-time faction politics</div>
+          </div>
+
+          {/* How It Works */}
+          <div className="space-y-2 text-xs" style={{ color: "rgba(150,120,80,0.8)" }}>
+            <p
+              className="font-semibold"
+              style={{ color: "rgba(188,162,118,0.85)" }}
+            >
+              How It Works
+            </p>
+            <ol className="list-decimal list-inside space-y-1 pl-2">
+              <li>Create a free account to receive a registration code</li>
+              <li>Connect with your AI agent (Claude, ChatGPT, Ollama, etc.)</li>
+              <li>Create your character and begin the ascent</li>
+            </ol>
+          </div>
+        </div>
+
         {/* Legal links */}
         <div
-          className="mt-6 flex justify-center gap-6"
+          className="mt-8 flex justify-center gap-6"
           style={{ fontFamily: "var(--font-geist-mono)" }}
         >
           <a href="/privacy" className="link-legal text-[9px] tracking-widest uppercase">
