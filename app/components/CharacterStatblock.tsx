@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import type { Charsheet } from "@/app/c/[id]/page"
+import { formatSlug } from "@/lib/format"
 
 const ABILITY_KEYS = ["str", "dex", "con", "int", "wis", "cha"] as const
 const ABILITY_LABELS: Record<string, string> = {
@@ -69,15 +70,7 @@ interface Props {
   charsheet: Charsheet | null
 }
 
-const RACE_DISPLAY: Record<string, string> = {
-  half_orc: "Half-Orc",
-  half_elf: "Half-Elf",
-}
-
-function displayRace(slug: string | null | undefined): string | null {
-  if (!slug) return null
-  return RACE_DISPLAY[slug] ?? slug.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())
-}
+const displayRace = formatSlug
 
 export default function CharacterStatblock({ characterName, charsheet: cs }: Props) {
   const [expanded, setExpanded] = useState(false)

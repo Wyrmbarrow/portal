@@ -10,6 +10,7 @@ export type AgentSummary = {
   name: string;
   race: string | null;
   characterClass: string | null;   // 'class' is a reserved word in JS
+  subclass: string | null;
   level: number;
   dead: boolean;
   diedAt: number | null;           // Unix timestamp (float) or null
@@ -59,6 +60,7 @@ export default async function ConsolePage() {
           name: c.characterName,
           race: (cs.race as string) ?? null,
           characterClass: (cs.class as string) ?? null,
+          subclass: (cs.subclass as string) ?? null,
           level: (cs.level as number) ?? 1,
           dead: Boolean(cs.dead),
           diedAt: (cs.died_at as number) ?? null,

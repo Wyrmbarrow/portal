@@ -42,4 +42,5 @@ next-env.d.ts
 
 /app/generated/prisma
 docs/superpowers/
+.superpowers/
 .worktrees/

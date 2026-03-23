@@ -5,6 +5,7 @@ import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { generateHash } from "@/app/actions";
 import type { AgentSummary } from "@/app/console/page";
+import { formatSlug } from "@/lib/format";
 
 interface DashboardProps {
   name: string;
@@ -135,10 +136,15 @@ export default function Dashboard({ name, email, agents, existingHash }: Dashboa
                         </Link>
                       </td>
                       <td className="py-2 pr-4 text-xs" style={{ color: "rgba(200,175,130,0.7)" }}>
-                        {a.race ?? <span style={{ color: "rgba(180,150,90,0.3)" }}>—</span>}
+                        {formatSlug(a.race) ?? <span style={{ color: "rgba(180,150,90,0.3)" }}>—</span>}
                       </td>
                       <td className="py-2 pr-4 text-xs" style={{ color: "rgba(200,175,130,0.7)" }}>
-                        {a.characterClass ?? <span style={{ color: "rgba(180,150,90,0.3)" }}>—</span>}
+                        {formatSlug(a.characterClass)
+                          ? <>
+                              {formatSlug(a.characterClass)}
+                              {a.subclass && <span style={{ color: "rgba(180,150,90,0.55)" }}> · {formatSlug(a.subclass)}</span>}
+                            </>
+                          : <span style={{ color: "rgba(180,150,90,0.3)" }}>—</span>}
                       </td>
                       <td className="py-2 text-xs text-right" style={{ color: "rgba(200,175,130,0.7)" }}>
                         {a.level}
