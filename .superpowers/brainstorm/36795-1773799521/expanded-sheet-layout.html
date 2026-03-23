@@ -1,0 +1,113 @@
+<h2>Expanded Character Sheet — Layout</h2>
+<p class="subtitle">When the statblock is clicked, how is the full sheet organized?</p>
+
+<div class="cards">
+
+  <!-- Option A: Single column scroll -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: #f5e8c8; padding: 10px 14px; font-family: Georgia, serif; font-size: 10px; color: #1a1a1a;">
+      <div style="background: linear-gradient(#8b1a1a,#6b1010); color:#f5e8c8; padding:6px 10px; margin:-10px -14px 8px; font-size:13px; font-weight:bold;">Seraphel Ashvane — Full Sheet</div>
+      <!-- Ability scores (collapsed header stays) -->
+      <div style="background:#e8d5a8; border:1px solid #c8a86e; padding:5px 8px; margin-bottom:6px; font-size:9px;">
+        <b>STR</b> 16(+3) &nbsp; <b>DEX</b> 13(+1) &nbsp; <b>CON</b> 15(+2) &nbsp; <b>INT</b> 10(+0) &nbsp; <b>WIS</b> 12(+1) &nbsp; <b>CHA</b> 11(+0)
+      </div>
+      <!-- Saving Throws -->
+      <div style="margin-bottom:5px;"><b style="color:#8b1a1a; font-size:9px; text-transform:uppercase; letter-spacing:0.05em;">Saving Throws</b><br>Str +5 ✦ &nbsp; Con +4 ✦ &nbsp; Dex +1 &nbsp; Int +0 &nbsp; Wis +1 &nbsp; Cha +0</div>
+      <div style="background:#c8a86e; height:1px; margin:4px 0;"></div>
+      <!-- Skills -->
+      <div style="margin-bottom:5px;"><b style="color:#8b1a1a; font-size:9px; text-transform:uppercase; letter-spacing:0.05em;">Skills</b><br>Athletics +5 ✦ &nbsp; Intimidation +2 ✦ &nbsp; Perception +1 &nbsp; Stealth +1</div>
+      <div style="background:#c8a86e; height:1px; margin:4px 0;"></div>
+      <!-- Features -->
+      <div style="margin-bottom:5px;"><b style="color:#8b1a1a; font-size:9px; text-transform:uppercase; letter-spacing:0.05em;">Features & Traits</b><br>Second Wind · Action Surge · Improved Critical · Fighting Style: Defense</div>
+      <div style="background:#c8a86e; height:1px; margin:4px 0;"></div>
+      <!-- Equipment -->
+      <div style="margin-bottom:5px;"><b style="color:#8b1a1a; font-size:9px; text-transform:uppercase; letter-spacing:0.05em;">Equipment</b><br>Longsword (main), Shield (off), Chain Mail · 3 items in pack</div>
+      <div style="background:#c8a86e; height:1px; margin:4px 0;"></div>
+      <!-- Factions -->
+      <div><b style="color:#8b1a1a; font-size:9px; text-transform:uppercase; letter-spacing:0.05em;">Faction Standing</b><br>The Vigil: Trusted · The Harvesters: Stranger · The Quiet: Stranger</div>
+      <div style="text-align:center; margin-top:8px; font-size:8px; color:#8b1a1a; letter-spacing:0.1em;">▲ COLLAPSE ▲</div>
+    </div>
+    <div class="card-body">
+      <h3>A — Single Column Scroll</h3>
+      <p>All sections stack vertically inside the statblock, separated by the classic orange dividers. Familiar 5e document feel. Simple, no tabs.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Two-column like a real sheet -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: #f5e8c8; padding: 10px 14px; font-family: Georgia, serif; font-size: 10px; color: #1a1a1a;">
+      <div style="background: linear-gradient(#8b1a1a,#6b1010); color:#f5e8c8; padding:6px 10px; margin:-10px -14px 8px; font-size:13px; font-weight:bold;">Seraphel Ashvane — Full Sheet</div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+        <!-- Left column -->
+        <div>
+          <div style="background:#e8d5a8; border:1px solid #c8a86e; padding:5px 8px; margin-bottom:6px; font-size:9px;">
+            <b style="color:#8b1a1a; font-size:8px; text-transform:uppercase; display:block; margin-bottom:3px;">Core</b>
+            <b>HP</b> 24/32 &nbsp; <b>AC</b> 16 &nbsp; <b>Init</b> +1
+          </div>
+          <b style="color:#8b1a1a; font-size:8px; text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:3px;">Saving Throws</b>
+          <div style="font-size:9px;">Str +5 ✦ · Con +4 ✦<br>Dex +1 · Int +0 · Wis +1</div>
+          <div style="background:#c8a86e; height:1px; margin:5px 0;"></div>
+          <b style="color:#8b1a1a; font-size:8px; text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:3px;">Skills</b>
+          <div style="font-size:9px;">Athletics +5 ✦<br>Intimidation +2 ✦<br>Perception +1</div>
+          <div style="background:#c8a86e; height:1px; margin:5px 0;"></div>
+          <b style="color:#8b1a1a; font-size:8px; text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:3px;">Factions</b>
+          <div style="font-size:9px;">Vigil: Trusted<br>Harvesters: Stranger</div>
+        </div>
+        <!-- Right column -->
+        <div>
+          <b style="color:#8b1a1a; font-size:8px; text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:3px;">Features</b>
+          <div style="font-size:9px; margin-bottom:5px;">Second Wind<br>Action Surge<br>Improved Critical<br>Fighting Style: Defense</div>
+          <div style="background:#c8a86e; height:1px; margin:5px 0;"></div>
+          <b style="color:#8b1a1a; font-size:8px; text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:3px;">Equipment</b>
+          <div style="font-size:9px;">⚔ Longsword (main)<br>🛡 Shield (off)<br>🔗 Chain Mail<br><span style="color:#8b1a1a">+ 3 pack items</span></div>
+          <div style="background:#c8a86e; height:1px; margin:5px 0;"></div>
+          <b style="color:#8b1a1a; font-size:8px; text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:3px;">Conditions</b>
+          <div style="font-size:9px; color: #555;">None active</div>
+        </div>
+      </div>
+      <div style="text-align:center; margin-top:8px; font-size:8px; color:#8b1a1a; letter-spacing:0.1em;">▲ COLLAPSE ▲</div>
+    </div>
+    <div class="card-body">
+      <h3>B — Two-Column Layout</h3>
+      <p>Left: core stats, saves, skills, factions. Right: features, equipment, conditions. Compact, fits more on screen, evokes a real character sheet's side-by-side layout.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Tabbed sections -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: #f5e8c8; padding: 10px 14px; font-family: Georgia, serif; font-size: 10px; color: #1a1a1a;">
+      <div style="background: linear-gradient(#8b1a1a,#6b1010); color:#f5e8c8; padding:6px 10px; margin:-10px -14px 8px; font-size:13px; font-weight:bold;">Seraphel Ashvane — Full Sheet</div>
+      <!-- Tabs -->
+      <div style="display:flex; gap:0; border-bottom: 2px solid #8b1a1a; margin-bottom:8px; margin-top:4px;">
+        <div style="padding:3px 8px; background:#8b1a1a; color:#f5e8c8; font-size:8px; letter-spacing:0.05em; text-transform:uppercase; cursor:pointer;">Combat</div>
+        <div style="padding:3px 8px; background:#e8d5a8; color:#8b1a1a; font-size:8px; letter-spacing:0.05em; text-transform:uppercase; cursor:pointer; border:1px solid #c8a86e; border-bottom:none;">Skills</div>
+        <div style="padding:3px 8px; background:#e8d5a8; color:#8b1a1a; font-size:8px; letter-spacing:0.05em; text-transform:uppercase; cursor:pointer; border:1px solid #c8a86e; border-bottom:none;">Features</div>
+        <div style="padding:3px 8px; background:#e8d5a8; color:#8b1a1a; font-size:8px; letter-spacing:0.05em; text-transform:uppercase; cursor:pointer; border:1px solid #c8a86e; border-bottom:none;">Gear</div>
+        <div style="padding:3px 8px; background:#e8d5a8; color:#8b1a1a; font-size:8px; letter-spacing:0.05em; text-transform:uppercase; cursor:pointer; border:1px solid #c8a86e; border-bottom:none;">World</div>
+      </div>
+      <!-- Combat tab content -->
+      <div style="font-size:9px;">
+        <div style="display:flex; gap:10px; margin-bottom:5px;">
+          <div style="text-align:center;"><b style="display:block; font-size:11px;">24/32</b><span style="font-size:8px; color:#8b1a1a; text-transform:uppercase;">HP</span></div>
+          <div style="text-align:center;"><b style="display:block; font-size:11px;">16</b><span style="font-size:8px; color:#8b1a1a; text-transform:uppercase;">AC</span></div>
+          <div style="text-align:center;"><b style="display:block; font-size:11px;">+1</b><span style="font-size:8px; color:#8b1a1a; text-transform:uppercase;">Init</span></div>
+          <div style="text-align:center;"><b style="display:block; font-size:11px;">30ft</b><span style="font-size:8px; color:#8b1a1a; text-transform:uppercase;">Speed</span></div>
+          <div style="text-align:center;"><b style="display:block; font-size:11px;">+3</b><span style="font-size:8px; color:#8b1a1a; text-transform:uppercase;">Prof</span></div>
+        </div>
+        <div style="background:#c8a86e; height:1px; margin:4px 0;"></div>
+        <b style="color:#8b1a1a; font-size:8px; text-transform:uppercase;">Saving Throws: </b>Str +5 ✦ · Con +4 ✦ · Dex +1 · Int +0 · Wis +1 · Cha +0<br><br>
+        <b style="color:#8b1a1a; font-size:8px; text-transform:uppercase;">Hit Dice: </b>2d10 remaining (3 total)<br>
+        <b style="color:#8b1a1a; font-size:8px; text-transform:uppercase;">Conditions: </b><span style="color:#555;">None</span>
+      </div>
+      <div style="margin-top:6px; padding-top:4px; border-top: 1px dotted #c8a86e; text-align:center;">
+        <span style="font-size:8px; color:#555; font-style:italic;">Skills · Features · Gear · Factions+Quests on other tabs</span>
+      </div>
+      <div style="text-align:center; margin-top:8px; font-size:8px; color:#8b1a1a; letter-spacing:0.1em;">▲ COLLAPSE ▲</div>
+    </div>
+    <div class="card-body">
+      <h3>C — Tabbed Sections</h3>
+      <p>Tabs: Combat, Skills, Features, Gear, World (factions + quests). Clean, no scroll, easy to navigate. More complex to implement; tabs are interactive.</p>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,185 @@
+<h2>Profile Page — Full Layout</h2>
+<p class="subtitle">How wide should the page be, and how should journal entries be styled?</p>
+
+<div class="cards">
+
+  <!-- Option A: Narrow + parchment journal -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: #0c0a07; padding: 12px; font-family: Georgia, serif;">
+
+      <!-- Dark page, narrow, parchment block -->
+      <div style="max-width: 480px; margin: 0 auto;">
+
+        <!-- Page header (dark) -->
+        <div style="margin-bottom: 8px; border-bottom: 1px solid rgba(60,45,20,0.5); padding-bottom: 6px;">
+          <div style="font-size: 7px; letter-spacing: 0.5em; color: rgba(140,90,25,0.6); font-family: monospace; text-transform: uppercase;">Character Profile</div>
+        </div>
+
+        <!-- Statblock (parchment, collapsed) -->
+        <div style="background: #f5e8c8; border: 1px solid #c8a86e; margin-bottom: 10px;">
+          <div style="background: linear-gradient(#8b1a1a,#6b1010); color:#f5e8c8; padding:5px 10px; font-size:12px; font-weight:bold;">Seraphel Ashvane</div>
+          <div style="padding: 6px 10px; font-size: 9px; color: #1a1a1a;">
+            <div style="margin-bottom:4px; color:#555; font-style:italic;">Level 3 Fighter (Champion) · Human · Oakhaven</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+              <div>
+                <div style="font-size:8px; color:#8b1a1a; text-transform:uppercase; margin-bottom:2px; font-weight:bold;">Core</div>
+                HP 24/32 · AC 16 · Init +1
+              </div>
+              <div style="display:flex; justify-content:space-around; background:#e8d5a8; padding:3px 6px;">
+                <span style="text-align:center"><div style="font-size:7px; text-transform:uppercase; color:#8b1a1a;">STR</div><b>16</b></span>
+                <span style="text-align:center"><div style="font-size:7px; text-transform:uppercase; color:#8b1a1a;">DEX</div><b>13</b></span>
+                <span style="text-align:center"><div style="font-size:7px; text-transform:uppercase; color:#8b1a1a;">CON</div><b>15</b></span>
+                <span style="text-align:center"><div style="font-size:7px; text-transform:uppercase; color:#8b1a1a;">INT</div><b>10</b></span>
+                <span style="text-align:center"><div style="font-size:7px; text-transform:uppercase; color:#8b1a1a;">WIS</div><b>12</b></span>
+                <span style="text-align:center"><div style="font-size:7px; text-transform:uppercase; color:#8b1a1a;">CHA</div><b>11</b></span>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:center; background:#f0e0b8; padding:4px; font-size:8px; color:#8b1a1a; letter-spacing:0.1em; border-top:1px solid #c8a86e;">▼ EXPAND FULL SHEET ▼</div>
+        </div>
+
+        <!-- Journal header (dark) -->
+        <div style="margin-bottom:6px;">
+          <span style="font-size:7px; letter-spacing:0.4em; color:rgba(140,90,25,0.6); font-family:monospace; text-transform:uppercase;">Journal</span>
+        </div>
+
+        <!-- Journal entries — also parchment -->
+        <div style="background:#f5e8c8; border:1px solid #c8a86e; padding:8px 10px; margin-bottom:6px;">
+          <div style="font-size:8px; color:#8b1a1a; font-style:italic; margin-bottom:3px;">Status Update · 3 hours ago · 142 words</div>
+          <div style="font-size:9px; color:#2a1a0a; line-height:1.5;">The tunnels beneath the Root-Stair are narrower than I expected. Something has been gnawing at the walls — tooth marks in the bone, fresh. I found three of the creatures huddled...</div>
+          <div style="font-size:8px; color:#8b1a1a; margin-top:4px; text-align:right; font-style:italic;">read more ▸</div>
+        </div>
+
+        <div style="background:#f5e8c8; border:1px solid #c8a86e; padding:8px 10px; margin-bottom:6px; opacity:0.85;">
+          <div style="font-size:8px; color:#8b1a1a; font-style:italic; margin-bottom:3px;">Note · 6 hours ago · 67 words</div>
+          <div style="font-size:9px; color:#2a1a0a; line-height:1.5;">Maren at the inn mentioned that Foreman Brask has been asking questions about the Crystalline Rib survey results. She seemed uneasy when I pressed her...</div>
+        </div>
+
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Narrow + Parchment Journal</h3>
+      <p>Same max-width as the dashboard. Journal entries in matching parchment cards. Cohesive — everything reads as one document. Slightly cramped on the 2-col expanded sheet.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Wider + parchment journal -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: #0c0a07; padding: 12px; font-family: Georgia, serif;">
+
+      <div style="max-width: 640px; margin: 0 auto;">
+
+        <!-- Page header -->
+        <div style="margin-bottom: 8px; border-bottom: 1px solid rgba(60,45,20,0.5); padding-bottom: 6px;">
+          <div style="font-size: 7px; letter-spacing: 0.5em; color: rgba(140,90,25,0.6); font-family: monospace; text-transform: uppercase;">Character Profile</div>
+        </div>
+
+        <!-- Statblock wider — 2-col sheet visible even collapsed -->
+        <div style="background: #f5e8c8; border: 1px solid #c8a86e; margin-bottom: 10px;">
+          <div style="background: linear-gradient(#8b1a1a,#6b1010); color:#f5e8c8; padding:5px 12px; font-size:13px; font-weight:bold; display:flex; justify-content:space-between; align-items:center;">
+            <span>Seraphel Ashvane</span>
+            <span style="font-size:9px; font-weight:normal; font-style:italic;">Human Fighter 3 · Oakhaven</span>
+          </div>
+          <div style="padding: 8px 12px; font-size: 9px; color: #1a1a1a;">
+            <div style="display:flex; gap:10px; margin-bottom:6px; border-bottom:1px solid #c8a86e; padding-bottom:5px;">
+              <span>HP <b>24/32</b></span><span>AC <b>16</b></span><span>Init <b>+1</b></span><span>Speed <b>30ft</b></span>
+              <div style="margin-left:auto; display:flex; gap:8px; background:#e8d5a8; padding:2px 8px;">
+                <span style="text-align:center"><div style="font-size:7px; text-transform:uppercase; color:#8b1a1a;">STR</div><b>16</b></span>
+                <span style="text-align:center"><div style="font-size:7px; text-transform:uppercase; color:#8b1a1a;">DEX</div><b>13</b></span>
+                <span style="text-align:center"><div style="font-size:7px; text-transform:uppercase; color:#8b1a1a;">CON</div><b>15</b></span>
+                <span style="text-align:center"><div style="font-size:7px; text-transform:uppercase; color:#8b1a1a;">INT</div><b>10</b></span>
+                <span style="text-align:center"><div style="font-size:7px; text-transform:uppercase; color:#8b1a1a;">WIS</div><b>12</b></span>
+                <span style="text-align:center"><div style="font-size:7px; text-transform:uppercase; color:#8b1a1a;">CHA</div><b>11</b></span>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:center; background:#f0e0b8; padding:4px; font-size:8px; color:#8b1a1a; letter-spacing:0.1em; border-top:1px solid #c8a86e;">▼ EXPAND FULL SHEET ▼</div>
+        </div>
+
+        <!-- Journal -->
+        <div style="margin-bottom:6px; display:flex; align-items:baseline; gap:8px;">
+          <span style="font-size:7px; letter-spacing:0.4em; color:rgba(140,90,25,0.6); font-family:monospace; text-transform:uppercase;">Journal</span>
+          <span style="font-size:7px; color:rgba(90,70,45,0.5); font-family:monospace;">12 entries</span>
+        </div>
+
+        <div style="background:#f5e8c8; border:1px solid #c8a86e; padding:10px 14px; margin-bottom:6px;">
+          <div style="font-size:8px; color:#8b1a1a; font-style:italic; margin-bottom:4px;">Status Update · 3 hours ago · 142 words</div>
+          <div style="font-size:9px; color:#2a1a0a; line-height:1.6;">The tunnels beneath the Root-Stair are narrower than I expected. Something has been gnawing at the walls — tooth marks in the bone, fresh. I found three of the creatures huddled in the dark and drove them off, though one caught my arm before I could bring my shield up. I should be more careful.</div>
+        </div>
+
+        <div style="background:#f5e8c8; border:1px solid #c8a86e; padding:10px 14px; opacity:0.85;">
+          <div style="font-size:8px; color:#8b1a1a; font-style:italic; margin-bottom:4px;">Note · 6 hours ago · 67 words</div>
+          <div style="font-size:9px; color:#2a1a0a; line-height:1.6;">Maren at the inn mentioned that Foreman Brask has been asking questions about the Crystalline Rib survey results...</div>
+        </div>
+
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Wider + Parchment Journal</h3>
+      <p>max-w-2xl (~640px). More breathing room for the 2-col expanded sheet and journal text. Still centered on dark background. Journal entries are roomier — better for reading long prose.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Wider, dark journal cards -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: #0c0a07; padding: 12px; font-family: Georgia, serif;">
+
+      <div style="max-width: 640px; margin: 0 auto;">
+
+        <!-- Page header -->
+        <div style="margin-bottom: 8px; border-bottom: 1px solid rgba(60,45,20,0.5); padding-bottom: 6px;">
+          <div style="font-size: 7px; letter-spacing: 0.5em; color: rgba(140,90,25,0.6); font-family: monospace; text-transform: uppercase;">Character Profile</div>
+        </div>
+
+        <!-- Parchment statblock -->
+        <div style="background: #f5e8c8; border: 1px solid #c8a86e; margin-bottom: 14px;">
+          <div style="background: linear-gradient(#8b1a1a,#6b1010); color:#f5e8c8; padding:5px 12px; font-size:13px; font-weight:bold; display:flex; justify-content:space-between; align-items:center;">
+            <span>Seraphel Ashvane</span>
+            <span style="font-size:9px; font-weight:normal; font-style:italic;">Human Fighter 3 · Oakhaven</span>
+          </div>
+          <div style="padding: 8px 12px; font-size: 9px; color: #1a1a1a;">
+            <div style="display:flex; gap:10px; border-bottom:1px solid #c8a86e; padding-bottom:5px;">
+              <span>HP <b>24/32</b></span><span>AC <b>16</b></span><span>Init <b>+1</b></span>
+              <div style="margin-left:auto; display:flex; gap:8px; background:#e8d5a8; padding:2px 8px;">
+                <span style="text-align:center"><div style="font-size:7px; text-transform:uppercase; color:#8b1a1a;">STR</div><b>16</b></span>
+                <span style="text-align:center"><div style="font-size:7px; text-transform:uppercase; color:#8b1a1a;">DEX</div><b>13</b></span>
+                <span style="text-align:center"><div style="font-size:7px; text-transform:uppercase; color:#8b1a1a;">CON</div><b>15</b></span>
+                <span style="text-align:center"><div style="font-size:7px; text-transform:uppercase; color:#8b1a1a;">INT</div><b>10</b></span>
+                <span style="text-align:center"><div style="font-size:7px; text-transform:uppercase; color:#8b1a1a;">WIS</div><b>12</b></span>
+                <span style="text-align:center"><div style="font-size:7px; text-transform:uppercase; color:#8b1a1a;">CHA</div><b>11</b></span>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:center; background:#f0e0b8; padding:4px; font-size:8px; color:#8b1a1a; letter-spacing:0.1em; border-top:1px solid #c8a86e;">▼ EXPAND FULL SHEET ▼</div>
+        </div>
+
+        <!-- Journal header -->
+        <div style="margin-bottom:8px; display:flex; align-items:baseline; gap:8px;">
+          <span style="font-size:7px; letter-spacing:0.4em; color:rgba(140,90,25,0.6); font-family:monospace; text-transform:uppercase;">Journal</span>
+          <span style="font-size:7px; color:rgba(90,70,45,0.5); font-family:monospace;">12 entries</span>
+        </div>
+
+        <!-- Dark journal cards (portal style) -->
+        <div style="border: 1px solid rgba(80,55,20,0.5); background: rgba(20,14,6,0.6); padding: 10px 14px; margin-bottom: 6px; position:relative;">
+          <span style="position:absolute;top:0;left:0;width:8px;height:8px;border-top:1px solid rgba(160,100,25,0.4);border-left:1px solid rgba(160,100,25,0.4);"></span>
+          <span style="position:absolute;top:0;right:0;width:8px;height:8px;border-top:1px solid rgba(160,100,25,0.4);border-right:1px solid rgba(160,100,25,0.4);"></span>
+          <div style="font-size:7px; letter-spacing:0.3em; color:rgba(160,100,30,0.6); font-family:monospace; text-transform:uppercase; margin-bottom:5px;">Status Update · 3 hours ago · 142 words</div>
+          <div style="font-size:9px; color:rgba(200,175,130,0.9); line-height:1.6; font-family:Georgia,serif;">The tunnels beneath the Root-Stair are narrower than I expected. Something has been gnawing at the walls — tooth marks in the bone, fresh. I found three of the creatures huddled in the dark and drove them off, though one caught my arm before I could bring my shield up. I should be more careful.</div>
+        </div>
+
+        <div style="border: 1px solid rgba(80,55,20,0.4); background: rgba(20,14,6,0.4); padding: 10px 14px; margin-bottom: 6px; position:relative; opacity:0.85;">
+          <span style="position:absolute;top:0;left:0;width:8px;height:8px;border-top:1px solid rgba(160,100,25,0.3);border-left:1px solid rgba(160,100,25,0.3);"></span>
+          <span style="position:absolute;top:0;right:0;width:8px;height:8px;border-top:1px solid rgba(160,100,25,0.3);border-right:1px solid rgba(160,100,25,0.3);"></span>
+          <div style="font-size:7px; letter-spacing:0.3em; color:rgba(160,100,30,0.5); font-family:monospace; text-transform:uppercase; margin-bottom:5px;">Note · 6 hours ago · 67 words</div>
+          <div style="font-size:9px; color:rgba(200,175,130,0.75); line-height:1.6; font-family:Georgia,serif;">Maren at the inn mentioned that Foreman Brask has been asking questions about the Crystalline Rib survey results...</div>
+        </div>
+
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Wider, Dark Journal Cards</h3>
+      <p>Same wider layout, but journal entries use the portal's dark amber card style instead of parchment. The parchment statblock becomes a deliberate focal point against dark surroundings.</p>
+    </div>
+  </div>
+
+</div>

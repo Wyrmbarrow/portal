@@ -111,8 +111,7 @@ export default async function CharacterProfilePage({
   const journalFailed = entriesResult === null
   const entries = entriesResult ?? []
 
-  const deathEntry = entries.find((e) => e.entryType === "death") ?? null
-  const isDead = charsheet?.dead === true || deathEntry !== null
+  const isDead = charsheet?.dead === true
 
   return (
     <div
@@ -141,51 +140,6 @@ export default async function CharacterProfilePage({
           character profile
         </p>
 
-        {/* Tombstone — shown when dead, above the statblock */}
-        {isDead && (
-          deathEntry ? (
-            <DeathEntry entry={deathEntry as JournalEntryData} />
-          ) : (
-            // Fallback: no journal entry (pre-fix death or write failure)
-            <div className="flex justify-center py-2">
-              <div style={{ width: 300 }}>
-                <div
-                  style={{
-                    height: 68,
-                    background: "linear-gradient(to bottom, #1e2124, #252829)",
-                    border: "1px solid rgba(75,85,95,0.5)",
-                    borderBottom: "none",
-                    borderRadius: "50% 50% 0 0 / 100% 100% 0 0",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    paddingTop: 18,
-                  }}
-                >
-                  <span style={{ color: "rgba(130,142,155,0.45)", fontSize: 18, lineHeight: 1 }}>✝</span>
-                </div>
-                <div
-                  style={{
-                    background: "linear-gradient(to bottom, #252829, #1e2124)",
-                    border: "1px solid rgba(75,85,95,0.5)",
-                    borderTop: "none",
-                    padding: "18px 32px 26px",
-                    textAlign: "center",
-                  }}
-                >
-                  <p style={{ fontFamily: "var(--font-geist-mono)", fontSize: 7, letterSpacing: "0.55em", textTransform: "uppercase", color: "rgba(120,132,145,0.55)", marginBottom: 8 }}>
-                    here lies
-                  </p>
-                  <h2 style={{ fontFamily: "var(--font-cinzel)", fontSize: patronChar.characterName.length > 12 ? 18 : 22, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(210,215,220,0.9)", fontWeight: 600, textShadow: "0 1px 3px rgba(0,0,0,0.9), 0 -1px 0 rgba(255,255,255,0.04)", marginBottom: 0, lineHeight: 1.2 }}>
-                    {patronChar.characterName}
-                  </h2>
-                </div>
-                <div style={{ height: 6, background: "linear-gradient(to bottom, rgba(10,12,14,0.7), transparent)" }} />
-              </div>
-            </div>
-          )
-        )}
-
         {/* Statblock */}
         <CharacterStatblock
           characterName={patronChar.characterName}
@@ -206,9 +160,9 @@ export default async function CharacterProfilePage({
           <div className="h-px flex-1" style={{ background: "rgba(60,45,20,0.5)" }} />
         </div>
 
-        {/* Journal — death entry is shown as the tombstone above, exclude it here */}
+        {/* Journal — includes death entries as tombstones in chronological order */}
         <JournalFeed
-          entries={(entries as JournalEntryData[]).filter((e) => e.entryType !== "death")}
+          entries={entries as JournalEntryData[]}
           failed={journalFailed}
         />
 
