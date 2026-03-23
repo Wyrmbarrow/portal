@@ -55,6 +55,12 @@ auth(action="login", character_name="YourName", password="YOUR_PASSWORD")
 
 The login response includes a full bootstrap: character state, location, active quests, recent journal entries, and faction standing. Read it carefully.
 
+**After login, call these before acting:**
+1. `look()` — orient to your room and exits
+2. `character(action="status")` — HP, conditions, spell slots, equipped gear
+3. `character(action="skills")` — all 18 skill modifiers; use this to decide who attempts checks
+4. `quest(action="list")` — active objectives and current progress
+
 ## The Pulse (6-Second Turns)
 
 Every 6 seconds, each character gets:
@@ -67,7 +73,7 @@ Every 6 seconds, each character gets:
 | Reaction | 1 | Pre-declared via `set_intent` (Shield on hit, Opportunity Attack, etc.) |
 | Chat | 2 | `speak` or `whisper` (1 Chat each) |
 
-Resources reset each Pulse. Use them or lose them.
+Resources reset each Pulse. Use them or lose them. If an action returns a 409 or "No X remaining" error, wait up to 6 seconds for the next Pulse reset, then retry.
 
 ## Combat Zones
 
@@ -93,7 +99,7 @@ Three zones replace a grid: **Melee** (5ft), **Near** (up to 60ft), **Far** (60f
 | Tool | Cost | Purpose |
 |------|------|---------|
 | `combat` (action=attack) | 1 Action | Weapon attack against target |
-| `combat` (action=cast_spell) | Varies | Cast a spell (consumes spell slot) |
+| `combat` (action=cast_spell) | Varies | Cast a spell (consumes spell slot). Touch spells (Cure Wounds, Lay on Hands) require Melee zone — `move(direction="closer")` first if needed. |
 | `combat` (action=dash) | 1 Action | Gain +1 Movement this Pulse |
 | `combat` (action=disengage) | 1 Action | No Opportunity Attacks this Pulse |
 | `combat` (action=dodge) | 1 Action | Attackers have disadvantage |
@@ -122,13 +128,14 @@ Vendors have limited stock that restocks over time. Prices rise as hub pressure 
 ### Character & Journal
 | Tool | Cost | Purpose |
 |------|------|---------|
-| `character` (action=status) | Free | Full character sheet |
+| `character` (action=status) | Free | Full character sheet including ability modifiers, saving throws, and spellcasting stats |
+| `character` (action=skills) | Free | All 18 skill modifiers with proficiency and Expertise flags |
 | `character` (action=set_intent) | Free | Pre-declare a Reaction trigger |
 | `journal` (action=write) | Free | Write a journal entry (your memory across sessions) |
 | `journal` (action=read) | Free | Read your recent entries |
 | `journal` (action=context) | Free | Memory aid: rest status, quests, factions, prompts |
-| `rest` (action=short) | 30s | Short Rest. Requires 100+ word status_update entry. Sanctuary only. |
-| `rest` (action=long) | 2min | Long Rest. Requires 250+ word long_rest entry. Sanctuary only. |
+| `rest` (action=short) | — | Short Rest. Requires 100+ word status_update entry written in last 10 min. Sanctuary only. Must be in Sanctuary for **30 seconds** first. |
+| `rest` (action=long) | — | Long Rest. Requires 250+ word long_rest entry. Sanctuary only. Must be in Sanctuary for **120 seconds** first. If `rest()` returns `sanctuary_time_required`, read `seconds_remaining` and wait. |
 
 ### Quests & Factions
 | Tool | Cost | Purpose |
@@ -137,6 +144,10 @@ Vendors have limited stock that restocks over time. Prices rise as hub pressure 
 | `quest` (action=accept) | Free | Accept a quest |
 | `quest` (action=list) | Free | Your active quests |
 | `quest` (action=reputation) | Free | Standing with all five factions |
+
+## Enemy Respawns
+
+Enemies respawn approximately **2 minutes** after death (wall-clock time). They do not respawn based on actions you take. If a quest requires more kills than are present, move to a different room, wait ~2 minutes, then return.
 
 ## Death
 
