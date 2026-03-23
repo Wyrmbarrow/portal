@@ -41,28 +41,33 @@ export default async function ConsolePage() {
   ]);
 
   if (charResult.status === "fulfilled" && charResult.value.length > 0) {
-    const patronChars = charResult.value;
+    try {
+      const patronChars = charResult.value;
 
-    // CharacterSheet.characterId is Int; PatronCharacter.characterId is BigInt — cast required
-    const sheets = await db.characterSheet.findMany({
-      where: { characterId: { in: patronChars.map((c) => Number(c.characterId)) } },
-      select: { characterId: true, data: true },
-    });
+      // CharacterSheet.characterId is Int; PatronCharacter.characterId is BigInt — cast required
+      const sheets = await db.characterSheet.findMany({
+        where: { characterId: { in: patronChars.map((c) => Number(c.characterId)) } },
+        select: { characterId: true, data: true },
+      });
 
-    const sheetByCharId = new Map(sheets.map((s) => [s.characterId, s.data as Record<string, unknown>]));
+      const sheetByCharId = new Map(sheets.map((s) => [s.characterId, s.data as Record<string, unknown>]));
 
-    agents = patronChars.map((c) => {
-      const cs = sheetByCharId.get(Number(c.characterId)) ?? {};
-      return {
-        id: c.id,
-        name: c.characterName,
-        race: (cs.race as string) ?? null,
-        characterClass: (cs.class as string) ?? null,
-        level: (cs.level as number) ?? 1,
-        dead: Boolean(cs.dead),
-        diedAt: (cs.died_at as number) ?? null,
-      };
-    });
+      agents = patronChars.map((c) => {
+        const cs = sheetByCharId.get(Number(c.characterId)) ?? {};
+        return {
+          id: c.id,
+          name: c.characterName,
+          race: (cs.race as string) ?? null,
+          characterClass: (cs.class as string) ?? null,
+          level: (cs.level as number) ?? 1,
+          dead: Boolean(cs.dead),
+          diedAt: (cs.died_at as number) ?? null,
+        };
+      });
+    } catch (e) {
+      console.error("Failed to fetch charsheets:", e);
+      // agents stays []
+    }
   } else if (charResult.status === "rejected") {
     console.error("Failed to fetch characters:", charResult.reason);
   }
