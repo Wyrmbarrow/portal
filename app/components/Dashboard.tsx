@@ -4,16 +4,17 @@ import { useState } from "react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { generateHash } from "@/app/actions";
+import type { AgentSummary } from "@/app/console/page";
 
 interface DashboardProps {
   name: string;
   email: string;
-  characters: { id: string; name: string }[];
+  agents: AgentSummary[];
   existingHash: string | null;
 }
 
 
-export default function Dashboard({ name, email, characters, existingHash }: DashboardProps) {
+export default function Dashboard({ name, email, agents, existingHash }: DashboardProps) {
   const [hash, setHash] = useState<string | null>(existingHash);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -81,7 +82,7 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
           </p>
         </div>
 
-        {/* Characters */}
+        {/* Agents */}
         <div className="space-y-3">
           <h2
             className="text-[8px] tracking-[0.5em] uppercase"
@@ -89,7 +90,7 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
           >
             Registered Agents
           </h2>
-          {characters.length === 0 ? (
+          {agents.length === 0 ? (
             <p
               className="text-xs leading-relaxed"
               style={{ color: "rgba(148,125,82,0.85)", fontFamily: "var(--font-geist-mono)" }}
@@ -97,23 +98,57 @@ export default function Dashboard({ name, email, characters, existingHash }: Das
               No agents registered yet.
             </p>
           ) : (
-            <ul className="space-y-2">
-              {characters.map((c) => (
-                <li
-                  key={c.id}
-                  className="text-xs"
-                  style={{ fontFamily: "var(--font-geist-mono)" }}
-                >
-                  <Link
-                    href={`/c/${c.id}`}
-                    style={{ color: "rgba(200,175,130,0.9)" }}
-                    className="hover:underline transition-colors"
-                  >
-                    {c.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <table className="w-full" style={{ fontFamily: "var(--font-geist-mono)" }}>
+              <thead>
+                <tr>
+                  {(["Name", "Race", "Class", "Lvl"] as const).map((col) => (
+                    <th
+                      key={col}
+                      className="text-left pb-2 text-[9px] tracking-[0.08em] uppercase font-normal"
+                      style={{
+                        color: "rgba(180,150,90,0.5)",
+                        borderBottom: "1px solid rgba(180,150,90,0.15)",
+                        paddingRight: col !== "Lvl" ? "16px" : "0",
+                        textAlign: col === "Lvl" ? "right" : "left",
+                      }}
+                    >
+                      {col}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {agents.map((a) => {
+                  const recentlyDead =
+                    a.dead &&
+                    a.diedAt !== null &&
+                    Date.now() / 1000 - a.diedAt < 86400;
+                  return (
+                    <tr key={a.id} style={{ borderBottom: "1px solid rgba(180,150,90,0.07)" }}>
+                      <td className="py-2 pr-4 text-xs">
+                        {recentlyDead && <span className="mr-1 text-sm leading-none">🪦</span>}
+                        <Link
+                          href={`/c/${a.id}`}
+                          style={{ color: "rgba(200,175,130,0.9)" }}
+                          className="hover:underline"
+                        >
+                          {a.name}
+                        </Link>
+                      </td>
+                      <td className="py-2 pr-4 text-xs" style={{ color: "rgba(200,175,130,0.7)" }}>
+                        {a.race ?? <span style={{ color: "rgba(180,150,90,0.3)" }}>—</span>}
+                      </td>
+                      <td className="py-2 pr-4 text-xs" style={{ color: "rgba(200,175,130,0.7)" }}>
+                        {a.characterClass ?? <span style={{ color: "rgba(180,150,90,0.3)" }}>—</span>}
+                      </td>
+                      <td className="py-2 text-xs text-right" style={{ color: "rgba(200,175,130,0.7)" }}>
+                        {a.level}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           )}
         </div>
 
