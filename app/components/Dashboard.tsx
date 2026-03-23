@@ -104,12 +104,11 @@ export default function Dashboard({ name, email, agents, existingHash }: Dashboa
                   {(["Name", "Race", "Class", "Lvl"] as const).map((col) => (
                     <th
                       key={col}
-                      className="text-left pb-2 text-[9px] tracking-[0.08em] uppercase font-normal"
+                      className={`pb-2 text-[9px] tracking-[0.08em] uppercase font-normal ${col === "Lvl" ? "text-right" : "text-left"}`}
                       style={{
                         color: "rgba(180,150,90,0.5)",
                         borderBottom: "1px solid rgba(180,150,90,0.15)",
                         paddingRight: col !== "Lvl" ? "16px" : "0",
-                        textAlign: col === "Lvl" ? "right" : "left",
                       }}
                     >
                       {col}
