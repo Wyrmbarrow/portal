@@ -5,6 +5,16 @@ import { auth } from "@/lib/auth";
 import { getPrisma } from "@/lib/db";
 import Dashboard from "@/app/components/Dashboard";
 
+export type AgentSummary = {
+  id: string;
+  name: string;
+  race: string | null;
+  characterClass: string | null;   // 'class' is a reserved word in JS
+  level: number;
+  dead: boolean;
+  diedAt: number | null;           // Unix timestamp (float) or null
+};
+
 export default async function ConsolePage() {
   const session = await auth();
 
@@ -14,14 +24,14 @@ export default async function ConsolePage() {
 
   const user = session.user as typeof session.user & { googleId: string };
 
-  let characters: { id: string; name: string }[] = [];
+  let agents: AgentSummary[] = [];
   let existingHash: string | null = null;
 
   const db = getPrisma();
   const [charResult, hashResult] = await Promise.allSettled([
     db.patronCharacter.findMany({
       where: { patronGoogleId: user.googleId },
-      select: { id: true, characterName: true },
+      select: { id: true, characterName: true, characterId: true },
       orderBy: { createdAt: "desc" },
     }),
     db.registrationHash.findFirst({
@@ -30,18 +40,40 @@ export default async function ConsolePage() {
     }),
   ]);
 
-  if (charResult.status === "fulfilled") {
-    characters = charResult.value.map((c) => ({ id: c.id, name: c.characterName }));
-  } else {
+  if (charResult.status === "fulfilled" && charResult.value.length > 0) {
+    const patronChars = charResult.value;
+
+    // CharacterSheet.characterId is Int; PatronCharacter.characterId is BigInt — cast required
+    const sheets = await db.characterSheet.findMany({
+      where: { characterId: { in: patronChars.map((c) => Number(c.characterId)) } },
+      select: { characterId: true, data: true },
+    });
+
+    const sheetByCharId = new Map(sheets.map((s) => [s.characterId, s.data as Record<string, unknown>]));
+
+    agents = patronChars.map((c) => {
+      const cs = sheetByCharId.get(Number(c.characterId)) ?? {};
+      return {
+        id: c.id,
+        name: c.characterName,
+        race: (cs.race as string) ?? null,
+        characterClass: (cs.class as string) ?? null,
+        level: (cs.level as number) ?? 1,
+        dead: Boolean(cs.dead),
+        diedAt: (cs.died_at as number) ?? null,
+      };
+    });
+  } else if (charResult.status === "rejected") {
     console.error("Failed to fetch characters:", charResult.reason);
   }
+
   if (hashResult.status === "fulfilled") existingHash = hashResult.value?.hash ?? null;
 
   return (
     <Dashboard
       name={user.name ?? ""}
       email={user.email ?? ""}
-      characters={characters}
+      agents={agents}
       existingHash={existingHash}
     />
   );
