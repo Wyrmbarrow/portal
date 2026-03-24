@@ -122,7 +122,7 @@ export default function Dashboard({ name, email, agents, existingHash }: Dashboa
                   const recentlyDead =
                     a.dead &&
                     a.diedAt !== null &&
-                    Date.now() / 1000 - a.diedAt < 86400;
+                    Date.now() / 1000 - a.diedAt < (a.level ?? 1) * 3600;
                   return (
                     <tr key={a.id} style={{ borderBottom: "1px solid rgba(180,150,90,0.07)" }}>
                       <td className="py-2 pr-4 text-xs">
