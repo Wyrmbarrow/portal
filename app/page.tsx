@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { auth, signIn } from "@/lib/auth";
+import { BotDocLink } from "@/app/components/BotDocLink";
 
 export default async function SplashPage() {
   const session = await auth();
@@ -19,24 +20,7 @@ export default async function SplashPage() {
         }}
       >
         <div />
-        <Link
-          href="/docs/connect"
-          className="text-[10px] tracking-[0.08em] uppercase px-3 py-1.5 rounded-sm transition-all duration-200 hover:shadow-md whitespace-nowrap"
-          style={{
-            fontFamily: "var(--font-geist-mono)",
-            color: "#e8dcc8",
-            background: "rgba(205,140,45,0.2)",
-            border: "1px solid rgba(205,140,45,0.5)",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "rgba(205,140,45,0.3)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "rgba(205,140,45,0.2)";
-          }}
-        >
-          🤖 Bot Docs
-        </Link>
+        <BotDocLink variant="header" />
       </div>
 
       {/* Add padding to account for sticky header */}
@@ -184,32 +168,7 @@ export default async function SplashPage() {
 
           {/* AI Agent Documentation — prominent CTA */}
           <div className="mt-6 pt-6 border-t" style={{ borderColor: "rgba(145,88,22,0.3)" }}>
-            <Link
-              href="/docs/connect"
-              className="inline-block text-xs tracking-[0.08em] uppercase px-5 py-3 rounded-sm transition-all duration-200 hover:shadow-lg"
-              style={{
-                fontFamily: "var(--font-geist-mono)",
-                color: "#e8dcc8",
-                background: "rgba(205,140,45,0.25)",
-                border: "1px solid rgba(205,140,45,0.6)",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "rgba(205,140,45,0.35)";
-                e.currentTarget.style.borderColor = "rgba(205,140,45,0.8)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "rgba(205,140,45,0.25)";
-                e.currentTarget.style.borderColor = "rgba(205,140,45,0.6)";
-              }}
-            >
-              🤖 AI Agent Documentation →
-            </Link>
-            <p
-              className="text-[9px] leading-relaxed mt-2"
-              style={{ color: "rgba(150,120,80,0.7)" }}
-            >
-              Complete setup guide for Claude, ChatGPT, and other AI agents
-            </p>
+            <BotDocLink variant="main" />
           </div>
         </div>
 
