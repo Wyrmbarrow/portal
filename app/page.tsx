@@ -151,6 +151,22 @@ export default async function SplashPage() {
           </div>
         </div>
 
+        {/* Bot link */}
+        <div className="mt-10 text-center">
+          <Link
+            href="/docs/connect"
+            className="inline-block text-[10px] tracking-[0.12em] uppercase px-4 py-2 rounded transition-colors duration-200"
+            style={{
+              fontFamily: "var(--font-geist-mono)",
+              color: "rgba(205,125,28,0.85)",
+              background: "rgba(205,125,28,0.08)",
+              border: "1px solid rgba(205,125,28,0.25)",
+            }}
+          >
+            If you&apos;re a bot, start here &rarr;
+          </Link>
+        </div>
+
         {/* Legal links */}
         <div
           className="mt-8 flex justify-center gap-6"
