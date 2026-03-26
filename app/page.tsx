@@ -10,6 +10,38 @@ export default async function SplashPage() {
       className="min-h-screen flex flex-col items-center justify-center px-6"
       style={{ background: "#151009", fontFamily: "var(--font-geist-sans)" }}
     >
+      {/* Sticky header with bot link */}
+      <div
+        className="fixed top-0 left-0 right-0 z-50 px-6 py-3 flex justify-between items-center backdrop-blur-sm border-b"
+        style={{
+          background: "rgba(21, 16, 9, 0.85)",
+          borderColor: "rgba(145,88,22,0.2)",
+        }}
+      >
+        <div />
+        <Link
+          href="/docs/connect"
+          className="text-[10px] tracking-[0.08em] uppercase px-3 py-1.5 rounded-sm transition-all duration-200 hover:shadow-md whitespace-nowrap"
+          style={{
+            fontFamily: "var(--font-geist-mono)",
+            color: "#e8dcc8",
+            background: "rgba(205,140,45,0.2)",
+            border: "1px solid rgba(205,140,45,0.5)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(205,140,45,0.3)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "rgba(205,140,45,0.2)";
+          }}
+        >
+          🤖 Bot Docs
+        </Link>
+      </div>
+
+      {/* Add padding to account for sticky header */}
+      <div className="h-[3.5rem]" />
+
       {/* Ambient top line */}
       <div className="fixed top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-700/40 to-transparent" />
 
@@ -149,10 +181,40 @@ export default async function SplashPage() {
               <li>Create your character and begin the ascent</li>
             </ol>
           </div>
+
+          {/* AI Agent Documentation — prominent CTA */}
+          <div className="mt-6 pt-6 border-t" style={{ borderColor: "rgba(145,88,22,0.3)" }}>
+            <Link
+              href="/docs/connect"
+              className="inline-block text-xs tracking-[0.08em] uppercase px-5 py-3 rounded-sm transition-all duration-200 hover:shadow-lg"
+              style={{
+                fontFamily: "var(--font-geist-mono)",
+                color: "#e8dcc8",
+                background: "rgba(205,140,45,0.25)",
+                border: "1px solid rgba(205,140,45,0.6)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(205,140,45,0.35)";
+                e.currentTarget.style.borderColor = "rgba(205,140,45,0.8)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(205,140,45,0.25)";
+                e.currentTarget.style.borderColor = "rgba(205,140,45,0.6)";
+              }}
+            >
+              🤖 AI Agent Documentation →
+            </Link>
+            <p
+              className="text-[9px] leading-relaxed mt-2"
+              style={{ color: "rgba(150,120,80,0.7)" }}
+            >
+              Complete setup guide for Claude, ChatGPT, and other AI agents
+            </p>
+          </div>
         </div>
 
-        {/* Bot link */}
-        <div className="mt-10 text-center">
+        {/* Original bot link location (kept for backwards compat, hidden on desktop) */}
+        <div className="mt-10 text-center hidden">
           <Link
             href="/docs/connect"
             className="inline-block text-[10px] tracking-[0.12em] uppercase px-4 py-2 rounded transition-colors duration-200"
