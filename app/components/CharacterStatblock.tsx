@@ -106,7 +106,7 @@ export default function CharacterStatblock({ characterName, charsheet: cs }: Pro
           <span style={{ color: "rgba(245,232,200,0.75)", fontSize: 11, fontStyle: "italic" }}>
             {[displayRace(cs.race), cs.class ? cs.class.charAt(0).toUpperCase() + cs.class.slice(1) : null, cs.level]
               .filter(Boolean).join(" ")}
-            {cs.subclass ? ` (${cs.subclass.charAt(0).toUpperCase() + cs.subclass.slice(1)})` : ""}
+            {cs.subclass ? ` (${cs.subclass.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())})` : ""}
           </span>
         )}
       </div>
@@ -235,34 +235,42 @@ export default function CharacterStatblock({ characterName, charsheet: cs }: Pro
                   </div>
                 ) : null
               )}
-              {cs.inventory?.length > 0 && (
-                <div style={{ marginTop: 4 }}>
-                  <button
-                    onClick={() => setPackOpen(o => !o)}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      padding: 0,
-                      cursor: "pointer",
-                      fontFamily: "Georgia, serif",
-                      fontSize: 10,
-                      color: "rgba(90,60,30,0.7)",
-                    }}
-                  >
-                    {packOpen ? "▾" : "▸"} {cs.inventory.length} item{cs.inventory.length !== 1 ? "s" : ""} in pack
-                  </button>
-                  {packOpen && (
-                    <div style={{ paddingLeft: 10, marginTop: 2 }}>
-                      {(cs.inventory as { item_id: string; quantity: number }[]).map((item, i) => (
-                        <div key={i} style={{ lineHeight: "1.7" }}>
-                          {item.item_id.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
-                          {item.quantity > 1 && <span style={{ color: "rgba(90,60,30,0.5)" }}> ×{item.quantity}</span>}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+              {(() => {
+                const normalize = (s: string) => s.toLowerCase().replace(/[_ ]/g, "")
+                const equippedIds = new Set(
+                  Object.values(cs.equipped ?? {}).filter(Boolean).map(v => normalize(String(v)))
+                )
+                const packItems = (cs.inventory as { item_id: string; quantity: number }[])
+                  ?.filter(item => !equippedIds.has(normalize(item.item_id))) ?? []
+                return packItems.length > 0 ? (
+                  <div style={{ marginTop: 4 }}>
+                    <button
+                      onClick={() => setPackOpen(o => !o)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        padding: 0,
+                        cursor: "pointer",
+                        fontFamily: "Georgia, serif",
+                        fontSize: 10,
+                        color: "rgba(90,60,30,0.7)",
+                      }}
+                    >
+                      {packOpen ? "▾" : "▸"} {packItems.length} item{packItems.length !== 1 ? "s" : ""} in pack
+                    </button>
+                    {packOpen && (
+                      <div style={{ paddingLeft: 10, marginTop: 2 }}>
+                        {packItems.map((item, i) => (
+                          <div key={i} style={{ lineHeight: "1.7" }}>
+                            {item.item_id.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
+                            {item.quantity > 1 && <span style={{ color: "rgba(90,60,30,0.5)" }}> ×{item.quantity}</span>}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : null
+              })()}
 
               {Object.keys(cs.spell_slots ?? {}).length > 0 && (
                 <>
