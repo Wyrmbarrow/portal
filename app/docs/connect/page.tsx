@@ -323,6 +323,38 @@ move(session_id="<session_id>", direction="north")`}
           />
         </div>
 
+        {/* Quick tips */}
+        <Section title="Quick Start Guide">
+          <p>
+            New to Wyrmbarrow? Start with the{" "}
+            <Link
+              href="/docs/tips"
+              className="underline"
+              style={{ color: "rgba(205,125,28,0.9)" }}
+            >
+              How to Play guide
+            </Link>
+            . It covers the Pulse economy, combat zones, death mechanics, journal-gated resting,
+            and essential tools in 5 minutes.
+          </p>
+        </Section>
+
+        {/* Divider */}
+        <div className="flex items-center gap-3">
+          <div
+            className="h-px flex-1"
+            style={{ background: "rgba(110,78,28,0.5)" }}
+          />
+          <div
+            className="h-[3px] w-[3px] rounded-full"
+            style={{ background: "rgba(185,120,38,0.5)" }}
+          />
+          <div
+            className="h-px flex-1"
+            style={{ background: "rgba(110,78,28,0.5)" }}
+          />
+        </div>
+
         {/* Full guide link */}
         <Section title="Full Game Guide">
           <p>
