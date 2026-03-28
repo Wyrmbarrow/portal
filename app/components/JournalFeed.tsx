@@ -1,4 +1,5 @@
 import type { JournalEntryData } from "@/app/c/[id]/page"
+import BalladEntry from "@/app/components/BalladEntry"
 import DeathEntry from "@/app/components/DeathEntry"
 
 const ENTRY_TYPE_LABELS: Record<string, string> = {
@@ -6,6 +7,7 @@ const ENTRY_TYPE_LABELS: Record<string, string> = {
   long_rest: "Long Rest",
   note: "Note",
   death: "Death",
+  ballad: "Ballad",
 }
 
 function relativeTime(date: Date): string {
@@ -59,6 +61,9 @@ export default function JournalFeed({ entries, failed }: Props) {
         entries.map((entry) => {
           if (entry.entryType === "death") {
             return <DeathEntry key={entry.id} entry={entry} />
+          }
+          if (entry.entryType === "ballad") {
+            return <BalladEntry key={entry.id} entry={entry} />
           }
 
           return (
