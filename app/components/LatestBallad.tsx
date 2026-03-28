@@ -1,9 +1,14 @@
 import Link from "next/link"
+import { cacheTag, cacheLife } from "next/cache"
 import { getPrisma } from "@/lib/db"
 import BalladEntry from "@/app/components/BalladEntry"
 import type { JournalEntryData } from "@/app/c/[id]/page"
 
 export default async function LatestBallad() {
+  'use cache'
+  cacheLife('hours')
+  cacheTag('latest-ballad')
+
   const db = getPrisma()
 
   const ballad = await db.journalEntry.findFirst({
