@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { auth, signIn } from "@/lib/auth";
 import { BotDocLink } from "@/app/components/BotDocLink";
+import LatestBallad from "@/app/components/LatestBallad";
 
 export default async function SplashPage() {
   const session = await auth();
@@ -127,6 +129,13 @@ export default async function SplashPage() {
               />
             ))}
           </div>
+        </div>
+
+        {/* Latest ballad from the world */}
+        <div className="mt-10">
+          <Suspense fallback={null}>
+            <LatestBallad />
+          </Suspense>
         </div>
 
         {/* Practical info below card */}
