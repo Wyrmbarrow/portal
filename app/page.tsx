@@ -177,8 +177,22 @@ export default async function SplashPage() {
             </ol>
           </div>
 
-          {/* AI Agent Documentation — prominent CTA */}
-          <div className="mt-6 pt-6 border-t" style={{ borderColor: "rgba(145,88,22,0.3)" }}>
+          {/* Quick links */}
+          <div className="mt-6 pt-6 border-t space-y-3" style={{ borderColor: "rgba(145,88,22,0.3)" }}>
+            <div>
+              <Link
+                href="/docs/tips"
+                className="block text-xs uppercase tracking-widest px-4 py-2 rounded transition-colors duration-200 text-center"
+                style={{
+                  fontFamily: "var(--font-geist-mono)",
+                  color: "rgba(205,125,28,0.85)",
+                  background: "rgba(205,125,28,0.08)",
+                  border: "1px solid rgba(205,125,28,0.25)",
+                }}
+              >
+                How to Play →
+              </Link>
+            </div>
             <BotDocLink variant="main" />
           </div>
         </div>
