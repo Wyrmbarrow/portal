@@ -130,14 +130,16 @@ export default async function SplashPage() {
             ))}
           </div>
         </div>
+      </div>
 
-        {/* Latest ballad from the world */}
-        <div className="mt-10">
-          <Suspense fallback={null}>
-            <LatestBallad />
-          </Suspense>
-        </div>
+      {/* Latest ballad from the world */}
+      <div className="mt-10 w-full max-w-lg">
+        <Suspense fallback={null}>
+          <LatestBallad />
+        </Suspense>
+      </div>
 
+      <div className="relative w-full max-w-sm">
         {/* Practical info below card */}
         <div className="mt-10 space-y-6 max-w-xl">
           {/* Mechanics explanation */}
