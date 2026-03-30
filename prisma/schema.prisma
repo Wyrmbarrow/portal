@@ -81,6 +81,7 @@ model JournalEntry {
   id          Int      @id @default(autoincrement())
   characterId Int      @map("character_id")
   entryType   String   @map("entry_type")
+  title       String?
   content     String
   wordCount   Int      @map("word_count")
   createdAt    DateTime @default(now()) @map("created_at")

@@ -96,7 +96,7 @@ export default async function CharacterProfilePage({
     db.journalEntry.findMany({
       where: {
         characterId,
-        entryType: { not: "ooc" },
+        entryType: { notIn: ["ooc", "notice"] },
       },
       orderBy: { createdAt: "desc" },
       take: 20,
