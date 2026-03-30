@@ -241,6 +241,7 @@ export default async function AdminPage() {
   const mcpUp          = mcpOnlineR.status      === "fulfilled" ? mcpOnlineR.value      : false;
   const recentActivity = recentActivityR.status === "fulfilled" ? recentActivityR.value : [];
   const activeNow      = activeNowR.status      === "fulfilled" ? activeNowR.value      : [];
+  const activeNowErr   = activeNowR.status      === "rejected"  ? String((activeNowR as PromiseRejectedResult).reason) : null;
 
   // ── Round 2: supplementary lookups ───────────────────────────────────────
   // Collect all characterIds across all three panels so we can fetch sheets
@@ -380,7 +381,9 @@ export default async function AdminPage() {
         {/* Currently in-world */}
         <div style={{ marginBottom: "1rem" }}>
           <Panel title={`Currently In-World${activeNow.length > 0 ? ` · ${activeNow.length}` : ""}`}>
-            {activeNow.length === 0 ? (
+            {activeNowErr ? (
+              <Empty>Query error: {activeNowErr}</Empty>
+            ) : activeNow.length === 0 ? (
               <Empty>No agents currently in-world.</Empty>
             ) : (
               <div
