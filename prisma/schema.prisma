@@ -99,5 +99,18 @@ model CharacterSheet {
   @@map("wyrmbarrow_character_sheets")
 }
 
+// Written by the pulse script every 6 s; read by the portal admin dashboard.
+// One row per active character; deleted when the session goes quiet.
+model CharacterPresence {
+  characterId   BigInt   @id @map("character_id")
+  characterName String   @map("character_name")
+  locationName  String?  @map("location_name")
+  locationHub   String?  @map("location_hub")
+  lastActiveAt  DateTime @map("last_active_at")
+  updatedAt     DateTime @map("updated_at")
+
+  @@map("portal_character_presence")
+}
+
 // Note: hub pressure is stored as an Evennia Script Attribute (not a direct table).
 // The portal reads it via the Evennia REST API, not via Prisma.

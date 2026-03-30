@@ -141,7 +141,9 @@ function Empty({ children }: { children: React.ReactNode }) {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function fmtDate(d: Date) {
-  const mins = Math.floor((Date.now() - d.getTime()) / 60000);
+  const secs = Math.floor((Date.now() - d.getTime()) / 1000);
+  if (secs < 60)   return `${secs}s ago`;
+  const mins = Math.floor(secs / 60);
   if (mins < 60)   return `${mins}m ago`;
   const hrs = Math.floor(mins / 60);
   if (hrs < 24)    return `${hrs}h ago`;
@@ -195,6 +197,7 @@ export default async function AdminPage() {
     activeCharsSince24hR,
     mcpOnlineR,
     recentActivityR,
+    activeNowR,
   ] = await Promise.allSettled([
     db.patron.count(),
     db.patronCharacter.count(),
@@ -221,6 +224,10 @@ export default async function AdminPage() {
       orderBy: { _max: { createdAt: "desc" } },
       take: 10,
     }),
+    db.characterPresence.findMany({
+      where: { lastActiveAt: { gte: new Date(Date.now() - 2 * 60 * 1000) } },
+      orderBy: { lastActiveAt: "desc" },
+    }),
   ]);
 
   const patronCount    = patronCountR.status    === "fulfilled" ? patronCountR.value    : 0;
@@ -234,24 +241,27 @@ export default async function AdminPage() {
   const activeChars24h = activeCharsSince24hR.status === "fulfilled" ? activeCharsSince24hR.value.length : 0;
   const mcpUp          = mcpOnlineR.status      === "fulfilled" ? mcpOnlineR.value      : false;
   const recentActivity = recentActivityR.status === "fulfilled" ? recentActivityR.value : [];
+  const activeNow      = activeNowR.status      === "fulfilled" ? activeNowR.value      : [];
 
   // ── Round 2: supplementary lookups ───────────────────────────────────────
   // Collect all characterIds across all three panels so we can fetch sheets
   // and patron records in one go.
 
-  const deathCharIdsBig  = recentDeaths.map((e) => BigInt(e.characterId));
-  const activeCharIdsBig = recentActivity.map((r) => BigInt(r.characterId));
+  const deathCharIdsBig   = recentDeaths.map((e) => BigInt(e.characterId));
+  const activeCharIdsBig  = recentActivity.map((r) => BigInt(r.characterId));
+  const activeNowIdsBig   = activeNow.map((c) => c.characterId); // already BigInt from Prisma
 
   const allCharIdsInt = [
     ...new Set([
       ...recentChars.map((c) => Number(c.characterId)),
-      ...recentDeaths.map((e) => e.characterId),      // already Int
-      ...recentActivity.map((r) => r.characterId),    // already Int
+      ...recentDeaths.map((e) => e.characterId),          // already Int
+      ...recentActivity.map((r) => r.characterId),        // already Int
+      ...activeNow.map((c) => Number(c.characterId)),     // BigInt → Int
     ]),
   ];
 
-  const [allSheetsR, allPatronsR, deathCharsR, activeCharsR] = await Promise.allSettled([
-    // Sheets for every character across all three panels
+  const [allSheetsR, allPatronsR, deathCharsR, activeCharsR, activeNowCharsR] = await Promise.allSettled([
+    // Sheets for every character across all panels
     allCharIdsInt.length > 0
       ? db.characterSheet.findMany({
           where: { characterId: { in: allCharIdsInt } },
@@ -274,12 +284,20 @@ export default async function AdminPage() {
           select: { id: true, characterId: true, characterName: true, patronGoogleId: true },
         })
       : Promise.resolve([]),
+    // PatronCharacter records for currently in-world
+    activeNowIdsBig.length > 0
+      ? db.patronCharacter.findMany({
+          where: { characterId: { in: activeNowIdsBig } },
+          select: { id: true, characterId: true, characterName: true, patronGoogleId: true },
+        })
+      : Promise.resolve([]),
   ]);
 
-  const allSheets   = allSheetsR.status   === "fulfilled" ? allSheetsR.value   : [];
-  const allPatrons  = allPatronsR.status  === "fulfilled" ? allPatronsR.value  : [];
-  const deathChars  = deathCharsR.status  === "fulfilled" ? deathCharsR.value  : [];
-  const activeChars = activeCharsR.status === "fulfilled" ? activeCharsR.value : [];
+  const allSheets      = allSheetsR.status      === "fulfilled" ? allSheetsR.value      : [];
+  const allPatrons     = allPatronsR.status     === "fulfilled" ? allPatronsR.value     : [];
+  const deathChars     = deathCharsR.status     === "fulfilled" ? deathCharsR.value     : [];
+  const activeChars    = activeCharsR.status    === "fulfilled" ? activeCharsR.value    : [];
+  const activeNowChars = activeNowCharsR.status === "fulfilled" ? activeNowCharsR.value : [];
 
   // ── Lookup maps ───────────────────────────────────────────────────────────
 
@@ -288,8 +306,9 @@ export default async function AdminPage() {
   // googleId → email
   const patronMap = new Map(allPatrons.map((p) => [p.googleId, p.email]));
   // characterId (BigInt → string) → { id (CUID), name, patronGoogleId }
-  const deathCharMap  = new Map(deathChars.map((d)  => [d.characterId.toString(),  { id: d.id,  name: d.characterName,  googleId: d.patronGoogleId }]));
-  const activeCharMap = new Map(activeChars.map((c) => [c.characterId.toString(), { id: c.id, name: c.characterName, googleId: c.patronGoogleId }]));
+  const deathCharMap    = new Map(deathChars.map((d)  => [d.characterId.toString(), { id: d.id, name: d.characterName, googleId: d.patronGoogleId }]));
+  const activeCharMap   = new Map(activeChars.map((c) => [c.characterId.toString(), { id: c.id, name: c.characterName, googleId: c.patronGoogleId }]));
+  const activeNowCharMap = new Map(activeNowChars.map((c) => [c.characterId.toString(), { id: c.id, name: c.characterName, googleId: c.patronGoogleId }]));
 
   const liveChars = totalChars - totalDeaths;
 
@@ -357,6 +376,69 @@ export default async function AdminPage() {
           />
           <StatCard label="Journal Entries" value={totalEntries.toLocaleString()} />
           <StatCard label="Words Written" value={totalWords.toLocaleString()} />
+        </div>
+
+        {/* Currently in-world */}
+        <div style={{ marginBottom: "1rem" }}>
+          <Panel title={`Currently In-World${activeNow.length > 0 ? ` · ${activeNow.length}` : ""}`}>
+            {activeNow.length === 0 ? (
+              <Empty>No agents active in the last 2 minutes.</Empty>
+            ) : (
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+                  gap: "0.5rem",
+                }}
+              >
+                {activeNow.map((c) => {
+                  const rec   = activeNowCharMap.get(c.characterId.toString());
+                  const sheet = sheetMap.get(Number(c.characterId));
+                  return (
+                    <div
+                      key={c.characterId.toString()}
+                      style={{
+                        background: "#0f1a12",
+                        border: "1px solid #166534",
+                        borderRadius: "0.375rem",
+                        padding: "0.6rem 0.75rem",
+                      }}
+                    >
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.2rem" }}>
+                        {rec ? (
+                          <a
+                            href={`/c/${rec.id}`}
+                            style={{ color: "#4ade80", fontWeight: 600, textDecoration: "none", fontSize: "0.85rem", fontFamily: "var(--font-geist-mono)" }}
+                          >
+                            {c.characterName}
+                          </a>
+                        ) : (
+                          <span style={{ color: "#4ade80", fontWeight: 600, fontSize: "0.85rem", fontFamily: "var(--font-geist-mono)" }}>
+                            {c.characterName}
+                          </span>
+                        )}
+                        <span style={{ color: "#16a34a", fontSize: "0.65rem", fontFamily: "var(--font-geist-mono)" }}>
+                          {fmtDate(c.lastActiveAt)}
+                        </span>
+                      </div>
+                      <div style={{ color: "#86efac", fontSize: "0.72rem", lineHeight: 1.4 }}>
+                        {c.locationName ?? "Limbo"}
+                        {c.locationHub && (
+                          <span style={{ color: "#4d7c0f", marginLeft: "0.4rem" }}>· {c.locationHub}</span>
+                        )}
+                      </div>
+                      {sheet && (
+                        <div style={{ color: "#52525b", fontSize: "0.65rem", marginTop: "0.15rem" }}>
+                          {classLine(sheet)}
+                          {rec && <span style={{ marginLeft: "0.4rem" }}>· {patronMap.get(rec.googleId) ?? ""}</span>}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </Panel>
         </div>
 
         {/* Three-column character panels: Active · Created · Died */}
