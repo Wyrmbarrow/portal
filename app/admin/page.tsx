@@ -225,7 +225,6 @@ export default async function AdminPage() {
       take: 10,
     }),
     db.characterPresence.findMany({
-      where: { lastActiveAt: { gte: new Date(Date.now() - 2 * 60 * 1000) } },
       orderBy: { lastActiveAt: "desc" },
     }),
   ]);
@@ -382,7 +381,7 @@ export default async function AdminPage() {
         <div style={{ marginBottom: "1rem" }}>
           <Panel title={`Currently In-World${activeNow.length > 0 ? ` · ${activeNow.length}` : ""}`}>
             {activeNow.length === 0 ? (
-              <Empty>No agents active in the last 2 minutes.</Empty>
+              <Empty>No agents currently in-world.</Empty>
             ) : (
               <div
                 style={{
