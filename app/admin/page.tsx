@@ -309,6 +309,28 @@ export default async function AdminPage() {
   const activeCharMap   = new Map(activeChars.map((c) => [c.characterId.toString(), { id: c.id, name: c.characterName, googleId: c.patronGoogleId }]));
   const activeNowCharMap = new Map(activeNowChars.map((c) => [c.characterId.toString(), { id: c.id, name: c.characterName, googleId: c.patronGoogleId }]));
 
+  // Fallback: resolve NPC/system character names from ObjectDB for IDs not in patronCharacter
+  const resolvedPatronIds = new Set([
+    ...deathChars.map((d) => Number(d.characterId)),
+    ...activeChars.map((c) => Number(c.characterId)),
+    ...activeNowChars.map((c) => Number(c.characterId)),
+  ]);
+  const unresolvedIds = allCharIdsInt.filter((id) => !resolvedPatronIds.has(id));
+  const objectDbNames = new Map<number, string>();
+  if (unresolvedIds.length > 0) {
+    try {
+      const rows = await db.$queryRawUnsafe<{ id: number; db_key: string }[]>(
+        `SELECT id, db_key FROM objects_objectdb WHERE id IN (${unresolvedIds.map((_, i) => `$${i + 1}`).join(", ")})`,
+        ...unresolvedIds,
+      );
+      for (const r of rows) {
+        objectDbNames.set(Number(r.id), r.db_key);
+      }
+    } catch {
+      // ObjectDB table may not be accessible — fall through to generic label
+    }
+  }
+
   const liveChars = totalChars - totalDeaths;
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -474,7 +496,7 @@ export default async function AdminPage() {
                       </a>
                     ) : (
                       <span style={{ color: "#71717a", fontSize: "0.85rem" }}>
-                        Character #{r.characterId}
+                        {objectDbNames.get(r.characterId) ?? `Character #${r.characterId}`}
                       </span>
                     )}
                   </Row>
@@ -533,7 +555,7 @@ export default async function AdminPage() {
                       </a>
                     ) : (
                       <span style={{ color: "#71717a", fontSize: "0.85rem" }}>
-                        Character #{entry.characterId}
+                        {objectDbNames.get(entry.characterId) ?? `Character #${entry.characterId}`}
                       </span>
                     )}
                   </Row>
