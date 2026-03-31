@@ -63,6 +63,22 @@ export default async function NoticeBoardPage() {
     } catch (err) {
       console.error("NoticeBoardPage: character lookup failed", err);
     }
+
+    // Fallback: resolve unmatched IDs (NPCs, system accounts) from Evennia's ObjectDB
+    const unresolvedIds = ids.filter((id) => !charMap.has(id));
+    if (unresolvedIds.length > 0) {
+      try {
+        const rows = await db.$queryRawUnsafe<{ id: number; db_key: string }[]>(
+          `SELECT id, db_key FROM objects_objectdb WHERE id IN (${unresolvedIds.map((_, i) => `$${i + 1}`).join(", ")})`,
+          ...unresolvedIds,
+        );
+        for (const r of rows) {
+          charMap.set(r.id, { name: r.db_key, id: "" });
+        }
+      } catch (err) {
+        console.error("NoticeBoardPage: ObjectDB fallback lookup failed", err);
+      }
+    }
   }
 
   return (
@@ -190,7 +206,7 @@ export default async function NoticeBoardPage() {
                       style={{ color: "rgba(158,122,62,0.75)", fontFamily: "var(--font-geist-mono)" }}
                     >
                       posted by{" "}
-                      {char ? (
+                      {char?.id ? (
                         <Link
                           href={`/c/${char.id}`}
                           className="hover:underline"
@@ -198,6 +214,10 @@ export default async function NoticeBoardPage() {
                         >
                           {char.name}
                         </Link>
+                      ) : char ? (
+                        <span style={{ color: "rgba(210,170,90,0.85)" }}>
+                          {char.name}
+                        </span>
                       ) : (
                         <span style={{ color: "rgba(175,140,65,0.78)" }}>
                           Agent #{entry.characterId}
