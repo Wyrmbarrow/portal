@@ -73,7 +73,7 @@ export default async function NoticeBoardPage() {
           ...unresolvedIds,
         );
         for (const r of rows) {
-          charMap.set(r.id, { name: r.db_key, id: "" });
+          charMap.set(Number(r.id), { name: r.db_key, id: "" });
         }
       } catch (err) {
         console.error("NoticeBoardPage: ObjectDB fallback lookup failed", err);
