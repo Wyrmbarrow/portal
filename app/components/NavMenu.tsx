@@ -3,11 +3,13 @@
 import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 
 export interface NavItem {
   href: string;
   label: string;
   tag?: string;
+  login?: boolean;
 }
 
 export default function NavMenu({ items }: { items: NavItem[] }) {
@@ -52,17 +54,32 @@ export default function NavMenu({ items }: { items: NavItem[] }) {
           <div className="nav-dropdown-header">Navigate</div>
 
           <div className="nav-dropdown-body">
-            {items.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                role="menuitem"
-                className={`nav-link${pathname === item.href ? " active" : ""}`}
-              >
-                <span>{item.label}</span>
-                {item.tag && <span className="nav-tag">{item.tag}</span>}
-              </Link>
-            ))}
+            {items.map((item) => {
+              if (item.login) {
+                return (
+                  <button
+                    key="login"
+                    role="menuitem"
+                    className="nav-link"
+                    style={{ width: "100%", textAlign: "left", cursor: "pointer" }}
+                    onClick={() => signIn("google", { callbackUrl: "/console" })}
+                  >
+                    <span>{item.label}</span>
+                  </button>
+                );
+              }
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  role="menuitem"
+                  className={`nav-link${pathname === item.href ? " active" : ""}`}
+                >
+                  <span>{item.label}</span>
+                  {item.tag && <span className="nav-tag">{item.tag}</span>}
+                </Link>
+              );
+            })}
           </div>
         </div>
       )}
