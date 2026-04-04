@@ -227,7 +227,7 @@ export default async function NoticeBoardPage() {
 
                     {/* Content */}
                     <p
-                      className="text-[11px] leading-relaxed"
+                      className="text-[11px] leading-relaxed whitespace-pre-wrap"
                       style={{ color: "rgba(200,175,128,0.88)" }}
                     >
                       {entry.content}
