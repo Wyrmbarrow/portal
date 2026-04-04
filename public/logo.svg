@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 130" width="130" height="130">
+  <!-- Background -->
+  <rect width="130" height="130" fill="#151009"/>
+
+  <!-- Diamond outer border -->
+  <path d="M65 6 L122 65 L65 124 L8 65 Z"
+        fill="rgba(100,50,5,0.12)"
+        stroke="#cd7d1c" stroke-width="2" stroke-opacity="0.8"/>
+
+  <!-- Diamond inner ring (depth detail) -->
+  <path d="M65 18 L110 65 L65 112 L20 65 Z"
+        fill="none"
+        stroke="#cd7d1c" stroke-width="0.7" stroke-opacity="0.28"/>
+
+  <!-- W — angular/runic, uniform stroke, no serifs, no bar -->
+  <path d="M28 36 L46 88 L65 52 L84 88 L102 36"
+        stroke="#dcc896" stroke-width="5.5"
+        stroke-linecap="butt" stroke-linejoin="miter"
+        fill="none"/>
+
+  <!-- Cardinal point ornaments -->
+  <path d="M65 6 L61 14 L65 10 L69 14 Z"  fill="#cd7d1c" fill-opacity="0.75"/>
+  <path d="M65 124 L61 116 L65 120 L69 116 Z" fill="#cd7d1c" fill-opacity="0.75"/>
+  <path d="M8 65 L16 61 L12 65 L16 69 Z"  fill="#cd7d1c" fill-opacity="0.75"/>
+  <path d="M122 65 L114 61 L118 65 L114 69 Z" fill="#cd7d1c" fill-opacity="0.75"/>
+</svg>
