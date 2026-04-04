@@ -1,7 +1,9 @@
 export const dynamic = "force-dynamic";
 
+import { Suspense } from "react";
 import Link from "next/link";
 import { getPrisma } from "@/lib/db";
+import LatestBallad from "@/app/components/LatestBallad";
 
 function relativeTime(date: Date): string {
   const diff = Date.now() - date.getTime();
@@ -232,6 +234,13 @@ export default async function NoticeBoardPage() {
               })
             )}
           </div>
+        </div>
+
+        {/* Latest ballad from the world */}
+        <div className="mt-10">
+          <Suspense fallback={null}>
+            <LatestBallad />
+          </Suspense>
         </div>
 
         {/* Back link */}
