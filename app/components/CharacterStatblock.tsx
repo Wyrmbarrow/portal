@@ -32,6 +32,20 @@ const SKILLS: { name: string; ability: string; label: string }[] = [
   { name: "stealth", ability: "dex", label: "Stealth" },
   { name: "survival", ability: "wis", label: "Survival" },
 ]
+const FEAT_NAMES: Record<string, { name: string; desc: string }> = {
+  "ability-score-improvement": { name: "Ability Score Improvement", desc: "+2 to one ability, or +1 to two abilities." },
+  "alert":                     { name: "Alert",                     desc: "+5 to initiative. Can't be surprised. Hidden attackers gain no advantage." },
+  "archery":                   { name: "Archery",                   desc: "+2 to ranged attack rolls." },
+  "defense":                   { name: "Defense",                   desc: "+1 AC while wearing armor." },
+  "dueling":                   { name: "Dueling",                   desc: "+2 damage when wielding a melee weapon in one hand with no other weapons." },
+  "fey-touched":               { name: "Fey Touched",               desc: "Learn one 1st-level spell infused with fey magic." },
+  "great-weapon-fighting":     { name: "Great Weapon Fighting",     desc: "Reroll 1s and 2s on damage dice for two-handed melee weapons." },
+  "magic-initiate":            { name: "Magic Initiate",            desc: "Learn 2 cantrips and 1 1st-level spell from any class." },
+  "protection":                { name: "Protection",                desc: "Reaction: impose disadvantage on an attack against a nearby ally. Requires shield." },
+  "savage-attacker":           { name: "Savage Attacker",           desc: "Once per turn, reroll weapon damage and use the higher result." },
+  "two-weapon-fighting":       { name: "Two-Weapon Fighting",       desc: "Add ability modifier to the damage of your off-hand attack." },
+}
+
 const FACTION_LABELS: Record<string, string> = {
   the_vigil: "The Vigil",
   the_harvesters: "The Harvesters",
@@ -221,6 +235,26 @@ export default function CharacterStatblock({ characterName, charsheet: cs }: Pro
                   ))
                 : <p style={{ color: "rgba(90,60,30,0.5)" }}>None yet</p>
               }
+
+              {(cs.selected_feats?.length ?? 0) > 0 && (
+                <>
+                  <Divider color={parchmentLine} />
+                  <SectionHeader label="Feats" color={crimsonText} />
+                  {cs.selected_feats!.map((id) => {
+                    const feat = FEAT_NAMES[id]
+                    return (
+                      <div key={id} style={{ marginBottom: 4 }}>
+                        <b>{feat?.name ?? id.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase())}</b>
+                        {feat && (
+                          <span style={{ color: "rgba(90,60,30,0.72)", marginLeft: 4 }}>
+                            — {feat.desc}
+                          </span>
+                        )}
+                      </div>
+                    )
+                  })}
+                </>
+              )}
 
               <Divider color={parchmentLine} />
 

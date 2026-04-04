@@ -57,6 +57,7 @@ export interface Charsheet {
   finalized: boolean
   conditions?: string[]
   dead?: boolean
+  selected_feats?: string[]
 }
 
 export interface JournalEntryData {
