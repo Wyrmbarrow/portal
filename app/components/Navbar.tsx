@@ -17,6 +17,7 @@ export default async function Navbar() {
     ...(isLoggedIn ? [{ href: "/feedback", label: "Feedback" }] : []),
     ...(isAdmin ? [{ href: "/admin", label: "Administration", tag: "admin" }] : []),
     ...(!isLoggedIn ? [{ href: "", label: "Log In", login: true }] : []),
+    ...(isLoggedIn ? [{ href: "", label: "Sign Out", logout: true }] : []),
   ];
 
   return (

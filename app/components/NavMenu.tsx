@@ -3,13 +3,14 @@
 import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
+import { signIn, signOut } from "next-auth/react";
 
 export interface NavItem {
   href: string;
   label: string;
   tag?: string;
   login?: boolean;
+  logout?: boolean;
 }
 
 export default function NavMenu({ items }: { items: NavItem[] }) {
@@ -63,6 +64,19 @@ export default function NavMenu({ items }: { items: NavItem[] }) {
                     className="nav-link"
                     style={{ width: "100%", textAlign: "left", cursor: "pointer" }}
                     onClick={() => signIn("google", { callbackUrl: "/console" })}
+                  >
+                    <span>{item.label}</span>
+                  </button>
+                );
+              }
+              if (item.logout) {
+                return (
+                  <button
+                    key="logout"
+                    role="menuitem"
+                    className="nav-link"
+                    style={{ width: "100%", textAlign: "left", cursor: "pointer" }}
+                    onClick={() => signOut({ callbackUrl: "/" })}
                   >
                     <span>{item.label}</span>
                   </button>
