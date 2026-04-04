@@ -54,3 +54,110 @@ body {
 .link-legal:hover {
   color: rgba(180,148,95,0.95);
 }
+
+/* ─── Navigation ─────────────────────────────────────────────── */
+
+.nav-trigger {
+  font-family: var(--font-geist-mono);
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(168,128,52,0.8);
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+  transition: color 0.15s;
+}
+.nav-trigger:hover { color: rgba(215,168,68,0.98); }
+
+.nav-caret {
+  display: inline-block;
+  font-size: 8px;
+  transition: transform 0.2s ease;
+  opacity: 0.6;
+}
+
+.nav-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 215px;
+  background: rgba(13,8,2,0.97);
+  border: 1px solid rgba(145,88,22,0.52);
+  backdrop-filter: blur(14px);
+  z-index: 200;
+  animation: nav-in 0.13s ease both;
+}
+
+@keyframes nav-in {
+  from { opacity: 0; transform: translateY(-5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.nav-corner {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+}
+.nav-corner.tl { top: 0; left: 0;
+  border-top:    1px solid rgba(205,125,28,0.72);
+  border-left:   1px solid rgba(205,125,28,0.72); }
+.nav-corner.tr { top: 0; right: 0;
+  border-top:    1px solid rgba(205,125,28,0.72);
+  border-right:  1px solid rgba(205,125,28,0.72); }
+.nav-corner.bl { bottom: 0; left: 0;
+  border-bottom: 1px solid rgba(205,125,28,0.72);
+  border-left:   1px solid rgba(205,125,28,0.72); }
+.nav-corner.br { bottom: 0; right: 0;
+  border-bottom: 1px solid rgba(205,125,28,0.72);
+  border-right:  1px solid rgba(205,125,28,0.72); }
+
+.nav-dropdown-header {
+  padding: 10px 16px 8px;
+  border-bottom: 1px solid rgba(80,55,18,0.52);
+  font-family: var(--font-geist-mono);
+  font-size: 7px;
+  letter-spacing: 0.55em;
+  text-transform: uppercase;
+  color: rgba(148,105,38,0.6);
+}
+
+.nav-dropdown-body { padding: 5px 0; }
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 16px;
+  font-family: var(--font-geist-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(170,135,65,0.76);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: color 0.1s, background 0.1s, border-color 0.1s;
+}
+.nav-link:hover {
+  color: rgba(218,178,82,0.98);
+  background: rgba(68,38,5,0.32);
+  border-left-color: rgba(178,102,18,0.48);
+}
+.nav-link.active {
+  color: rgba(222,185,92,1);
+  background: rgba(82,48,8,0.4);
+  border-left-color: rgba(205,125,28,0.88);
+}
+
+.nav-tag {
+  font-size: 7px;
+  letter-spacing: 0.08em;
+  color: rgba(118,82,22,0.62);
+  border: 1px solid rgba(118,82,22,0.28);
+  padding: 1px 5px;
+  border-radius: 2px;
+}

@@ -13,22 +13,7 @@ export default async function SplashPage() {
       className="min-h-screen flex flex-col items-center justify-center px-6"
       style={{ background: "#151009", fontFamily: "var(--font-geist-sans)" }}
     >
-      {/* Sticky header with bot link */}
-      <div
-        className="fixed top-0 left-0 right-0 z-50 px-6 py-3 flex justify-between items-center backdrop-blur-sm border-b"
-        style={{
-          background: "rgba(21, 16, 9, 0.85)",
-          borderColor: "rgba(145,88,22,0.2)",
-        }}
-      >
-        <div />
-        <BotDocLink variant="header" />
-      </div>
-
-      {/* Add padding to account for sticky header */}
-      <div className="h-[3.5rem]" />
-
-      {/* Ambient top line */}
+      {/* Ambient top line (behind navbar) */}
       <div className="fixed top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-700/40 to-transparent" />
 
       {/* Radial warmth behind card */}

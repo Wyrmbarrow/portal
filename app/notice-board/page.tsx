@@ -1,8 +1,6 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
 import { getPrisma } from "@/lib/db";
 
 function relativeTime(date: Date): string {
@@ -16,9 +14,6 @@ function relativeTime(date: Date): string {
 }
 
 export default async function NoticeBoardPage() {
-  const session = await auth();
-  if (!session?.user) redirect("/");
-
   const db = getPrisma();
 
   const cutoff = new Date(Date.now() - 72 * 60 * 60 * 1000);
