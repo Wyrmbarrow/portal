@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getPrisma } from "@/lib/db";
+import CharacterCard from "@/app/components/CharacterCard";
 
 // ── Inline layout helpers (server-only, no "use client") ─────────────────────
 
@@ -158,85 +159,6 @@ function classLine(data: Record<string, unknown> | undefined): string | undefine
   return `${cls}${sub} Lv.${lvl}`;
 }
 
-function getHpPercent(data: Record<string, unknown> | undefined): number {
-  if (!data) return 0;
-  const current = Number(data.hp_current ?? 0);
-  const max = Number(data.hp_max ?? 1);
-  return Math.round((current / max) * 100);
-}
-
-function getHpColor(percent: number): string {
-  if (percent > 75) return "#10b981";      // green
-  if (percent > 50) return "#84cc16";      // lime
-  if (percent > 25) return "#f59e0b";      // amber
-  if (percent > 0)  return "#ef4444";      // red
-  return "#6b7280";                        // grey (dead)
-}
-
-// XP thresholds (cumulative) from server/characters/classes/__init__.py + observed values
-// XP_THRESHOLDS[N] = total XP needed to reach level N
-const XP_THRESHOLDS: Record<number, number> = {
-  1: 0,      // level 1 start
-  2: 300,
-  3: 900,
-  4: 2700,
-  5: 6500,
-  6: 14000,
-  7: 23000,
-  8: 48000,  // observed from player data (Wren)
-  9: 75000,  // estimate based on progression
-  10: 110000,
-  11: 155000,
-  12: 210000,
-  13: 275000,
-  14: 350000,
-  15: 435000,
-  16: 530000,
-  17: 635000,
-  18: 750000,
-  19: 875000,
-  20: 1000000,
-};
-
-function getXpPercent(data: Record<string, unknown> | undefined): number {
-  if (!data) return 0;
-  const level = Number(data.level ?? 1);
-  const xp = Number(data.xp ?? 0);
-
-  // Get current level threshold and next level threshold
-  const currentThreshold = XP_THRESHOLDS[level] ?? 0;
-  const nextThreshold = XP_THRESHOLDS[level + 1];
-
-  if (!nextThreshold) return 100; // at max level
-
-  const xpInLevel = xp - currentThreshold;
-  const xpNeeded = nextThreshold - currentThreshold;
-  const percent = Math.round((xpInLevel / xpNeeded) * 100);
-  return Math.min(percent, 100); // cap at 100% (ready to level)
-}
-
-function BarMini({ percent, color, label }: { percent: number; color: string; label: string }) {
-  return (
-    <div style={{ marginBottom: "0.25rem" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.1rem" }}>
-        <span style={{ color: "#a1a1aa", fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-          {label}
-        </span>
-        <span style={{ color: "#71717a", fontSize: "0.6rem" }}>{percent}%</span>
-      </div>
-      <div style={{ height: "3px", background: "#27272a", borderRadius: "1px", overflow: "hidden" }}>
-        <div
-          style={{
-            height: "100%",
-            width: `${percent}%`,
-            background: color,
-            transition: "width 0.2s ease",
-          }}
-        />
-      </div>
-    </div>
-  );
-}
 
 async function checkMcpHealth(): Promise<boolean> {
   const mcpUrl = process.env.WYRMBARROW_MCP_URL ?? "https://mcp.wyrmbarrow.com";
@@ -496,78 +418,19 @@ export default async function AdminPage() {
                 {activeNow.map((c) => {
                   const rec   = activeNowCharMap.get(c.characterId.toString());
                   const sheet = sheetMap.get(Number(c.characterId));
-                  const hpPct = getHpPercent(sheet);
-                  const xpPct = getXpPercent(sheet);
-                  const hpCurrent = Number(sheet?.hp_current ?? 0);
-                  const hpMax = Number(sheet?.hp_max ?? 0);
+                  const isDead = Boolean(sheet?.dead);
                   return (
-                    <div
+                    <CharacterCard
                       key={c.characterId.toString()}
-                      style={{
-                        background: "#0f1a12",
-                        border: "1px solid #166534",
-                        borderRadius: "0.375rem",
-                        padding: "0.6rem 0.75rem",
-                        display: "flex",
-                        flexDirection: "column",
-                        height: "100%",
-                      }}
-                    >
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.2rem" }}>
-                        {rec ? (
-                          <a
-                            href={`/c/${rec.id}`}
-                            style={{ color: "#4ade80", fontWeight: 600, textDecoration: "none", fontSize: "0.85rem", fontFamily: "var(--font-geist-mono)" }}
-                          >
-                            {c.characterName}
-                          </a>
-                        ) : (
-                          <span style={{ color: "#4ade80", fontWeight: 600, fontSize: "0.85rem", fontFamily: "var(--font-geist-mono)" }}>
-                            {c.characterName}
-                          </span>
-                        )}
-                        <span style={{ color: "#16a34a", fontSize: "0.65rem", fontFamily: "var(--font-geist-mono)" }}>
-                          {fmtDate(c.lastActiveAt)}
-                        </span>
-                      </div>
-                      <div style={{ color: "#86efac", fontSize: "0.72rem", lineHeight: 1.4 }}>
-                        {c.locationName ?? "Limbo"}
-                        {c.locationHub && (
-                          <span style={{ color: "#4d7c0f", marginLeft: "0.4rem" }}>· {c.locationHub}</span>
-                        )}
-                      </div>
-                      {sheet && (
-                        <div style={{ color: "#52525b", fontSize: "0.65rem", marginTop: "0.15rem" }}>
-                          {classLine(sheet)}
-                          {rec && <span style={{ marginLeft: "0.4rem" }}>· {patronMap.get(rec.googleId) ?? ""}</span>}
-                        </div>
-                      )}
-                      {sheet && (
-                        <div style={{ marginTop: "auto", paddingTop: "0.4rem", borderTop: "1px solid rgba(22, 101, 52, 0.5)" }}>
-                          <div style={{ marginBottom: "0.3rem" }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.1rem" }}>
-                              <span style={{ color: "#a1a1aa", fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                                HP
-                              </span>
-                              <span style={{ color: "#71717a", fontSize: "0.6rem" }}>
-                                {hpCurrent}/{hpMax}
-                              </span>
-                            </div>
-                            <div style={{ height: "4px", background: "#27272a", borderRadius: "1px", overflow: "hidden" }}>
-                              <div
-                                style={{
-                                  height: "100%",
-                                  width: `${hpPct}%`,
-                                  background: getHpColor(hpPct),
-                                  transition: "width 0.2s ease",
-                                }}
-                              />
-                            </div>
-                          </div>
-                          <BarMini percent={xpPct} color="#8b5cf6" label="XP" />
-                        </div>
-                      )}
-                    </div>
+                      characterName={c.characterName}
+                      characterLink={rec ? `/c/${rec.id}` : undefined}
+                      sheet={sheet}
+                      location={c.locationName ?? undefined}
+                      locationHub={c.locationHub ?? undefined}
+                      lastActiveAt={c.lastActiveAt}
+                      patronEmail={rec ? patronMap.get(rec.googleId) : undefined}
+                      isDead={isDead}
+                    />
                   );
                 })}
               </div>
