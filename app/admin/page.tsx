@@ -490,6 +490,7 @@ export default async function AdminPage() {
                   display: "grid",
                   gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
                   gap: "0.5rem",
+                  alignItems: "stretch",
                 }}
               >
                 {activeNow.map((c) => {
@@ -507,6 +508,9 @@ export default async function AdminPage() {
                         border: "1px solid #166534",
                         borderRadius: "0.375rem",
                         padding: "0.6rem 0.75rem",
+                        display: "flex",
+                        flexDirection: "column",
+                        height: "100%",
                       }}
                     >
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.2rem" }}>
@@ -539,7 +543,7 @@ export default async function AdminPage() {
                         </div>
                       )}
                       {sheet && (
-                        <div style={{ marginTop: "0.5rem", paddingTop: "0.4rem", borderTop: "1px solid rgba(22, 101, 52, 0.5)" }}>
+                        <div style={{ marginTop: "auto", paddingTop: "0.4rem", borderTop: "1px solid rgba(22, 101, 52, 0.5)" }}>
                           <div style={{ marginBottom: "0.3rem" }}>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.1rem" }}>
                               <span style={{ color: "#a1a1aa", fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
