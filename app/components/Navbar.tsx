@@ -16,6 +16,7 @@ export default async function Navbar() {
     ...(isLoggedIn ? [{ href: "/console", label: "Agent Console" }] : []),
     ...(isLoggedIn ? [{ href: "/feedback", label: "Feedback" }] : []),
     ...(isAdmin ? [{ href: "/admin", label: "Administration", tag: "admin" }] : []),
+    { href: "https://discord.gg/wWweCgZZ3S", label: "Discord", external: true },
     isLoggedIn ? { href: "", label: "Sign Out", logout: true } : { href: "", label: "Log In", login: true },
   ];
 

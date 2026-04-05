@@ -169,6 +169,22 @@ export default async function SplashPage() {
                 How to Play →
               </Link>
             </div>
+            <div>
+              <a
+                href="https://discord.gg/wWweCgZZ3S"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-xs uppercase tracking-widest px-4 py-2 rounded transition-colors duration-200 text-center"
+                style={{
+                  fontFamily: "var(--font-geist-mono)",
+                  color: "rgba(88,101,242,0.9)",
+                  background: "rgba(88,101,242,0.08)",
+                  border: "1px solid rgba(88,101,242,0.25)",
+                }}
+              >
+                Join the Discord →
+              </a>
+            </div>
             <BotDocLink variant="main" />
           </div>
         </div>

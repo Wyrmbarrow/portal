@@ -9,6 +9,7 @@ export interface NavItem {
   href: string;
   label: string;
   tag?: string;
+  external?: boolean;
   login?: boolean;
   logout?: boolean;
 }
@@ -80,6 +81,21 @@ export default function NavMenu({ items }: { items: NavItem[] }) {
                   >
                     <span>{item.label}</span>
                   </button>
+                );
+              }
+              if (item.external) {
+                return (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    role="menuitem"
+                    className="nav-link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <span>{item.label}</span>
+                    {item.tag && <span className="nav-tag">{item.tag}</span>}
+                  </a>
                 );
               }
               return (
