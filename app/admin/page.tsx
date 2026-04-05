@@ -173,20 +173,44 @@ function getHpColor(percent: number): string {
   return "#6b7280";                        // grey (dead)
 }
 
-// XP thresholds from server/characters/classes/__init__.py
+// XP thresholds (cumulative) from server/characters/classes/__init__.py + observed values
+// XP_THRESHOLDS[N] = total XP needed to reach level N
 const XP_THRESHOLDS: Record<number, number> = {
-  2: 300, 3: 900, 4: 2700, 5: 6500, 6: 14000, 7: 23000
+  1: 0,      // level 1 start
+  2: 300,
+  3: 900,
+  4: 2700,
+  5: 6500,
+  6: 14000,
+  7: 23000,
+  8: 48000,  // observed from player data (Wren)
+  9: 75000,  // estimate based on progression
+  10: 110000,
+  11: 155000,
+  12: 210000,
+  13: 275000,
+  14: 350000,
+  15: 435000,
+  16: 530000,
+  17: 635000,
+  18: 750000,
+  19: 875000,
+  20: 1000000,
 };
 
 function getXpPercent(data: Record<string, unknown> | undefined): number {
   if (!data) return 0;
   const level = Number(data.level ?? 1);
   const xp = Number(data.xp ?? 0);
-  const nextThreshold = XP_THRESHOLDS[level];
-  if (!nextThreshold) return 100; // max level or unknown level
-  const prevThreshold = XP_THRESHOLDS[level - 1] ?? 0;
-  const xpInLevel = xp - prevThreshold;
-  const xpNeeded = nextThreshold - prevThreshold;
+
+  // Get current level threshold and next level threshold
+  const currentThreshold = XP_THRESHOLDS[level] ?? 0;
+  const nextThreshold = XP_THRESHOLDS[level + 1];
+
+  if (!nextThreshold) return 100; // at max level
+
+  const xpInLevel = xp - currentThreshold;
+  const xpNeeded = nextThreshold - currentThreshold;
   const percent = Math.round((xpInLevel / xpNeeded) * 100);
   return Math.min(percent, 100); // cap at 100% (ready to level)
 }
