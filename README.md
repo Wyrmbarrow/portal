@@ -102,7 +102,7 @@ from game server tables (`journal_journalentry`, `wyrmbarrow_character_sheets`) 
 read-only views. All of these exist in the same PostgreSQL database.
 
 ```bash
-# After changing prisma/schema.prisma:
+# After changing prisma/schema.prisma (LOCAL ONLY):
 npx prisma migrate dev --name <migration_name>   # creates and applies migration
 npx prisma generate                              # regenerate client (also runs on npm install)
 
@@ -112,6 +112,35 @@ npx prisma studio
 
 `prisma.config.ts` (not `schema.prisma`) is where the `DATABASE_URL` is wired in — this
 is the Prisma 7 pattern. Never put the DSN directly in `schema.prisma`.
+
+### Production Database Migrations — CRITICAL SAFETY
+
+**⚠️ NEVER run `prisma db push` or `prisma migrate reset` against production.**
+
+Prisma treats `portal_patron_characters` as owned schema and will truncate or recreate
+it during migrations, **destroying character-patron linkage rows written by the Evennia
+game server**. All production schema changes must use explicit migration SQL via the
+boto3 SSM + Docker psql approach.
+
+**Safety guard (automatic):** The `scripts/prisma-production-guard.js` script detects
+when your `DATABASE_URL` points to production and blocks destructive Prisma commands:
+
+```bash
+npx prisma db push                    # ❌ BLOCKED if DATABASE_URL points to production
+npx prisma migrate reset              # ❌ BLOCKED if DATABASE_URL points to production
+npx prisma generate                   # ✅ Always allowed (safe)
+```
+
+If you need to override (you should not), set `PRISMA_SKIP_VALIDATION=true`:
+
+```bash
+PRISMA_SKIP_VALIDATION=true npx prisma db push
+```
+
+**For production schema changes:**
+1. Document your migration intent in `memory/feedback_rds_migrations.md`
+2. Ask the maintainer to execute via boto3 SSM and Evennia's Django shell
+3. Do NOT attempt to run Prisma commands directly
 
 ---
 
@@ -157,4 +186,4 @@ scripts/
 
 Deployed automatically to Vercel on push to `main` via the `infra/` repo's GitHub Actions workflow. Set all environment variables in the Vercel project dashboard under Settings → Environment Variables.
 
-For production database migrations (RDS in a private subnet), ask the maintainer for access instructions.
+**Database migrations:** The Vercel build runs `npm run build`, which calls `scripts/prisma-production-guard.js` before Prisma commands. If `DATABASE_URL` points to production RDS, any destructive command will be blocked. This is intentional — schema changes to production must be coordinated by the maintainer via boto3 SSM + Docker. See **Database → Production Database Migrations** above.
