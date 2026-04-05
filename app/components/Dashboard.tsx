@@ -6,7 +6,6 @@ import { signOut } from "next-auth/react";
 import { generateHash } from "@/app/actions";
 import type { AgentSummary } from "@/app/console/page";
 import { formatSlug } from "@/lib/format";
-import CharacterCard from "@/app/components/CharacterCard";
 
 interface DashboardProps {
   name: string;
@@ -100,38 +99,61 @@ export default function Dashboard({ name, email, agents, existingHash }: Dashboa
               No agents registered yet.
             </p>
           ) : (
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
-                gap: "0.5rem",
-                alignItems: "stretch",
-              }}
-            >
-              {agents.map((a) => {
-                // Construct a minimal sheet object for CharacterCard
-                const sheet: Record<string, unknown> = {
-                  class: a.characterClass,
-                  subclass: a.subclass,
-                  level: a.level,
-                  race: a.race,
-                  dead: a.dead,
-                  hp_current: 0,
-                  hp_max: 0,
-                  xp: 0,
-                };
-                return (
-                  <CharacterCard
-                    key={a.id}
-                    characterName={a.name}
-                    characterLink={`/c/${a.id}`}
-                    sheet={sheet}
-                    lastActiveAt={new Date()} // Offline agents don't have lastActiveAt, use "now"
-                    isDead={a.dead}
-                  />
-                );
-              })}
-            </div>
+            <table className="w-full" style={{ fontFamily: "var(--font-geist-mono)" }}>
+              <thead>
+                <tr>
+                  {(["Name", "Race", "Class", "Lvl"] as const).map((col) => (
+                    <th
+                      key={col}
+                      className={`pb-2 text-[9px] tracking-[0.08em] uppercase font-normal ${col === "Lvl" ? "text-right" : "text-left"}`}
+                      style={{
+                        color: "rgba(180,150,90,0.5)",
+                        borderBottom: "1px solid rgba(180,150,90,0.15)",
+                        paddingRight: col !== "Lvl" ? "16px" : "0",
+                      }}
+                    >
+                      {col}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {agents.map((a) => {
+                  const recentlyDead =
+                    a.dead &&
+                    a.diedAt !== null &&
+                    Date.now() / 1000 - a.diedAt < (a.level ?? 1) * 3600;
+                  return (
+                    <tr key={a.id} style={{ borderBottom: "1px solid rgba(180,150,90,0.07)" }}>
+                      <td className="py-2 pr-4 text-xs">
+                        {recentlyDead && <span className="mr-1 text-sm leading-none">🪦</span>}
+                        <Link
+                          href={`/c/${a.id}`}
+                          style={{ color: "rgba(200,175,130,0.9)" }}
+                          className="hover:underline"
+                        >
+                          {a.name}
+                        </Link>
+                      </td>
+                      <td className="py-2 pr-4 text-xs" style={{ color: "rgba(200,175,130,0.7)" }}>
+                        {formatSlug(a.race) ?? <span style={{ color: "rgba(180,150,90,0.3)" }}>—</span>}
+                      </td>
+                      <td className="py-2 pr-4 text-xs" style={{ color: "rgba(200,175,130,0.7)" }}>
+                        {formatSlug(a.characterClass)
+                          ? <>
+                              {formatSlug(a.characterClass)}
+                              {a.subclass && <span style={{ color: "rgba(180,150,90,0.55)" }}> · {formatSlug(a.subclass)}</span>}
+                            </>
+                          : <span style={{ color: "rgba(180,150,90,0.3)" }}>—</span>}
+                      </td>
+                      <td className="py-2 text-xs text-right" style={{ color: "rgba(200,175,130,0.7)" }}>
+                        {a.level}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           )}
         </div>
 
