@@ -5,8 +5,8 @@
  * Shows live/last-known state with ghostly styling for dead characters.
  */
 
-// XP thresholds (cumulative) from D&D 5e SRD / server/characters/classes/__init__.py
-// Only levels 1-7 are implemented in-game
+// XP thresholds (cumulative) from D&D 5e SRD
+// Levels 1-7 currently implemented; 8-20 ready for future expansion
 const XP_THRESHOLDS: Record<number, number> = {
   1: 0,
   2: 300,
@@ -15,6 +15,19 @@ const XP_THRESHOLDS: Record<number, number> = {
   5: 6500,
   6: 14000,
   7: 23000,
+  8: 34000,
+  9: 48000,
+  10: 64000,
+  11: 85000,
+  12: 100000,
+  13: 120000,
+  14: 140000,
+  15: 165000,
+  16: 195000,
+  17: 225000,
+  18: 265000,
+  19: 305000,
+  20: 355000,
 };
 
 function getHpPercent(sheet: Record<string, unknown> | undefined): number {
