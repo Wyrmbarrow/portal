@@ -158,6 +158,61 @@ function classLine(data: Record<string, unknown> | undefined): string | undefine
   return `${cls}${sub} Lv.${lvl}`;
 }
 
+function getHpPercent(data: Record<string, unknown> | undefined): number {
+  if (!data) return 0;
+  const current = Number(data.hp_current ?? 0);
+  const max = Number(data.hp_max ?? 1);
+  return Math.round((current / max) * 100);
+}
+
+function getHpColor(percent: number): string {
+  if (percent > 75) return "#10b981";      // green
+  if (percent > 50) return "#84cc16";      // lime
+  if (percent > 25) return "#f59e0b";      // amber
+  if (percent > 0)  return "#ef4444";      // red
+  return "#6b7280";                        // grey (dead)
+}
+
+// XP thresholds from server/characters/classes/__init__.py
+const XP_THRESHOLDS: Record<number, number> = {
+  2: 300, 3: 900, 4: 2700, 5: 6500, 6: 14000, 7: 23000
+};
+
+function getXpPercent(data: Record<string, unknown> | undefined): number {
+  if (!data) return 0;
+  const level = Number(data.level ?? 1);
+  const xp = Number(data.xp ?? 0);
+  const nextThreshold = XP_THRESHOLDS[level];
+  if (!nextThreshold) return 100; // max level or unknown level
+  const prevThreshold = XP_THRESHOLDS[level - 1] ?? 0;
+  const xpInLevel = xp - prevThreshold;
+  const xpNeeded = nextThreshold - prevThreshold;
+  return Math.round((xpInLevel / xpNeeded) * 100);
+}
+
+function BarMini({ percent, color, label }: { percent: number; color: string; label: string }) {
+  return (
+    <div style={{ marginBottom: "0.25rem" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.1rem" }}>
+        <span style={{ color: "#a1a1aa", fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+          {label}
+        </span>
+        <span style={{ color: "#71717a", fontSize: "0.6rem" }}>{percent}%</span>
+      </div>
+      <div style={{ height: "3px", background: "#27272a", borderRadius: "1px", overflow: "hidden" }}>
+        <div
+          style={{
+            height: "100%",
+            width: `${percent}%`,
+            background: color,
+            transition: "width 0.2s ease",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
 async function checkMcpHealth(): Promise<boolean> {
   const mcpUrl = process.env.WYRMBARROW_MCP_URL ?? "https://mcp.wyrmbarrow.com";
   try {
@@ -415,6 +470,10 @@ export default async function AdminPage() {
                 {activeNow.map((c) => {
                   const rec   = activeNowCharMap.get(c.characterId.toString());
                   const sheet = sheetMap.get(Number(c.characterId));
+                  const hpPct = getHpPercent(sheet);
+                  const xpPct = getXpPercent(sheet);
+                  const hpCurrent = Number(sheet?.hp_current ?? 0);
+                  const hpMax = Number(sheet?.hp_max ?? 0);
                   return (
                     <div
                       key={c.characterId.toString()}
@@ -452,6 +511,31 @@ export default async function AdminPage() {
                         <div style={{ color: "#52525b", fontSize: "0.65rem", marginTop: "0.15rem" }}>
                           {classLine(sheet)}
                           {rec && <span style={{ marginLeft: "0.4rem" }}>· {patronMap.get(rec.googleId) ?? ""}</span>}
+                        </div>
+                      )}
+                      {sheet && (
+                        <div style={{ marginTop: "0.5rem", paddingTop: "0.4rem", borderTop: "1px solid rgba(22, 101, 52, 0.5)" }}>
+                          <div style={{ marginBottom: "0.3rem" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.1rem" }}>
+                              <span style={{ color: "#a1a1aa", fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                                HP
+                              </span>
+                              <span style={{ color: "#71717a", fontSize: "0.6rem" }}>
+                                {hpCurrent}/{hpMax}
+                              </span>
+                            </div>
+                            <div style={{ height: "4px", background: "#27272a", borderRadius: "1px", overflow: "hidden" }}>
+                              <div
+                                style={{
+                                  height: "100%",
+                                  width: `${hpPct}%`,
+                                  background: getHpColor(hpPct),
+                                  transition: "width 0.2s ease",
+                                }}
+                              />
+                            </div>
+                          </div>
+                          <BarMini percent={xpPct} color="#8b5cf6" label="XP" />
                         </div>
                       )}
                     </div>
