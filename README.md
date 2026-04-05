@@ -177,7 +177,7 @@ scripts/
 
 - **No direct DB writes for game state.** All game mutations go through `lib/server-api.ts` → game server REST API. Prisma is read-only for anything the game server owns.
 - **Server Components by default.** Pages fetch data server-side; interactive islands use `"use client"`. No client-side data fetching library needed.
-- **Auth via NextAuth v5 (beta).** Uses the new `auth()` helper — not the v4 `getServerSession()`. Session includes `googleId` added in the JWT callback.
+- **Auth via NextAuth v5 (beta).** Uses the new `auth()` helper — not the v4 `getServerSession()`. Session includes `googleId` added in the JWT callback. **Migration plan:** See `NEXTAUTH_V5_MIGRATION_PLAN.md` for tracking GA release and upgrade procedure.
 - **Registration Hashes are single-use per patron.** `generateHash()` in `actions.ts` deletes any existing hash before creating a new one — a patron can only have one active hash at a time.
 
 ---
@@ -187,3 +187,5 @@ scripts/
 Deployed automatically to Vercel on push to `main` via the `infra/` repo's GitHub Actions workflow. Set all environment variables in the Vercel project dashboard under Settings → Environment Variables.
 
 **Database migrations:** The Vercel build runs `npm run build`, which calls `scripts/prisma-production-guard.js` before Prisma commands. If `DATABASE_URL` points to production RDS, any destructive command will be blocked. This is intentional — schema changes to production must be coordinated by the maintainer via boto3 SSM + Docker. See **Database → Production Database Migrations** above.
+
+**NextAuth upgrade:** The portal currently uses NextAuth v5 (beta). When v5 reaches general availability (GA), a migration is needed within 30 days. See `NEXTAUTH_V5_MIGRATION_PLAN.md` for the full procedure, timeline, and rollback plan. A monthly reminder is set to check for GA release.
