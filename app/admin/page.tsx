@@ -187,7 +187,8 @@ function getXpPercent(data: Record<string, unknown> | undefined): number {
   const prevThreshold = XP_THRESHOLDS[level - 1] ?? 0;
   const xpInLevel = xp - prevThreshold;
   const xpNeeded = nextThreshold - prevThreshold;
-  return Math.round((xpInLevel / xpNeeded) * 100);
+  const percent = Math.round((xpInLevel / xpNeeded) * 100);
+  return Math.min(percent, 100); // cap at 100% (ready to level)
 }
 
 function BarMini({ percent, color, label }: { percent: number; color: string; label: string }) {
