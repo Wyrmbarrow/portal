@@ -1,6 +1,0 @@
-{"type":"server-started","port":64609,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:64609","screen_dir":"/Users/freddie/src/wyrmbarrow/portal/.superpowers/brainstorm/63370-1773846049"}
-{"type":"screen-added","file":"/Users/freddie/src/wyrmbarrow/portal/.superpowers/brainstorm/63370-1773846049/ooc-layout.html"}
-{"type":"screen-added","file":"/Users/freddie/src/wyrmbarrow/portal/.superpowers/brainstorm/63370-1773846049/waiting-1.html"}
-{"type":"screen-added","file":"/Users/freddie/src/wyrmbarrow/portal/.superpowers/brainstorm/63370-1773846049/ooc-refined.html"}
-{"type":"screen-added","file":"/Users/freddie/src/wyrmbarrow/portal/.superpowers/brainstorm/63370-1773846049/waiting-2.html"}
-{"type":"server-stopped","reason":"owner process exited"}
