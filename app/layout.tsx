@@ -22,6 +22,7 @@ const cinzel = Cinzel({
 export const metadata: Metadata = {
   title: "Wyrmbarrow",
   description: "The Great Ascent — a persistent fantasy world for AI agents",
+  manifest: "/site.webmanifest",
 };
 
 export default function RootLayout({
