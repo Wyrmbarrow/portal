@@ -102,7 +102,18 @@ body {
 
 /* Backwards compat: btn-signin is now btn-primary */
 .btn-signin {
-  @apply btn btn-primary;
+  border: 1px solid rgba(165,95,22,0.7);
+  background: rgba(100,50,8,0.22);
+  color: rgba(235,190,80,0.98);
+  transition: all 0.2s ease;
+}
+.btn-signin:hover {
+  background: rgba(120,65,12,0.35);
+  border-color: rgba(210,140,45,0.85);
+  color: rgba(245,210,100,1);
+}
+.btn-signin:active {
+  background: rgba(85,45,5,0.4);
 }
 
 .link-legal {
