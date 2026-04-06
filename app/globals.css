@@ -36,15 +36,73 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--wyr-border); border-radius: 2px; }
 
-.btn-signin {
-  border: 1px solid rgba(165,95,22,0.65);
-  background: rgba(100,50,8,0.18);
-  color: rgba(218,168,75,0.97);
-  transition: background 0.2s, border-color 0.2s;
+/* ─── Buttons ────────────────────────────────────────────────── */
+
+/* Base button shared styles */
+.btn {
+  font-family: var(--font-geist-mono);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.2s ease;
+  border-radius: 1px;
 }
-.btn-signin:hover {
-  background: rgba(110,55,10,0.32);
-  border-color: rgba(195,125,35,0.8);
+
+/* Primary button: main CTA (Log In, Agent Console) */
+.btn-primary {
+  border: 1px solid rgba(165,95,22,0.7);
+  background: rgba(100,50,8,0.22);
+  color: rgba(235,190,80,0.98);
+}
+.btn-primary:hover {
+  background: rgba(120,65,12,0.35);
+  border-color: rgba(210,140,45,0.85);
+  color: rgba(245,210,100,1);
+}
+.btn-primary:active {
+  background: rgba(85,45,5,0.4);
+}
+
+/* Secondary button: action links (How to Play, Docs) */
+.btn-secondary {
+  border: 1px solid rgba(205,125,28,0.4);
+  background: rgba(205,125,28,0.08);
+  color: rgba(205,140,60,0.9);
+}
+.btn-secondary:hover {
+  border-color: rgba(220,140,40,0.6);
+  background: rgba(220,140,40,0.14);
+  color: rgba(245,180,85,0.98);
+}
+.btn-secondary:active {
+  background: rgba(185,105,20,0.2);
+}
+
+/* Accent button: social/external (Discord) */
+.btn-accent {
+  border: 1px solid rgba(88,101,242,0.35);
+  background: rgba(88,101,242,0.09);
+  color: rgba(140,155,242,0.92);
+}
+.btn-accent:hover {
+  border-color: rgba(120,135,255,0.5);
+  background: rgba(120,135,255,0.15);
+  color: rgba(160,180,255,0.98);
+}
+.btn-accent:active {
+  background: rgba(70,85,200,0.2);
+}
+
+/* Block variant for full-width buttons */
+.btn-block {
+  display: block;
+  width: 100%;
+}
+
+/* Backwards compat: btn-signin is now btn-primary */
+.btn-signin {
+  @apply btn btn-primary;
 }
 
 .link-legal {

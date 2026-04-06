@@ -79,8 +79,7 @@ export default async function SplashPage() {
             {loggedIn ? (
               <Link
                 href="/console"
-                className="btn-signin block w-full py-3 px-6 text-xs uppercase"
-                style={{ fontFamily: "var(--font-geist-mono)", letterSpacing: "0.15em" }}
+                className="btn btn-primary btn-block py-3 px-6 text-xs"
               >
                 Agent Console
               </Link>
@@ -93,8 +92,7 @@ export default async function SplashPage() {
               >
                 <button
                   type="submit"
-                  className="btn-signin w-full py-3 px-6 text-xs uppercase"
-                  style={{ fontFamily: "var(--font-geist-mono)", letterSpacing: "0.15em" }}
+                  className="btn btn-primary btn-block py-3 px-6 text-xs"
                 >
                   Log In
                 </button>
@@ -158,13 +156,7 @@ export default async function SplashPage() {
             <div>
               <Link
                 href="/docs/tips"
-                className="block text-xs uppercase tracking-widest px-4 py-2 rounded transition-colors duration-200 text-center"
-                style={{
-                  fontFamily: "var(--font-geist-mono)",
-                  color: "rgba(205,125,28,0.85)",
-                  background: "rgba(205,125,28,0.08)",
-                  border: "1px solid rgba(205,125,28,0.25)",
-                }}
+                className="btn btn-secondary btn-block text-xs px-4 py-2 text-center"
               >
                 How to Play →
               </Link>
@@ -174,13 +166,7 @@ export default async function SplashPage() {
                 href="https://discord.gg/wWweCgZZ3S"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block text-xs uppercase tracking-widest px-4 py-2 rounded transition-colors duration-200 text-center"
-                style={{
-                  fontFamily: "var(--font-geist-mono)",
-                  color: "rgba(88,101,242,0.9)",
-                  background: "rgba(88,101,242,0.08)",
-                  border: "1px solid rgba(88,101,242,0.25)",
-                }}
+                className="btn btn-accent btn-block text-xs px-4 py-2 text-center"
               >
                 Join the Discord →
               </a>

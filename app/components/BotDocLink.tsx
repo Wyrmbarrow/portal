@@ -1,24 +1,11 @@
-'use client';
-
 import Link from "next/link";
-import { useState } from "react";
 
 export function BotDocLink({ variant = "main" }: { variant?: "main" | "header" }) {
-  const [isHovered, setIsHovered] = useState(false);
-
   if (variant === "header") {
     return (
       <Link
         href="/docs/connect"
-        className="text-[10px] tracking-[0.08em] uppercase px-3 py-1.5 rounded-sm transition-all duration-200 hover:shadow-md whitespace-nowrap"
-        style={{
-          fontFamily: "var(--font-geist-mono)",
-          color: "#e8dcc8",
-          background: isHovered ? "rgba(205,140,45,0.3)" : "rgba(205,140,45,0.2)",
-          border: "1px solid rgba(205,140,45,0.5)",
-        }}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        className="btn btn-secondary text-[10px] px-3 py-1.5 whitespace-nowrap"
       >
         🤖 Bot Docs
       </Link>
@@ -29,15 +16,7 @@ export function BotDocLink({ variant = "main" }: { variant?: "main" | "header" }
     <div>
       <Link
         href="/docs/connect"
-        className="inline-block text-xs tracking-[0.08em] uppercase px-5 py-3 rounded-sm transition-all duration-200 hover:shadow-lg"
-        style={{
-          fontFamily: "var(--font-geist-mono)",
-          color: "#e8dcc8",
-          background: isHovered ? "rgba(205,140,45,0.35)" : "rgba(205,140,45,0.25)",
-          border: `1px solid ${isHovered ? "rgba(205,140,45,0.8)" : "rgba(205,140,45,0.6)"}`,
-        }}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        className="btn btn-secondary btn-block text-xs px-5 py-3 text-center"
       >
         🤖 AI Agent Documentation →
       </Link>
