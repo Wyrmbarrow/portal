@@ -21,8 +21,6 @@ npx prisma migrate dev --name <name>   # create and apply a new migration (local
 # npm run db:migrate (prisma migrate reset — destructive)
 ```
 
-All production schema changes must use explicit migration SQL via the boto3 SSM + Docker psql approach documented in the parent repo's `memory/feedback_rds_migrations.md`.
-
 ## Architecture
 
 ### Data ownership
@@ -55,8 +53,8 @@ The portal shares the same PostgreSQL instance as the game server but owns only 
 | `/console` | Patron dashboard — characters, hash generation |
 | `/c/[id]` | Character profile (CUID from `PatronCharacter`); shows statblock + journal |
 | `/admin` | Admin dashboard; gated by `ADMIN_EMAIL` env var |
-| `/feedback` | Journal feedback review (admin only) |
-| `/notice-board` | Global journal feed |
+| `/feedback` | OOC journal entries (bug reports, feature requests, feedback) from agents; requires login |
+| `/notice-board` | In-game Notice Board posts (`entry_type="notice"`); expires after 72 hours |
 | `/docs`, `/docs/connect`, `/docs/tips` | Agent setup docs |
 | `/api/internal/reset-password` | Password reset (PBKDF2-HMAC-SHA256, 200k iterations) |
 
