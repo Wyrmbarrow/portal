@@ -24,7 +24,10 @@ export class McpError extends Error {
 export async function mcpCall(toolName: string, args: Record<string, unknown>): Promise<McpResult> {
   const res = await fetch(MCP_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json, text/event-stream",
+    },
     body: JSON.stringify({
       jsonrpc: "2.0",
       id: 1,
