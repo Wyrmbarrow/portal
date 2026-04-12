@@ -1,0 +1,182 @@
+/**
+ * Extracts CharacterState and RoomState from raw MCP tool results.
+ * Ported from client/lib/parse-state.ts — imports local types only.
+ */
+
+import type { CharacterState, RoomState, ExitInfo, PulseResources, RoomMessage } from "./types"
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyObj = Record<string, any>
+
+// ---------------------------------------------------------------------------
+// Room message formatter
+// ---------------------------------------------------------------------------
+
+export function buildRoomMessage(m: AnyObj): RoomMessage {
+  const type = String(m.type ?? "")
+  const from = String(m.from ?? m.character ?? "")
+  const raw = String(m.message ?? m.text ?? "")
+  const to = String(m.to ?? "")
+  const fromDir = String(m.from_direction ?? "")
+  const direction = String(m.direction ?? "")
+
+  let text: string
+  switch (type) {
+    case "say":
+      text = `${from} says, "${raw}"`
+      break
+    case "whisper":
+      text = `${from} whispers, "${raw}"`
+      break
+    case "overheard_say":
+      text = to ? `${from} says to ${to}, "${raw}"` : `${from} says, "${raw}"`
+      break
+    case "overheard_whisper":
+      text = raw || `${from} whispers something to ${to}.`
+      break
+    case "sending_stone":
+      text = `[Stone] ${from}: "${raw}"`
+      break
+    case "character_arrival":
+      text = fromDir ? `${from} arrives from the ${fromDir}.` : `${from} arrives.`
+      break
+    case "character_departure":
+      text = direction ? `${from} departs to the ${direction}.` : `${from} departs.`
+      break
+    default:
+      text = raw
+  }
+
+  return { type, from, text, timestamp: String(m.timestamp ?? "") }
+}
+
+// ---------------------------------------------------------------------------
+// Character state
+// ---------------------------------------------------------------------------
+
+export function parseCharacterState(toolName: string, result: unknown): CharacterState | null {
+  const r = result as AnyObj
+  if (!r || typeof r !== "object") return null
+
+  const cs = r.character ?? r.bootstrap?.character ?? null
+  const sheet: AnyObj = cs ?? (r.hp_current !== undefined || r.charsheet !== undefined ? r : null)
+  if (!sheet) return null
+
+  const sub: AnyObj = sheet.charsheet ?? sheet
+
+  const isDead = sheet.is_dead ?? sheet.dead ?? r.spirit?.is_spirit ?? false
+  const spiritVision = r.spirit_vision ?? false
+  const minutesUntilRevival = r.minutes_until_revival ?? r.spirit?.minutes_until_revival ?? undefined
+  const revivalAvailableAt = r.revival_available_at ?? r.spirit?.revival_available_at ?? undefined
+
+  return {
+    name:            sheet.name ?? sub.name ?? "",
+    class:           sub.class ?? undefined,
+    level:           sub.level ?? undefined,
+    hpCurrent:       sub.hp_current ?? 0,
+    hpMax:           sub.hp_max ?? 0,
+    hpTemp:          sub.hp_temp ?? 0,
+    ac:              sub.ac ?? undefined,
+    conditions:      sheet.conditions ?? sub.conditions ?? [],
+    resources:       parsePulseResources(sheet.pulse_resources ?? r.pulse_resources),
+    isDying:         sheet.is_dying ?? false,
+    engagementZones: sheet.engagement_zones ?? undefined,
+    isDead:          isDead || undefined,
+    spiritVision:    spiritVision || undefined,
+    minutesUntilRevival,
+    revivalAvailableAt,
+  }
+}
+
+function parsePulseResources(raw: unknown): PulseResources | undefined {
+  if (!raw || typeof raw !== "object") return undefined
+  const r = raw as AnyObj
+  return {
+    action:       r.action        ?? 0,
+    movement:     r.movement      ?? 0,
+    bonus_action: r.bonus_action  ?? 0,
+    reaction:     r.reaction      ?? 0,
+    chat:         r.chat          ?? 0,
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Room state
+// ---------------------------------------------------------------------------
+
+export function parseRoomState(toolName: string, result: unknown): RoomState | null {
+  const r = result as AnyObj
+  if (!r || typeof r !== "object") return null
+
+  const roomData: AnyObj = r.room ?? (r.name && r.hub !== undefined ? r : null)
+  if (!roomData) return null
+
+  const exits: ExitInfo[] = []
+  if (Array.isArray(roomData.exits)) {
+    for (const e of roomData.exits) {
+      if (typeof e === "string") {
+        exits.push({ key: e, aliases: [], destination: null })
+      } else if (e && typeof e === "object") {
+        exits.push({
+          key: e.key ?? e.direction ?? e.name ?? String(e),
+          aliases: Array.isArray(e.aliases) ? e.aliases : [],
+          destination: e.destination ?? null,
+        })
+      }
+    }
+  }
+
+  const contents: AnyObj = roomData.contents ?? roomData
+  const npcs: string[] = extractNames(contents.npcs ?? roomData.npcs)
+  const characters: string[] = extractNames(contents.characters ?? contents.agents ?? roomData.characters ?? roomData.agents)
+  const characterRefs = extractRefs(contents.characters ?? contents.agents ?? roomData.characters ?? roomData.agents)
+  const objects: string[] = extractNames(contents.objects ?? roomData.objects)
+
+  const messages: RoomMessage[] = []
+  if (Array.isArray(r.messages)) {
+    for (const m of r.messages) {
+      if (m && typeof m === "object") {
+        messages.push(buildRoomMessage(m as AnyObj))
+      }
+    }
+  }
+
+  return {
+    name:        roomData.name ?? roomData.key ?? "Unknown",
+    hub:         roomData.hub ?? undefined,
+    isSanctuary: Boolean(roomData.is_sanctuary),
+    description: roomData.description ?? roomData.desc ?? undefined,
+    exits,
+    npcs,
+    characters,
+    characterRefs,
+    objects,
+    messages:    messages.length > 0 ? messages : undefined,
+  }
+}
+
+function extractNames(arr: unknown): string[] {
+  if (!Array.isArray(arr)) return []
+  return arr.map((item) => {
+    if (typeof item === "string") return item
+    if (typeof item === "object" && item !== null) {
+      const o = item as AnyObj
+      return o.name ?? o.key ?? o.npc ?? String(item)
+    }
+    return String(item)
+  })
+}
+
+function extractRefs(arr: unknown): { name: string; ref: string }[] {
+  if (!Array.isArray(arr)) return []
+  return arr.map((item) => {
+    if (typeof item === "string") return { name: item, ref: item }
+    if (typeof item === "object" && item !== null) {
+      const o = item as AnyObj
+      const name = o.name ?? o.key ?? o.npc ?? String(item)
+      const ref = o.ref ?? o.key ?? o.id ?? name
+      return { name, ref }
+    }
+    return { name: String(item), ref: String(item) }
+  })
+}
