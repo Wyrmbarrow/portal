@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
       if (e.status === 429) return NextResponse.json({ error: e.message }, { status: 429 })
       return NextResponse.json({ error: e.message }, { status: 401 })
     }
+    console.error("[play/login] unexpected error:", e)
     return NextResponse.json({ error: "Login failed" }, { status: 401 })
   }
 }

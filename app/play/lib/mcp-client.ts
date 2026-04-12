@@ -43,8 +43,32 @@ export async function mcpCall(toolName: string, args: Record<string, unknown>): 
     throw new McpError(`MCP server returned ${res.status}`, res.status)
   }
 
+  // The MCP Streamable HTTP transport responds with SSE by default.
+  // Parse SSE to find the JSON-RPC response event; fall back to res.json() if
+  // the server is configured with json_response=True.
+  const contentType = res.headers.get("content-type") ?? ""
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const json: any = await res.json()
+  let json: any
+
+  if (contentType.includes("text/event-stream")) {
+    const text = await res.text()
+    // SSE lines: "data: <json>\n". Find the line carrying the JSON-RPC response.
+    let rpcResponse = null
+    for (const line of text.split("\n")) {
+      if (!line.startsWith("data: ")) continue
+      try {
+        const parsed = JSON.parse(line.slice(6))
+        if (parsed.result !== undefined || parsed.error !== undefined) {
+          rpcResponse = parsed
+          break
+        }
+      } catch { /* skip non-JSON data lines */ }
+    }
+    if (!rpcResponse) throw new McpError("Empty or unparseable SSE response from MCP server")
+    json = rpcResponse
+  } else {
+    json = await res.json()
+  }
 
   if (json.error) {
     throw new McpError(json.error.message ?? String(json.error))
