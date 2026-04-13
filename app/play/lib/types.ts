@@ -56,6 +56,8 @@ export interface RoomState {
 
 export type PlayEvent =
   | { type: "command"; toolName: string; action: string; result: unknown }
+  | { type: "message"; message: RoomMessage }
+  | { type: "combat_log"; message: string }
   | { type: "error"; message: string }
   | { type: "info"; message: string }
 

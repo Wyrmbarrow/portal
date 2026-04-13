@@ -4,8 +4,8 @@ import { useState, useEffect, useRef, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { formatSlug } from "@/lib/format"
 import { getAvailableCommands, getToolActions, inferParametersFromDescription } from "../lib/command-utils"
-import { parseCharacterState, parseRoomState } from "../lib/parse-state"
-import type { CharacterState, RoomState, FeedEntry, PlayEvent } from "../lib/types"
+import { parseCharacterState, parseRoomState, buildRoomMessage } from "../lib/parse-state"
+import type { CharacterState, RoomState, FeedEntry, PlayEvent, RoomMessage } from "../lib/types"
 
 interface Props {
   patronCharId: string
@@ -61,6 +61,8 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
 
   const feedEndRef = useRef<HTMLDivElement>(null)
   const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const lastManualCommandRef = useRef<number>(Date.now())
 
   const addEntry = useCallback((event: PlayEvent) => {
     const entry: FeedEntry = { id: generateId(), timestamp: Date.now(), event }
@@ -140,9 +142,22 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // --- State poller ---
+  // --- State poller with 2-minute inactivity timeout ---
   const pollRef = useRef<string | null>(null)
   pollRef.current = sessionId
+
+  const resetPollTimeout = useCallback(() => {
+    if (pollTimeoutRef.current) clearTimeout(pollTimeoutRef.current)
+    if (!sessionId) return
+    // Set timeout to stop polling after 2 minutes (120 seconds) of inactivity
+    pollTimeoutRef.current = setTimeout(() => {
+      if (pollTimerRef.current) {
+        clearInterval(pollTimerRef.current)
+        pollTimerRef.current = null
+      }
+      addEntry({ type: "info", message: "Polling stopped (2 minutes of inactivity)" })
+    }, 120 * 1000)
+  }, [sessionId])
 
   useEffect(() => {
     if (!sessionId) return
@@ -165,11 +180,13 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
       }
     }
 
+    resetPollTimeout()
     pollTimerRef.current = setInterval(poll, 8000)
     return () => {
       if (pollTimerRef.current) clearInterval(pollTimerRef.current)
+      if (pollTimeoutRef.current) clearTimeout(pollTimeoutRef.current)
     }
-  }, [sessionId])
+  }, [sessionId, resetPollTimeout])
 
   // --- Tool/action selection ---
   const currentToolActions = getToolActions(selectedTool as Parameters<typeof getToolActions>[0])
@@ -195,6 +212,8 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
     async (toolName: string, action: string, cmdParams?: Record<string, string>) => {
       if (!sessionId) return
       setExecuting(true)
+      lastManualCommandRef.current = Date.now()
+      resetPollTimeout()
       try {
         const res = await fetch("/api/play/command", {
           method: "POST",
@@ -211,6 +230,21 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
         const result = data.result ?? {}
         addEntry({ type: "command", toolName, action, result })
 
+        // Extract and surface messages from result
+        if (Array.isArray(result.messages)) {
+          for (const msg of result.messages) {
+            if (msg && typeof msg === "object") {
+              const roomMsg = buildRoomMessage(msg as AnyObj)
+              addEntry({ type: "message", message: roomMsg })
+            }
+          }
+        }
+
+        // Extract and surface combat log
+        if (typeof result.combat_log === "string") {
+          addEntry({ type: "combat_log", message: result.combat_log })
+        }
+
         // Update state from result
         const cs = parseCharacterState(toolName, result)
         const rs = parseRoomState(toolName, result)
@@ -222,7 +256,7 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
         setExecuting(false)
       }
     },
-    [sessionId],
+    [sessionId, resetPollTimeout],
   )
 
   function handleSubmit() {
@@ -626,6 +660,23 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
                 )
               }
 
+              if (ev.type === "message") {
+                const msg = ev.message as RoomMessage
+                return (
+                  <p key={entry.id} style={{ ...mono, fontSize: 10, color: "rgba(185,148,70,0.85)", lineHeight: 1.4 }}>
+                    {msg.text}
+                  </p>
+                )
+              }
+
+              if (ev.type === "combat_log") {
+                return (
+                  <p key={entry.id} style={{ ...mono, fontSize: 10, color: "rgba(200,120,80,0.85)", lineHeight: 1.4 }}>
+                    ⚔ {ev.message}
+                  </p>
+                )
+              }
+
               // command event
               const result = ev.result as AnyObj
               const summary = extractSummary(ev.toolName, ev.action, result)
@@ -755,6 +806,10 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
               {paramNames.map((paramName) => {
                 // Smart dropdowns
                 if (paramName === "direction" && roomState?.exits) {
+                  const zoneExits = [
+                    { key: "closer", display: "closer (zone)" },
+                    { key: "farther", display: "farther (zone)" },
+                  ]
                   return (
                     <div key={paramName}>
                       <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
@@ -764,6 +819,11 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
                         style={selectStyle}
                       >
                         <option value="" style={{ background: "#1a0f03" }}>—</option>
+                        {zoneExits.map((exit) => (
+                          <option key={exit.key} value={exit.key} style={{ background: "#1a0f03", color: "rgba(200,165,80,0.9)" }}>
+                            {exit.display}
+                          </option>
+                        ))}
                         {roomState.exits.map((exit) => (
                           <option key={exit.key} value={exit.key} style={{ background: "#1a0f03", color: "rgba(200,165,80,0.9)" }}>
                             {exit.key}
@@ -775,11 +835,11 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
                 }
 
                 if (paramName === "target_ref" || paramName === "vendor_ref") {
-                  const options = [
-                    ...(roomState?.npcs ?? []),
-                    ...(paramName === "target_ref" ? (roomState?.characterRefs?.map((r) => r.ref) ?? []) : []),
-                  ]
-                  if (options.length > 0) {
+                  const npcOptions = (roomState?.npcs ?? []).map((npc) => ({ name: npc, ref: npc }))
+                  const charOptions = paramName === "target_ref" ? (roomState?.characterRefs ?? []) : []
+                  const allOptions = [...npcOptions, ...charOptions]
+
+                  if (allOptions.length > 0) {
                     return (
                       <div key={paramName}>
                         <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
@@ -789,9 +849,9 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
                           style={selectStyle}
                         >
                           <option value="" style={{ background: "#1a0f03" }}>—</option>
-                          {options.map((opt) => (
-                            <option key={opt} value={opt} style={{ background: "#1a0f03", color: "rgba(200,165,80,0.9)" }}>
-                              {opt}
+                          {allOptions.map((opt) => (
+                            <option key={opt.ref} value={opt.ref} style={{ background: "#1a0f03", color: "rgba(200,165,80,0.9)" }}>
+                              {opt.name}
                             </option>
                           ))}
                         </select>
