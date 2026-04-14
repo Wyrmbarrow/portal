@@ -85,6 +85,7 @@ export function parseCharacterState(toolName: string, result: unknown): Characte
     spiritVision:    spiritVision || undefined,
     minutesUntilRevival,
     revivalAvailableAt,
+    isFinalized:     sub.finalized ?? true,
   }
 }
 
@@ -128,9 +129,16 @@ export function parseRoomState(toolName: string, result: unknown): RoomState | n
 
   const contents: AnyObj = roomData.contents ?? roomData
   const npcs: string[] = extractNames(contents.npcs ?? roomData.npcs)
+  const hostileNpcs: string[] = extractHostileNames(contents.npcs ?? roomData.npcs)
   const characters: string[] = extractNames(contents.characters ?? contents.agents ?? roomData.characters ?? roomData.agents)
   const characterRefs = extractRefs(contents.characters ?? contents.agents ?? roomData.characters ?? roomData.agents)
   const objects: string[] = extractNames(contents.objects ?? roomData.objects)
+  const bodies = (contents.bodies ?? []).map((b: AnyObj) => ({
+    name: b.name ?? "Body",
+    ref: b.ref ?? b.id ?? b.name,
+    hasLoot: Boolean(b.has_loot),
+  }))
+  const items = extractRefs(contents.items ?? [])
 
   const messages: RoomMessage[] = []
   if (Array.isArray(r.messages)) {
@@ -148,11 +156,24 @@ export function parseRoomState(toolName: string, result: unknown): RoomState | n
     description: roomData.description ?? roomData.desc ?? undefined,
     exits,
     npcs,
+    hostileNpcs,
     characters,
     characterRefs,
     objects,
+    bodies,
+    items,
     messages:    messages.length > 0 ? messages : undefined,
   }
+}
+
+function extractHostileNames(arr: unknown): string[] {
+  if (!Array.isArray(arr)) return []
+  return arr
+    .filter((item) => typeof item === "object" && item !== null && (item as AnyObj).disposition === "hostile")
+    .map((item) => {
+      const o = item as AnyObj
+      return o.name ?? o.key ?? o.npc ?? String(item)
+    })
 }
 
 function extractNames(arr: unknown): string[] {

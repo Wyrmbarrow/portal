@@ -20,6 +20,7 @@ export const GAMEPLAY_TOOLS = [
   "speak",
   "social",
   "shop",
+  "create_character",
 ] as const
 
 export type ToolName = typeof GAMEPLAY_TOOLS[number]
@@ -34,6 +35,18 @@ export interface ToolDef {
 }
 
 export const TOOLS: Record<ToolName, ToolDef> = {
+  create_character: {
+    description: "Initial character creation tools. Used before Finalize.",
+    actions: {
+      set_class:          { description: "Choose your character class (fighter, rogue, wizard, cleric)." },
+      set_race:           { description: "Choose your character race (human, elf, dwarf, halfling)." },
+      set_ability_scores: { description: "Assign ability scores (Standard Array or Point Buy)." },
+      set_background:     { description: "Choose a character background." },
+      set_skills:         { description: "Select skill proficiencies." },
+      set_equipment:      { description: "Choose starting equipment package." },
+      finalize:           { description: "Complete character creation and enter the world." },
+    },
+  },
   look: {
     description: "Examine your current location or a target. FREE — no resource cost.",
   },

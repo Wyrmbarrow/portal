@@ -22,7 +22,7 @@ const TOOL_PARAM_MAP: Record<string, string[]> = {
   shop:     ["vendor_ref", "action"],
   combat:   ["action"],
   character: ["action"],
-  journal:  ["action"],
+  journal:  ["action", "entry_type", "title", "content"],
   quest:    ["action"],
   rest:     ["action"],
   look:     ["target"],
@@ -30,6 +30,7 @@ const TOOL_PARAM_MAP: Record<string, string[]> = {
   study:    ["skill", "target_ref"],
   influence: ["skill", "target_ref"],
   utilize:  ["target_ref", "action", "item_id"],
+  create_character: ["class", "race", "choices", "entry_type"],
 }
 
 export function getAvailableCommands(): CommandMetadata[] {

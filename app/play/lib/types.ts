@@ -5,6 +5,7 @@
 export interface CharacterState {
   name: string
   class?: string
+  race?: string
   level?: number
   hpCurrent: number
   hpMax: number
@@ -18,6 +19,7 @@ export interface CharacterState {
   spiritVision?: boolean
   minutesUntilRevival?: number
   revivalAvailableAt?: string
+  isFinalized?: boolean
 }
 
 export interface PulseResources {
@@ -48,14 +50,17 @@ export interface RoomState {
   description?: string
   exits?: ExitInfo[]
   npcs?: string[]
+  hostileNpcs?: string[]
   characters?: string[]
   characterRefs?: { name: string; ref: string }[]
   objects?: string[]
+  bodies?: { name: string; ref: string; hasLoot: boolean }[]
+  items?: { name: string; ref: string }[]
   messages?: RoomMessage[]
 }
 
 export type PlayEvent =
-  | { type: "command"; toolName: string; action: string; result: unknown }
+  | { type: "command"; toolName: string; action: string; result: unknown; input?: Record<string, string> }
   | { type: "message"; message: RoomMessage }
   | { type: "combat_log"; message: string }
   | { type: "error"; message: string }
