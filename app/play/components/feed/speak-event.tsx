@@ -24,7 +24,7 @@ export default function SpeakEvent({ input, result }: Props) {
     }}>
       <div style={{ padding: "12px 16px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
-          <span style={{ ...mono, fontSize: 9, tracking: "0.2em", textTransform: "uppercase", color: "rgba(140,105,45,0.5)" }}>speak</span>
+          <span style={{ ...mono, fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(140,105,45,0.5)" }}>speak</span>
           <span style={{ ...heading, fontSize: 13, fontWeight: 500, color: "rgba(220,190,125,0.95)" }}>{npc}</span>
           {disposition && (
             <span style={{ 

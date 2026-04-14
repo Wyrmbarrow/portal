@@ -38,7 +38,7 @@ export default function LookEvent({ result, roomState }: Props) {
       <div style={{ padding: "12px 16px" }}>
         {/* Header */}
         <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
-          <span style={{ ...mono, fontSize: 9, tracking: "0.3em", textTransform: "uppercase", color: "rgba(140,105,45,0.65)" }}>look</span>
+          <span style={{ ...mono, fontSize: 9, letterSpacing: "0.3em", textTransform: "uppercase", color: "rgba(140,105,45,0.65)" }}>look</span>
           <span style={{ ...cinzel, fontSize: 14, fontWeight: 500, color: "rgba(220,190,125,0.95)" }}>{name}</span>
           {hub && (
             <span style={{ ...mono, fontSize: 9, color: "rgba(140,105,45,0.65)" }}>Hub {hub}</span>

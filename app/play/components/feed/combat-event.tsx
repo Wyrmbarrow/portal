@@ -27,7 +27,7 @@ export default function CombatEvent({ input, result }: Props) {
     >
       <div style={{ padding: "10px 16px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
-          <span style={{ ...mono, fontSize: 9, tracking: "0.2em", textTransform: "uppercase", color: "rgba(140,105,45,0.5)" }}>
+          <span style={{ ...mono, fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(140,105,45,0.5)" }}>
             combat
           </span>
           <span style={{ ...mono, fontSize: 10, color: "rgba(220,190,125,0.9)" }}>{action}</span>

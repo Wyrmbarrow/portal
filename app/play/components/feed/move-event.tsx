@@ -15,7 +15,7 @@ export default function MoveEvent({ input, result }: Props) {
 
   return (
     <div style={{ padding: "8px 16px", display: "flex", gap: 12, alignItems: "center", borderBottom: "1px solid rgba(55,38,10,0.2)" }}>
-      <span style={{ ...mono, fontSize: 9, tracking: "0.2em", textTransform: "uppercase", color: "rgba(140,105,45,0.5)" }}>
+      <span style={{ ...mono, fontSize: 9, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(140,105,45,0.5)" }}>
         move
       </span>
       {isError ? (
