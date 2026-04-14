@@ -5,6 +5,7 @@
 export interface CharacterState {
   name: string
   class?: string
+  race?: string
   level?: number
   hpCurrent: number
   hpMax: number
