@@ -7,6 +7,11 @@ import { getAvailableCommands, getToolActions, inferParametersFromDescription } 
 import { parseCharacterState, parseRoomState, buildRoomMessage } from "../lib/parse-state"
 import type { CharacterState, RoomState, FeedEntry, PlayEvent, RoomMessage } from "../lib/types"
 
+import LookEvent from "../components/feed/look-event"
+import MoveEvent from "../components/feed/move-event"
+import CombatEvent from "../components/feed/combat-event"
+import SpeakEvent from "../components/feed/speak-event"
+
 interface Props {
   patronCharId: string
   characterName: string
@@ -53,16 +58,28 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
 
   // Command form state
-  const allCommands = getAvailableCommands()
+  const allCommands = [...getAvailableCommands()].sort((a, b) => a.toolName.localeCompare(b.toolName))
   const [selectedTool, setSelectedTool] = useState<string>(allCommands[0]?.toolName ?? "look")
   const [selectedAction, setSelectedAction] = useState<string>("default")
   const [params, setParams] = useState<Record<string, string>>({})
   const [executing, setExecuting] = useState(false)
 
+  const [pulseTime, setPulseTime] = useState(0)
+
   const feedEndRef = useRef<HTMLDivElement>(null)
   const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const lastManualCommandRef = useRef<number>(Date.now())
+
+  // --- Pulse Timer ---
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = Date.now()
+      const seconds = (now / 1000) % 6
+      setPulseTime(seconds)
+    }, 100)
+    return () => clearInterval(interval)
+  }, [])
 
   const addEntry = useCallback((event: PlayEvent) => {
     const entry: FeedEntry = { id: generateId(), timestamp: Date.now(), event }
@@ -228,7 +245,7 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
         }
 
         const result = data.result ?? {}
-        addEntry({ type: "command", toolName, action, result })
+        addEntry({ type: "command", toolName, action, result, input: cmdParams })
 
         // Extract and surface messages from result
         if (Array.isArray(result.messages)) {
@@ -331,16 +348,8 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
     cursor: "pointer",
   }
 
-  const resources = charState?.resources
-  const resourceItems = resources
-    ? [
-        { label: "Act", value: resources.action },
-        { label: "Mov", value: resources.movement },
-        { label: "Bon", value: resources.bonus_action },
-        { label: "Rea", value: resources.reaction },
-        { label: "Cht", value: resources.chat },
-      ]
-    : []
+  const hasHostiles = roomState?.hostileNpcs && roomState.hostileNpcs.length > 0
+  const isInCombat = (charState?.engagementZones && Object.keys(charState.engagementZones).length > 0) || hasHostiles
 
   return (
     <div
@@ -352,6 +361,18 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
         overflow: "hidden",
       }}
     >
+      {/* Pulse Progress Bar */}
+      <div style={{ height: 2, background: "rgba(40,30,10,0.3)", width: "100%", flexShrink: 0 }}>
+        <div 
+          style={{ 
+            height: "100%", 
+            width: `${(pulseTime / 6) * 100}%`, 
+            background: "rgba(180,130,45,0.4)",
+            transition: pulseTime < 0.2 ? "none" : "width 0.1s linear"
+          }} 
+        />
+      </div>
+
       {/* Top bar */}
       <div
         style={{
@@ -474,34 +495,69 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
                 </p>
               )}
 
-              {/* Pulse resources */}
-              {resourceItems.length > 0 && (
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 3, marginTop: 6 }}>
-                  {resourceItems.map(({ label, value }) => (
-                    <div
-                      key={label}
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        padding: "2px 6px",
-                        background: "rgba(30,20,5,0.5)",
-                        border: "1px solid rgba(60,42,12,0.3)",
-                        borderRadius: 2,
-                      }}
-                    >
-                      <span style={{ ...mono, fontSize: 8, color: "rgba(140,105,45,0.65)", textTransform: "uppercase" }}>{label}</span>
-                      <span style={{ ...mono, fontSize: 9, color: value > 0 ? "rgba(190,155,65,0.9)" : "rgba(120,85,30,0.45)" }}>{value}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-
               {/* In combat indicator */}
-              {charState.engagementZones && Object.keys(charState.engagementZones).length > 0 && (
+              {isInCombat && (
                 <p style={{ ...mono, fontSize: 8, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(190,60,40,0.75)", marginTop: 6 }}>
                   ⚔ In Combat
                 </p>
               )}
+            </div>
+          )}
+
+          {/* Creation Checklist */}
+          {charState && !charState.isFinalized && (
+            <div style={{ padding: "10px 12px 12px", borderBottom: "1px solid rgba(55,38,10,0.45)", background: "rgba(40,30,10,0.2)" }}>
+              <p style={{ ...mono, fontSize: 8, letterSpacing: "0.3em", textTransform: "uppercase", color: "rgba(190,140,50,0.8)", marginBottom: 8 }}>
+                Creation Progress
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                {[
+                  { label: "Set Class", done: !!charState.class, tool: "create_character", action: "set_class" },
+                  { label: "Set Race", done: !!charState.race, tool: "create_character", action: "set_race" },
+                  { label: "Ability Scores", done: !!charState.ac, tool: "create_character", action: "set_ability_scores" },
+                  { label: "Set Background", done: false, tool: "create_character", action: "set_background" },
+                  { label: "Select Skills", done: false, tool: "create_character", action: "set_skills" },
+                  { label: "Start Equipment", done: false, tool: "create_character", action: "set_equipment" },
+                  { label: "Finalize", done: false, tool: "create_character", action: "finalize" },
+                ].map((step) => (
+                  <div key={step.label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <div 
+                      style={{ 
+                        width: 10, 
+                        height: 10, 
+                        border: "1px solid rgba(160,110,35,0.4)", 
+                        borderRadius: 1,
+                        background: step.done ? "rgba(100,160,50,0.3)" : "transparent",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 7,
+                        color: "rgba(150,220,100,0.9)"
+                      }}
+                    >
+                      {step.done ? "✓" : ""}
+                    </div>
+                    <button
+                      onClick={() => {
+                        setSelectedTool(step.tool)
+                        setSelectedAction(step.action)
+                      }}
+                      style={{
+                        ...mono,
+                        fontSize: 9,
+                        color: step.done ? "rgba(160,125,65,0.5)" : "rgba(210,180,120,0.9)",
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        padding: 0,
+                        textAlign: "left"
+                      }}
+                    >
+                      {step.label}
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
@@ -681,8 +737,21 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
               const result = ev.result as AnyObj
               const summary = extractSummary(ev.toolName, ev.action, result)
 
+              if (ev.toolName === "look") {
+                return <LookEvent key={entry.id} result={result} roomState={roomState} />
+              }
+              if (ev.toolName === "move") {
+                return <MoveEvent key={entry.id} result={result} input={ev.input ?? { direction: ev.action === "default" ? "" : ev.action }} />
+              }
+              if (ev.toolName === "combat") {
+                return <CombatEvent key={entry.id} result={result} input={ev.input ?? { action: ev.action }} />
+              }
+              if (ev.toolName === "speak") {
+                return <SpeakEvent key={entry.id} result={result} input={ev.input ?? { target_ref: "", message: "" }} />
+              }
+
               return (
-                <div key={entry.id} style={{ borderBottom: "1px solid rgba(55,38,10,0.3)", paddingBottom: 6 }}>
+                <div key={entry.id} style={{ borderBottom: "1px solid rgba(55,38,10,0.3)", paddingBottom: 6, marginBottom: 4 }}>
                   <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 2 }}>
                     <span
                       style={{
@@ -804,6 +873,9 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
 
               {/* Parameter inputs */}
               {paramNames.map((paramName) => {
+                // Deduplicate action/Action
+                if (paramName === "Action" && paramNames.includes("action")) return null;
+
                 // Smart dropdowns
                 if (paramName === "direction" && roomState?.exits) {
                   const zoneExits = [
@@ -834,10 +906,63 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
                   )
                 }
 
+                if (paramName === "target" && selectedTool === "look" && roomState) {
+                  const options = [
+                    ...(roomState.npcs || []).map(n => ({ name: n, ref: n })),
+                    ...(roomState.characters || []).map(n => ({ name: n, ref: n })),
+                    ...(roomState.objects || []).map(n => ({ name: n, ref: n })),
+                    ...(roomState.bodies || []).map(n => ({ name: n.name, ref: n.ref })),
+                    ...(roomState.items || []).map(n => ({ name: n.name, ref: n.ref })),
+                  ]
+                  return (
+                    <div key={paramName}>
+                      <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
+                      <select
+                        value={params[paramName] ?? ""}
+                        onChange={(e) => setParams((p) => ({ ...p, [paramName]: e.target.value }))}
+                        style={selectStyle}
+                      >
+                        <option value="" style={{ background: "#1a0f03" }}>room</option>
+                        {options.map((opt) => (
+                          <option key={`${opt.ref}-${opt.name}`} value={opt.ref} style={{ background: "#1a0f03", color: "rgba(200,165,80,0.9)" }}>
+                            {opt.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )
+                }
+
+                if (paramName === "skill" && ["search", "study", "influence"].includes(selectedTool)) {
+                  let options: string[] = []
+                  if (selectedTool === "search") options = ["perception", "insight", "survival", "investigation"]
+                  if (selectedTool === "study") options = ["arcana", "history", "nature", "religion", "medicine"]
+                  if (selectedTool === "influence") options = ["persuasion", "deception", "intimidation", "insight"]
+                  
+                  return (
+                    <div key={paramName}>
+                      <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
+                      <select
+                        value={params[paramName] ?? ""}
+                        onChange={(e) => setParams((p) => ({ ...p, [paramName]: e.target.value }))}
+                        style={selectStyle}
+                      >
+                        <option value="" style={{ background: "#1a0f03" }}>—</option>
+                        {options.map((opt) => (
+                          <option key={opt} value={opt} style={{ background: "#1a0f03", color: "rgba(200,165,80,0.9)" }}>
+                            {opt}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )
+                }
+
                 if (paramName === "target_ref" || paramName === "vendor_ref") {
                   const npcOptions = (roomState?.npcs ?? []).map((npc) => ({ name: npc, ref: npc }))
-                  const charOptions = paramName === "target_ref" ? (roomState?.characterRefs ?? []) : []
-                  const allOptions = [...npcOptions, ...charOptions]
+                  const charOptions = (roomState?.characterRefs ?? [])
+                  const bodyOptions = (roomState?.bodies ?? []).map(b => ({ name: b.name, ref: b.ref }))
+                  const allOptions = [...npcOptions, ...charOptions, ...bodyOptions]
 
                   if (allOptions.length > 0) {
                     return (
@@ -850,7 +975,7 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
                         >
                           <option value="" style={{ background: "#1a0f03" }}>—</option>
                           {allOptions.map((opt) => (
-                            <option key={opt.ref} value={opt.ref} style={{ background: "#1a0f03", color: "rgba(200,165,80,0.9)" }}>
+                            <option key={`${opt.ref}-${opt.name}`} value={opt.ref} style={{ background: "#1a0f03", color: "rgba(200,165,80,0.9)" }}>
                               {opt.name}
                             </option>
                           ))}
@@ -858,6 +983,250 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
                       </div>
                     )
                   }
+                }
+
+                if (paramName === "action") {
+                  let options: { label: string, val: string }[] = []
+                  if (selectedTool === "combat") options = [
+                    { label: "Attack", val: "attack" },
+                    { label: "Cast Spell", val: "cast_spell" },
+                    { label: "Dash", val: "dash" },
+                    { label: "Disengage", val: "disengage" },
+                    { label: "Dodge", val: "dodge" },
+                    { label: "Help", val: "help" },
+                    { label: "Grapple", val: "grapple" },
+                    { label: "Escape", val: "escape" },
+                    { label: "Shove", val: "shove" },
+                    { label: "Stand Up", val: "stand_up" },
+                    { label: "Rouse", val: "rouse" },
+                    { label: "Use Item", val: "use_item" },
+                  ]
+                  if (selectedTool === "quest") options = [
+                    { label: "List Active", val: "list" },
+                    { label: "List Available", val: "available" },
+                    { label: "Accept", val: "accept" },
+                    { label: "Abandon", val: "abandon" },
+                    { label: "Reputation", val: "reputation" },
+                  ]
+                  if (selectedTool === "shop") options = [
+                    { label: "Browse", val: "browse" },
+                    { label: "Buy", val: "buy" },
+                    { label: "Sell", val: "sell" },
+                    { label: "Inspect", val: "inspect" },
+                  ]
+                  if (selectedTool === "character") options = [
+                    { label: "Status", val: "status" },
+                    { label: "Skills", val: "skills" },
+                    { label: "Equip", val: "equip" },
+                    { label: "Unequip", val: "unequip" },
+                    { label: "Level Up", val: "level_up" },
+                    { label: "Prepare Spells", val: "prepare_spells" },
+                    { label: "Set Intent", val: "set_intent" },
+                    { label: "Clear Intent", val: "clear_intent" },
+                  ]
+                  if (selectedTool === "journal") options = [
+                    { label: "Write", val: "write" },
+                    { label: "Read", val: "read" },
+                    { label: "Search", val: "search" },
+                    { label: "Read Other", val: "read_other" },
+                    { label: "Context", val: "context" },
+                    { label: "Set Voice", val: "set_voice" },
+                  ]
+                  if (selectedTool === "rest") options = [
+                    { label: "Short Rest", val: "short" },
+                    { label: "Long Rest", val: "long" },
+                  ]
+                  if (selectedTool === "create_character") options = [
+                    { label: "Set Class", val: "set_class" },
+                    { label: "Set Race", val: "set_race" },
+                    { label: "Ability Scores", val: "set_ability_scores" },
+                    { label: "Set Background", val: "set_background" },
+                    { label: "Select Skills", val: "set_skills" },
+                    { label: "Start Equipment", val: "set_equipment" },
+                    { label: "Finalize", val: "finalize" },
+                  ]
+
+                  if (options.length > 0) {
+                    return (
+                      <div key={paramName}>
+                        <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
+                        <select
+                          value={params[paramName] ?? ""}
+                          onChange={(e) => setParams((p) => ({ ...p, [paramName]: e.target.value }))}
+                          style={selectStyle}
+                        >
+                          <option value="" style={{ background: "#1a0f03" }}>—</option>
+                          {options.map((opt) => (
+                            <option key={opt.val} value={opt.val} style={{ background: "#1a0f03", color: "rgba(200,165,80,0.9)" }}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )
+                  }
+                }
+
+                if (paramName === "item_id" || paramName === "item_ref") {
+                   const options = (roomState?.items ?? []).map(n => ({ name: n.name, ref: n.ref }))
+                   if (options.length > 0) {
+                    return (
+                      <div key={paramName}>
+                        <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
+                        <select
+                          value={params[paramName] ?? ""}
+                          onChange={(e) => setParams((p) => ({ ...p, [paramName]: e.target.value }))}
+                          style={selectStyle}
+                        >
+                          <option value="" style={{ background: "#1a0f03" }}>—</option>
+                          {options.map((opt) => (
+                            <option key={`${opt.ref}-${opt.name}`} value={opt.ref} style={{ background: "#1a0f03", color: "rgba(200,165,80,0.9)" }}>
+                              {opt.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )
+                  }
+                }
+
+                if (paramName === "class" && selectedTool === "create_character") {
+                  const options = ["fighter", "rogue", "wizard", "cleric"]
+                  return (
+                    <div key={paramName}>
+                      <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
+                      <select
+                        value={params[paramName] ?? ""}
+                        onChange={(e) => setParams((p) => ({ ...p, [paramName]: e.target.value }))}
+                        style={selectStyle}
+                      >
+                        <option value="" style={{ background: "#1a0f03" }}>—</option>
+                        {options.map((opt) => (
+                          <option key={opt} value={opt} style={{ background: "#1a0f03", color: "rgba(200,165,80,0.9)" }}>
+                            {opt}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )
+                }
+
+                if (paramName === "race" && selectedTool === "create_character") {
+                  const options = ["human", "elf", "dwarf", "halfling"]
+                  return (
+                    <div key={paramName}>
+                      <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
+                      <select
+                        value={params[paramName] ?? ""}
+                        onChange={(e) => setParams((p) => ({ ...p, [paramName]: e.target.value }))}
+                        style={selectStyle}
+                      >
+                        <option value="" style={{ background: "#1a0f03" }}>—</option>
+                        {options.map((opt) => (
+                          <option key={opt} value={opt} style={{ background: "#1a0f03", color: "rgba(200,165,80,0.9)" }}>
+                            {opt}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )
+                }
+
+                if (paramName === "entry_type" && selectedTool === "journal") {
+                  const options = ["status_update", "long_rest", "note", "notice", "ooc"]
+                  return (
+                    <div key={paramName}>
+                      <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
+                      <select
+                        value={params[paramName] ?? ""}
+                        onChange={(e) => setParams((p) => ({ ...p, [paramName]: e.target.value }))}
+                        style={selectStyle}
+                      >
+                        <option value="" style={{ background: "#1a0f03" }}>—</option>
+                        {options.map((opt) => (
+                          <option key={opt} value={opt} style={{ background: "#1a0f03", color: "rgba(200,165,80,0.9)" }}>
+                            {opt}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )
+                }
+
+                if (paramName === "choices" || paramName === "choice") {
+                   return (
+                    <div key={paramName}>
+                      <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
+                      <input
+                        type="text"
+                        value={params[paramName] ?? ""}
+                        onChange={(e) => setParams((p) => ({ ...p, [paramName]: e.target.value }))}
+                        placeholder="e.g. str=1, dex=1"
+                        style={{
+                          ...mono,
+                          fontSize: 11,
+                          width: 160,
+                          background: "rgba(10,6,1,0.6)",
+                          border: "1px solid rgba(70,50,14,0.5)",
+                          borderRadius: 2,
+                          padding: "5px 8px",
+                          color: "rgba(200,165,80,0.9)",
+                          outline: "none",
+                        }}
+                      />
+                    </div>
+                  )
+                }
+
+                if (paramName === "title" && selectedTool === "journal") {
+                  return (
+                    <div key={paramName}>
+                      <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
+                      <input
+                        type="text"
+                        value={params[paramName] ?? ""}
+                        onChange={(e) => setParams((p) => ({ ...p, [paramName]: e.target.value }))}
+                        placeholder="Notice title..."
+                        style={{
+                          ...mono,
+                          fontSize: 11,
+                          width: 200,
+                          background: "rgba(10,6,1,0.6)",
+                          border: "1px solid rgba(70,50,14,0.5)",
+                          borderRadius: 2,
+                          padding: "5px 8px",
+                          color: "rgba(200,165,80,0.9)",
+                          outline: "none",
+                        }}
+                      />
+                    </div>
+                  )
+                }
+                
+                if (paramName === "content" && selectedTool === "journal") {
+                  return (
+                    <div key={paramName} style={{ width: "100%", marginTop: 4 }}>
+                      <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
+                      <textarea
+                        value={params[paramName] ?? ""}
+                        onChange={(e) => setParams((p) => ({ ...p, [paramName]: e.target.value }))}
+                        placeholder="Your journal entry..."
+                        rows={4}
+                        style={{
+                          ...mono,
+                          fontSize: 11,
+                          width: "100%",
+                          background: "rgba(10,6,1,0.6)",
+                          border: "1px solid rgba(70,50,14,0.5)",
+                          borderRadius: 2,
+                          padding: "8px 10px",
+                          color: "rgba(200,165,80,0.9)",
+                          outline: "none",
+                          resize: "vertical"
+                        }}
+                      />
+                    </div>
+                  )
                 }
 
                 // Plain text input
