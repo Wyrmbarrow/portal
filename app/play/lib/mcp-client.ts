@@ -92,7 +92,7 @@ export async function mcpCall(toolName: string, args: Record<string, unknown>): 
 export async function mcpLogin(
   characterName: string,
   password: string,
-): Promise<{ sessionId: string; characterName: string; bootstrap: McpResult }> {
+): Promise<{ sessionId: string; characterName: string; bootstrap: McpResult; status?: string }> {
   const result = await mcpCall("auth", {
     action: "login",
     character_name: characterName,
@@ -107,7 +107,12 @@ export async function mcpLogin(
     result.character?.name ??
     characterName
 
-  return { sessionId: String(sessionId), characterName: name, bootstrap: result }
+  return { 
+    sessionId: String(sessionId), 
+    characterName: name, 
+    bootstrap: result.bootstrap ?? result, 
+    status: result.status 
+  }
 }
 
 export async function mcpRegister(

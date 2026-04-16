@@ -207,16 +207,15 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
             hpMax: 0,
             isFinalized: false,
           })
-        }
-
-        setSessionId(data.sessionId)
-        setConnecting(false)
-        if (data.bootstrap) {
+        } else if (data.bootstrap) {
           const cs = parseCharacterState("login", data.bootstrap)
           const rs = parseRoomState("login", data.bootstrap)
           if (cs) setCharState(cs)
           if (rs) setRoomState(rs)
         }
+
+        setSessionId(data.sessionId)
+        setConnecting(false)
         addEntry({ type: "info", message: `Connected as ${data.characterName ?? characterName}.` })
       } catch {
         setConnectError("Network error — could not connect.")
