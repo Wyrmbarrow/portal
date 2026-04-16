@@ -85,7 +85,14 @@ export function parseCharacterState(toolName: string, result: unknown): Characte
     spiritVision:    spiritVision || undefined,
     minutesUntilRevival,
     revivalAvailableAt,
-    isFinalized:     sub.finalized ?? true,
+    isFinalized:     sub.finalized ?? false,
+    background:      sub.background ?? undefined,
+    subclass:        sub.subclass ?? undefined,
+    fightingStyle:   sub.fighting_style ?? undefined,
+    inventory:       sub.inventory ?? undefined,
+    cantrips:        sub.cantrips ?? undefined,
+    skillProficiencies: sub.skill_proficiencies ?? undefined,
+    expertiseSkills: sub.expertise_skills ?? undefined,
   }
 }
 

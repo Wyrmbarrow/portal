@@ -5,7 +5,7 @@ import { mcpCall, McpError } from "@/app/play/lib/mcp-client"
 const ALLOWED_TOOLS = new Set([
   "look", "move", "search", "study", "influence", "utilize", "hide",
   "character", "combat", "journal", "quest", "rest", "level_up",
-  "speak", "social", "shop",
+  "speak", "social", "shop", "create_character",
 ])
 
 export async function POST(req: NextRequest) {
@@ -23,7 +23,12 @@ export async function POST(req: NextRequest) {
   const toolArgs: Record<string, unknown> = { session_id: sessionId }
 
   if (action && action !== "default") {
-    toolArgs.action = action
+    if (toolName === "create_character") {
+      // Map portal actions like set_class to MCP steps like class
+      toolArgs.step = action.replace("set_", "")
+    } else {
+      toolArgs.action = action
+    }
   }
 
   if (params && typeof params === "object") {

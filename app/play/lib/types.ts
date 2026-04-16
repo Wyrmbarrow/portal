@@ -20,6 +20,13 @@ export interface CharacterState {
   minutesUntilRevival?: number
   revivalAvailableAt?: string
   isFinalized?: boolean
+  background?: string
+  subclass?: string
+  fightingStyle?: string
+  inventory?: unknown[]
+  cantrips?: string[]
+  skillProficiencies?: string[]
+  expertiseSkills?: string[]
 }
 
 export interface PulseResources {

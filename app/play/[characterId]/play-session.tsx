@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { formatSlug } from "@/lib/format"
 import { getAvailableCommands, getToolActions, inferParametersFromDescription } from "../lib/command-utils"
@@ -58,11 +58,71 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
 
   // Command form state
-  const allCommands = [...getAvailableCommands()].sort((a, b) => a.toolName.localeCompare(b.toolName))
-  const [selectedTool, setSelectedTool] = useState<string>(allCommands[0]?.toolName ?? "look")
+  const allCommands = useMemo(() => [...getAvailableCommands()].sort((a, b) => a.toolName.localeCompare(b.toolName)), [])
+  
+  const creationSteps = useMemo(() => {
+    if (!charState) return []
+    const cs = charState
+    const steps = [
+      { label: "Set Class", done: !!cs.class, tool: "create_character", action: "set_class" },
+      { label: "Set Race", done: !!cs.race, tool: "create_character", action: "set_race" },
+      { label: "Ability Scores", done: (cs.hpMax ?? 0) > 0, tool: "create_character", action: "set_ability_scores" },
+      { label: "Set Background", done: !!cs.background, tool: "create_character", action: "set_background" },
+      { label: "Select Skills", done: (cs.skillProficiencies?.length ?? 0) > 0, tool: "create_character", action: "set_skills" },
+    ]
+
+    if (cs.class === "rogue") {
+      steps.push({ label: "Expertise", done: (cs.expertiseSkills?.length ?? 0) > 0, tool: "create_character", action: "set_expertise" })
+    }
+    if (cs.class === "fighter") {
+      steps.push({ label: "Fighting Style", done: !!cs.fightingStyle, tool: "create_character", action: "set_fighting_style" })
+    }
+    if (cs.class === "cleric") {
+      steps.push({ label: "Divine Domain", done: !!cs.subclass, tool: "create_character", action: "set_subclass" })
+    }
+    if (["wizard", "cleric"].includes(cs.class || "")) {
+      steps.push({ label: "Choose Spells", done: (cs.cantrips?.length ?? 0) > 0, tool: "create_character", action: "set_spells" })
+    }
+
+    steps.push({ label: "Start Equipment", done: (cs.inventory?.length ?? 0) > 0, tool: "create_character", action: "set_equipment" })
+    steps.push({ label: "Finalize", done: false, tool: "create_character", action: "finalize" })
+    
+    return steps
+  }, [charState])
+
+  const nextCreationStep = useMemo(() => {
+    return creationSteps.find(s => !s.done)
+  }, [creationSteps])
+
+  const filteredCommands = useMemo(() => {
+    if (!charState) return allCommands
+    if (!charState.isFinalized) {
+      // Only creation and look allowed during setup
+      return allCommands.filter(c => c.toolName === "create_character" || c.toolName === "look")
+    }
+    // Creation tool hidden for finalized characters
+    return allCommands.filter(c => c.toolName !== "create_character")
+  }, [charState, allCommands])
+
+  const [selectedTool, setSelectedTool] = useState<string>("look")
   const [selectedAction, setSelectedAction] = useState<string>("default")
   const [params, setParams] = useState<Record<string, string>>({})
   const [executing, setExecuting] = useState(false)
+
+  // Pin tool/action during creation
+  useEffect(() => {
+    if (charState && !charState.isFinalized && nextCreationStep) {
+      setSelectedTool(nextCreationStep.tool)
+      setSelectedAction(nextCreationStep.action)
+    }
+  }, [charState?.isFinalized, nextCreationStep])
+
+  // Reset selected tool if it disappears from filtered list
+  useEffect(() => {
+    if (!filteredCommands.find(c => c.toolName === selectedTool)) {
+      setSelectedTool(filteredCommands[0]?.toolName ?? "look")
+    }
+  }, [filteredCommands, selectedTool])
 
   const [pulseTime, setPulseTime] = useState(0)
 
@@ -228,6 +288,13 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
   const executeCommand = useCallback(
     async (toolName: string, action: string, cmdParams?: Record<string, string>) => {
       if (!sessionId) return
+
+      // Guard: only creation and look allowed during setup
+      if (charState && !charState.isFinalized && toolName !== "create_character" && toolName !== "look") {
+        addEntry({ type: "error", message: `Tool not allowed: ${toolName}. Finish character creation first.` })
+        return
+      }
+
       setExecuting(true)
       lastManualCommandRef.current = Date.now()
       resetPollTimeout()
@@ -511,15 +578,7 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
                 Creation Progress
               </p>
               <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                {[
-                  { label: "Set Class", done: !!charState.class, tool: "create_character", action: "set_class" },
-                  { label: "Set Race", done: !!charState.race, tool: "create_character", action: "set_race" },
-                  { label: "Ability Scores", done: !!charState.ac, tool: "create_character", action: "set_ability_scores" },
-                  { label: "Set Background", done: false, tool: "create_character", action: "set_background" },
-                  { label: "Select Skills", done: false, tool: "create_character", action: "set_skills" },
-                  { label: "Start Equipment", done: false, tool: "create_character", action: "set_equipment" },
-                  { label: "Finalize", done: false, tool: "create_character", action: "finalize" },
-                ].map((step) => (
+                {creationSteps.map((step) => (
                   <div key={step.label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <div 
                       style={{ 
@@ -585,7 +644,7 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
                       <button
                         key={exit.key}
                         onClick={() => quickCommand("move", "default", { direction: exit.key })}
-                        disabled={executing}
+                        disabled={executing || !charState?.isFinalized}
                         style={{
                           ...mono,
                           fontSize: 9,
@@ -596,8 +655,8 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
                           border: "1px solid rgba(90,62,15,0.45)",
                           borderRadius: 2,
                           padding: "2px 7px",
-                          cursor: executing ? "not-allowed" : "pointer",
-                          opacity: executing ? 0.5 : 1,
+                          cursor: executing || !charState?.isFinalized ? "not-allowed" : "pointer",
+                          opacity: executing || !charState?.isFinalized ? 0.5 : 1,
                         }}
                       >
                         {exit.key}
@@ -654,7 +713,7 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
                 <button
                   key={label}
                   onClick={() => quickCommand(tool, action)}
-                  disabled={executing || !sessionId}
+                  disabled={executing || !sessionId || (!charState?.isFinalized && tool !== "look")}
                   style={{
                     ...mono,
                     fontSize: 9,
@@ -665,8 +724,8 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
                     border: "1px solid rgba(75,52,12,0.45)",
                     borderRadius: 2,
                     padding: "6px 4px",
-                    cursor: executing || !sessionId ? "not-allowed" : "pointer",
-                    opacity: executing ? 0.6 : 1,
+                    cursor: executing || !sessionId || (!charState?.isFinalized && tool !== "look") ? "not-allowed" : "pointer",
+                    opacity: (executing || (!charState?.isFinalized && tool !== "look")) ? 0.6 : 1,
                   }}
                 >
                   {label}
@@ -845,7 +904,7 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
                   onChange={(e) => handleToolChange(e.target.value)}
                   style={selectStyle}
                 >
-                  {allCommands.map((cmd) => (
+                  {filteredCommands.map((cmd) => (
                     <option key={cmd.toolName} value={cmd.toolName} style={{ background: "#1a0f03", color: "rgba(200,165,80,0.9)" }}>
                       {cmd.toolName}
                     </option>
@@ -1090,7 +1149,7 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
                   }
                 }
 
-                if (paramName === "class" && selectedTool === "create_character") {
+                if (paramName === "class_name" && selectedTool === "create_character") {
                   const options = ["fighter", "rogue", "wizard", "cleric"]
                   return (
                     <div key={paramName}>
@@ -1104,6 +1163,48 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
                         {options.map((opt) => (
                           <option key={opt} value={opt} style={{ background: "#1a0f03", color: "rgba(200,165,80,0.9)" }}>
                             {opt}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )
+                }
+
+                if (paramName === "method" && selectedTool === "create_character") {
+                  const options = ["standard_array", "point_buy"]
+                  return (
+                    <div key={paramName}>
+                      <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
+                      <select
+                        value={params[paramName] ?? ""}
+                        onChange={(e) => setParams((p) => ({ ...p, [paramName]: e.target.value }))}
+                        style={selectStyle}
+                      >
+                        <option value="" style={{ background: "#1a0f03" }}>—</option>
+                        {options.map((opt) => (
+                          <option key={opt} value={opt} style={{ background: "#1a0f03", color: "rgba(200,165,80,0.9)" }}>
+                            {opt.replace(/_/g, " ")}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )
+                }
+
+                if (paramName === "background" && selectedTool === "create_character") {
+                  const options = ["acolyte", "criminal", "folk_hero", "noble", "outlander", "sage", "soldier"]
+                  return (
+                    <div key={paramName}>
+                      <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
+                      <select
+                        value={params[paramName] ?? ""}
+                        onChange={(e) => setParams((p) => ({ ...p, [paramName]: e.target.value }))}
+                        style={selectStyle}
+                      >
+                        <option value="" style={{ background: "#1a0f03" }}>—</option>
+                        {options.map((opt) => (
+                          <option key={opt} value={opt} style={{ background: "#1a0f03", color: "rgba(200,165,80,0.9)" }}>
+                            {opt.replace(/_/g, " ")}
                           </option>
                         ))}
                       </select>

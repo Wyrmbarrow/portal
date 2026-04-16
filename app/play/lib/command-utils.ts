@@ -30,7 +30,11 @@ const TOOL_PARAM_MAP: Record<string, string[]> = {
   study:    ["skill", "target_ref"],
   influence: ["skill", "target_ref"],
   utilize:  ["target_ref", "action", "item_id"],
-  create_character: ["class", "race", "choices", "entry_type"],
+  create_character: [
+    "class_name", "race", "subrace", "racial_bonus_choices", 
+    "method", "values", "background", "skill_list", "expertise", 
+    "fighting_style", "subclass", "cantrips", "spells", "choices"
+  ],
 }
 
 export function getAvailableCommands(): CommandMetadata[] {
