@@ -200,6 +200,15 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
           return
         }
 
+        if (data.status === "creation_session") {
+          setCharState({
+            name: characterName,
+            hpCurrent: 0,
+            hpMax: 0,
+            isFinalized: false,
+          })
+        }
+
         setSessionId(data.sessionId)
         setConnecting(false)
         if (data.bootstrap) {
@@ -258,6 +267,7 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
     }
 
     resetPollTimeout()
+    poll() // Initial poll
     pollTimerRef.current = setInterval(poll, 8000)
     return () => {
       if (pollTimerRef.current) clearInterval(pollTimerRef.current)
@@ -269,7 +279,7 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
   const currentToolActions = getToolActions(selectedTool as Parameters<typeof getToolActions>[0])
   const currentAction = currentToolActions.find((a) => a.actionName === selectedAction) ?? currentToolActions[0]
   const paramNames = currentAction
-    ? inferParametersFromDescription(selectedTool, currentAction.description)
+    ? inferParametersFromDescription(selectedTool, currentAction.description, selectedAction)
     : []
 
   function handleToolChange(tool: string) {
@@ -411,6 +421,7 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
     borderRadius: 2,
     padding: "5px 8px",
     color: "rgba(200,165,80,0.9)",
+    maxWidth: 200,
     outline: "none",
     cursor: "pointer",
   }
@@ -894,10 +905,10 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
               background: "rgba(14,9,2,0.6)",
             }}
           >
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "flex-end" }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "10px 12px", alignItems: "flex-end" }}>
 
               {/* Tool dropdown */}
-              <div>
+              <div style={{ flexShrink: 0 }}>
                 <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>Tool</p>
                 <select
                   value={selectedTool}
@@ -914,7 +925,7 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
 
               {/* Action dropdown — only when tool has multiple actions */}
               {currentToolActions.length > 1 && (
-                <div>
+                <div style={{ flexShrink: 0 }}>
                   <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>Action</p>
                   <select
                     value={selectedAction}
@@ -942,7 +953,7 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
                     { key: "farther", display: "farther (zone)" },
                   ]
                   return (
-                    <div key={paramName}>
+                    <div key={paramName} style={{ flexShrink: 0 }}>
                       <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
                       <select
                         value={params[paramName] ?? ""}
@@ -974,7 +985,7 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
                     ...(roomState.items || []).map(n => ({ name: n.name, ref: n.ref })),
                   ]
                   return (
-                    <div key={paramName}>
+                    <div key={paramName} style={{ flexShrink: 0 }}>
                       <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
                       <select
                         value={params[paramName] ?? ""}
@@ -999,7 +1010,7 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
                   if (selectedTool === "influence") options = ["persuasion", "deception", "intimidation", "insight"]
                   
                   return (
-                    <div key={paramName}>
+                    <div key={paramName} style={{ flexShrink: 0 }}>
                       <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
                       <select
                         value={params[paramName] ?? ""}
@@ -1025,7 +1036,7 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
 
                   if (allOptions.length > 0) {
                     return (
-                      <div key={paramName}>
+                      <div key={paramName} style={{ flexShrink: 0 }}>
                         <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
                         <select
                           value={params[paramName] ?? ""}
@@ -1107,7 +1118,7 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
 
                   if (options.length > 0) {
                     return (
-                      <div key={paramName}>
+                      <div key={paramName} style={{ flexShrink: 0 }}>
                         <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
                         <select
                           value={params[paramName] ?? ""}
@@ -1130,7 +1141,7 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
                    const options = (roomState?.items ?? []).map(n => ({ name: n.name, ref: n.ref }))
                    if (options.length > 0) {
                     return (
-                      <div key={paramName}>
+                      <div key={paramName} style={{ flexShrink: 0 }}>
                         <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
                         <select
                           value={params[paramName] ?? ""}
@@ -1152,7 +1163,7 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
                 if (paramName === "class_name" && selectedTool === "create_character") {
                   const options = ["fighter", "rogue", "wizard", "cleric"]
                   return (
-                    <div key={paramName}>
+                    <div key={paramName} style={{ flexShrink: 0 }}>
                       <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
                       <select
                         value={params[paramName] ?? ""}
@@ -1173,7 +1184,7 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
                 if (paramName === "method" && selectedTool === "create_character") {
                   const options = ["standard_array", "point_buy"]
                   return (
-                    <div key={paramName}>
+                    <div key={paramName} style={{ flexShrink: 0 }}>
                       <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
                       <select
                         value={params[paramName] ?? ""}
@@ -1194,7 +1205,7 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
                 if (paramName === "background" && selectedTool === "create_character") {
                   const options = ["acolyte", "criminal", "folk_hero", "noble", "outlander", "sage", "soldier"]
                   return (
-                    <div key={paramName}>
+                    <div key={paramName} style={{ flexShrink: 0 }}>
                       <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
                       <select
                         value={params[paramName] ?? ""}
@@ -1215,7 +1226,7 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
                 if (paramName === "race" && selectedTool === "create_character") {
                   const options = ["human", "elf", "dwarf", "halfling"]
                   return (
-                    <div key={paramName}>
+                    <div key={paramName} style={{ flexShrink: 0 }}>
                       <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
                       <select
                         value={params[paramName] ?? ""}
@@ -1236,7 +1247,7 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
                 if (paramName === "entry_type" && selectedTool === "journal") {
                   const options = ["status_update", "long_rest", "note", "notice", "ooc"]
                   return (
-                    <div key={paramName}>
+                    <div key={paramName} style={{ flexShrink: 0 }}>
                       <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
                       <select
                         value={params[paramName] ?? ""}
@@ -1256,7 +1267,7 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
 
                 if (paramName === "choices" || paramName === "choice") {
                    return (
-                    <div key={paramName}>
+                    <div key={paramName} style={{ flexShrink: 0 }}>
                       <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
                       <input
                         type="text"
@@ -1281,7 +1292,7 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
 
                 if (paramName === "title" && selectedTool === "journal") {
                   return (
-                    <div key={paramName}>
+                    <div key={paramName} style={{ flexShrink: 0 }}>
                       <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
                       <input
                         type="text"
@@ -1332,7 +1343,7 @@ export default function PlaySession({ patronCharId, characterName, characterDeta
 
                 // Plain text input
                 return (
-                  <div key={paramName}>
+                  <div key={paramName} style={{ flexShrink: 0 }}>
                     <p style={{ ...mono, fontSize: 8, color: "rgba(130,95,38,0.55)", marginBottom: 3 }}>{paramName}</p>
                     <input
                       type="text"

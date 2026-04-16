@@ -30,11 +30,17 @@ const TOOL_PARAM_MAP: Record<string, string[]> = {
   study:    ["skill", "target_ref"],
   influence: ["skill", "target_ref"],
   utilize:  ["target_ref", "action", "item_id"],
-  create_character: [
-    "class_name", "race", "subrace", "racial_bonus_choices", 
-    "method", "values", "background", "skill_list", "expertise", 
-    "fighting_style", "subclass", "cantrips", "spells", "choices"
-  ],
+  "create_character:set_class":          ["class_name"],
+  "create_character:set_race":           ["race", "subrace", "racial_bonus_choices"],
+  "create_character:set_ability_scores": ["method", "values"],
+  "create_character:set_background":     ["background"],
+  "create_character:set_skills":         ["skill_list"],
+  "create_character:set_expertise":      ["expertise"],
+  "create_character:set_fighting_style": ["fighting_style"],
+  "create_character:set_subclass":       ["subclass"],
+  "create_character:set_spells":         ["cantrips", "spells"],
+  "create_character:set_equipment":      ["choices"],
+  "create_character:finalize":           [],
 }
 
 export function getAvailableCommands(): CommandMetadata[] {
@@ -58,7 +64,7 @@ export function getToolActions(toolName: ToolName): CommandAction[] {
   return getAvailableCommands().find((m) => m.toolName === toolName)?.actions ?? []
 }
 
-export function inferParametersFromDescription(toolName: string, description: string): string[] {
+export function inferParametersFromDescription(toolName: string, description: string, actionName?: string): string[] {
   const params = new Set<string>()
 
   const patterns = [
@@ -78,8 +84,10 @@ export function inferParametersFromDescription(toolName: string, description: st
     }
   }
 
-  if (params.size === 0 && toolName in TOOL_PARAM_MAP) {
-    return TOOL_PARAM_MAP[toolName]
+  if (params.size === 0) {
+    const key = actionName && actionName !== "default" ? `${toolName}:${actionName}` : toolName
+    if (key in TOOL_PARAM_MAP) return TOOL_PARAM_MAP[key]
+    if (toolName in TOOL_PARAM_MAP) return TOOL_PARAM_MAP[toolName]
   }
 
   return Array.from(params)
